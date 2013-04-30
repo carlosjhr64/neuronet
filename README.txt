@@ -1,4 +1,6 @@
-Neuronet, library to create feed forward networks with backpropagation.
+= Neuronet: library to create feed forward networks with backpropagation.
+
+== DESCRIPTION:
 
 Can build custom architectured feed forward networks.
 100% Ruby.
