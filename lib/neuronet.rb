@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '3.0.0'
+  VERSION = '3.0.1'
 
   # The squash function for Neuronet is the sigmoid function.
   # One should scale the problem with most data points between -1 and 1, extremes under 2s, and no outbounds above 3s.
@@ -117,7 +117,7 @@ module Neuronet
       # distribute the error evenly among contributors
       biased = Neuronet.squash(@bias)
       de = error / ( biased + @connections.inject(0.0){|sum,connection| sum + connection.node.activation } )
-      @bias += biased*de
+      @bias += biased * de * Neuronet.noise
       @connections.each{|connection| connection.backpropagate(de)}
     end
 
