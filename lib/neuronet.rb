@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '3.0.1'
+  VERSION = '4.0.0'
 
   # The squash function for Neuronet is the sigmoid function.
   # One should scale the problem with most data points between -1 and 1, extremes under 2s, and no outbounds above 3s.
@@ -27,8 +27,8 @@ module Neuronet
     @@learning =  learning
   end
 
-  def self.random_walk(number,multiple=1.0)
-    1.0 / Math.sqrt(multiple*number+1.0)
+  def self.random_walk(number)
+    1.0 / Math.sqrt(number+1.0)
   end
 
   # This is a suggested learning constant, based on the number of exemplars.
@@ -151,15 +151,9 @@ module Neuronet
 
   # Just a regular Layer
   class Layer < Array
-    attr_accessor :learning
     def initialize(length)
       super(length)
       0.upto(length-1){|index| self[index] = Neuronet::Neuron.new }
-      @learning = Neuronet.learning / Math.sqrt(length)
-    end
-
-    def set_suggested_learning(number) # number of data points
-      @learning = Neuronet.random_walk(number, self.length)
     end
 
     def connect(layer, weight=0.0)
@@ -173,7 +167,7 @@ module Neuronet
     end
 
     def train(*targets)
-      0.upto(self.length-1){|index| self[index].train(targets[index],@learning) }
+      0.upto(self.length-1){|index| self[index].train(targets[index]) }
     end
 
     def values
@@ -192,16 +186,6 @@ module Neuronet
         self[index].connect(self[index-1])
       }
       @out = self.last
-    end
-
-    def set_suggested_learning(number)
-      # skip @in layer
-      self[1..-1].each{|layer| layer.set_suggested_learning(number)}
-    end
-
-    def learning=(value)
-      # skip @in layer
-      self[1..-1].each{|layer| layer.learning=value }
     end
 
     def update
