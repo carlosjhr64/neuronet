@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '4.0.0'
+  VERSION = '5.0.0.alpha.1'
 
   # The squash function for Neuronet is the sigmoid function.
   # One should scale the problem with most data points between -1 and 1, extremes under 2s, and no outbounds above 3s.
@@ -66,7 +66,7 @@ module Neuronet
     end
 
     # Node is a terminal where training and backpropagation ends.
-    def train(target)
+    def train(target=nil, learning=nil)
       # to be over-ridden
       nil
     end
@@ -140,7 +140,7 @@ module Neuronet
       0.upto(length-1){|index| self[index] = Neuronet::Node.new }
     end
 
-    def set(*inputs)
+    def set(inputs)
       0.upto(self.length-1){|index| self[index].value = inputs[index]}
     end
 
@@ -166,8 +166,8 @@ module Neuronet
       self.each{|neuron| neuron.partial}
     end
 
-    def train(*targets)
-      0.upto(self.length-1){|index| self[index].train(targets[index]) }
+    def train(targets, learning=Neuronet.learning)
+      0.upto(self.length-1){|index| self[index].train(targets[index], learning) }
     end
 
     def values
@@ -178,8 +178,10 @@ module Neuronet
   # A Feed Forward Network
   class FeedForwardNetwork < Array
     attr_reader :in, :out
-    def initialize(*layers)
+    attr_accessor :learning
+    def initialize(layers, learning=Neuronet.learning)
       super( length = layers.length )
+      @learning = learning
       @in = self[0] = Neuronet::InputLayer.new(layers[0])
       (1).upto(length-1){|index|
         self[index] = Neuronet::Layer.new(layers[index])
@@ -193,20 +195,20 @@ module Neuronet
       (1).upto(self.length-1){|index| self[index].partial}
     end
 
-    def set(*inputs)
-      @in.set(*inputs)
+    def set(inputs)
+      @in.set(inputs)
       update
     end
 
-    def train!(*targets)
-      @out.train(*targets)
+    def train!(targets, learning=@learning)
+      @out.train(targets, learning)
       update
     end
 
     # trains an input/output pair
-    def exemplar(inputs,targets)
-      set(*inputs)
-      train!(*targets)
+    def exemplar(inputs,targets, learning=@learning)
+      set(inputs)
+      train!(targets, learning)
     end
 
     def values(layer)
@@ -315,23 +317,23 @@ module Neuronet
   class ScaledNetwork < FeedForwardNetwork
     attr_accessor :distribution
 
-    def initialize(*layers)
+    def initialize(*parameters)
       super
       @distribution = Gaussian.new
     end
 
-    def train!(*targets)
-      super(*@distribution.mapped_output(targets))
+    def train!(targets, learning=@learning)
+      super(@distribution.mapped_output(targets), learning)
     end
 
     # @param (List of Float) values
-    def set(*inputs)
-      super(*@distribution.mapped_input(inputs))
+    def set(inputs)
+      super(@distribution.mapped_input(inputs))
     end
 
-    def reset(*inputs)
+    def reset(inputs)
       @distribution.set(inputs)
-      set(*inputs)
+      set(inputs)
     end
 
     def output
@@ -346,7 +348,7 @@ module Neuronet
   # A Perceptron Hybrid
   class Tao < ScaledNetwork
     attr_reader :yin, :yang
-    def initialize(*layers)
+    def initialize(*parameters)
       raise "Tao needs to be at least 3 layers" if layers.length < 3
       super
       # @out directly connects to @in
@@ -369,7 +371,7 @@ module Neuronet
       end
     end
 
-    def initialize(*layers)
+    def initialize(*parameters)
       super
       Yin.reweigh(self)
     end
@@ -387,7 +389,7 @@ module Neuronet
       end
     end
 
-    def initialize(*layers)
+    def initialize(*parameters)
       super
       Yang.reweigh(self)
     end
@@ -395,7 +397,7 @@ module Neuronet
 
   # A Tao Yin-Yang-ed  :))
   class YinYang < Tao
-    def initialize(*layers)
+    def initialize(*parameters)
       super
       Yin.reweigh(self)
       Yang.reweigh(self)
