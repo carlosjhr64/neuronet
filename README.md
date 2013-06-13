@@ -1,4 +1,4 @@
-# Neuronet 5.0.0.alpha.2
+# Neuronet 5.0.0
 
 Library to create neural networks.
 
@@ -18,35 +18,39 @@ unless of course you find a bug I don't about.
 
 ## Synopsis
 
-Given some set of inputs and outputs, and
-a choice for the number of neurons of the middle layer(say rms), and
-some good choice for the learning constant (say rw(N)=1/sqrt(1+N)):
+Given some set of inputs and outputs.
+And a choice for the number of neurons of the middle layer, say 1+rms.
+And some good choice for the learning constant, say rw(N)=1/sqrt(1+N).
+Then:
 
-	# data = [ [inputs, outputs],  ... }
-	# input = inputs.length
-	# output = outputs.length
-	# middle = rms(input, output).to_i
-	# learning = rw(data.length)
+	# data = [ [input, output],  ... }
+	# n = input.length
+	# o = output.length
+	# m = 1+rms(n, o).to_i
+	# l = rw(data.length)
 	# Then:
 
-	ffn = Neuronet::ScaledNetwork.new([input, middle, output])
-	ffn.learning = learning
+	ffn = Neuronet::ScaledNetwork.new([n, m, o])
+	ffn.learning = l
 
 	# or
-	# ffn = Neuronet::ScaledNetwork.new([input, middle, output], learning)
+	# ffn = Neuronet::ScaledNetwork.new([n, m, o], l)
 	# Training:
 
-	data.each do |input, output|
-	  ffn.set(input)
-	  ffn.train!(output)
-	end
+	MANY.times do
+	  data.shuffle.each do |input, output|
+	    ffn.reset(input)
+	    ffn.train!(output)
+	  end
+	end # or until some small enough error
 
 	# or
-	# data.each{|input, outpu| ffn.exemplar(input, output)}
+	# data.each{|input, output| ffn.exemplar(input, output)}
 	# Once trained, you can set inputs and get outputs:
 
 	require 'pp'
 	while input = fromsomewhere.gets
-	  ffn.set(input)
+	  ffn.reset(input)
 	  pp ffn.output
 	end
+
