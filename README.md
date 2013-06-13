@@ -54,3 +54,10 @@ Then:
 	  pp ffn.output
 	end
 
+## Upgrades
+
+Version 5 is not compatible with earlier versions, but
+it's easy to edit a program to upgrade.
+Mainly, the API no longer uses splats.
+So for example, where before you might have had #method(*array), you now use #method(array).
+Also, a Marshal load of a previous version will need to have the learning constant set with #learning=.
