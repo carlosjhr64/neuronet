@@ -1,9 +1,10 @@
 # Neuronet module
 module Neuronet
-  VERSION = '5.0.0.alpha.1'
+  VERSION = '5.0.0'
 
   # The squash function for Neuronet is the sigmoid function.
-  # One should scale the problem with most data points between -1 and 1, extremes under 2s, and no outbounds above 3s.
+  # One should scale the problem with most data points between -1 and 1,
+  # extremes under 2s, and no outbounds above 3s.
   # Standard deviations from the mean is probably a good way to figure the scale of the problem.
   def self.squash(unsquashed)
     1.0 / (1.0 + Math.exp( -unsquashed ))
@@ -206,7 +207,7 @@ module Neuronet
     end
 
     # trains an input/output pair
-    def exemplar(inputs,targets, learning=@learning)
+    def exemplar(inputs, targets, learning=@learning)
       set(inputs)
       train!(targets, learning)
     end
@@ -276,8 +277,8 @@ module Neuronet
 
   # Normal Distribution
   class Gaussian < Scale
-    def initialize(*parameters)
-      super
+    def initialize(factor=1.0,center=nil,spread=nil)
+      super(factor, center, spread)
       self.init = false
     end
 
@@ -292,8 +293,8 @@ module Neuronet
 
   # Log-Normal Distribution
   class LogNormal < Gaussian
-    def initialize(*parameters)
-      super
+    def initialize(factor=1.0,center=nil,spread=nil)
+      super(factor, center, spread)
     end
 
     def set(inputs)
@@ -317,8 +318,8 @@ module Neuronet
   class ScaledNetwork < FeedForwardNetwork
     attr_accessor :distribution
 
-    def initialize(*parameters)
-      super
+    def initialize(layers, learning=Neuronet.learning)
+      super(layers, learning)
       @distribution = Gaussian.new
     end
 
@@ -348,9 +349,9 @@ module Neuronet
   # A Perceptron Hybrid
   class Tao < ScaledNetwork
     attr_reader :yin, :yang
-    def initialize(*parameters)
+    def initialize(layers, learning=Neuronet.learning)
       raise "Tao needs to be at least 3 layers" if layers.length < 3
-      super
+      super(layers, learning)
       # @out directly connects to @in
       self.out.connect(self.in)
       @yin = self[1] # first middle layer
@@ -371,8 +372,8 @@ module Neuronet
       end
     end
 
-    def initialize(*parameters)
-      super
+    def initialize(layers, learning=Neuronet.learning)
+      super(layers, learning)
       Yin.reweigh(self)
     end
   end
@@ -389,16 +390,16 @@ module Neuronet
       end
     end
 
-    def initialize(*parameters)
-      super
+    def initialize(layers, learning=Neuronet.learning)
+      super(layers, learning)
       Yang.reweigh(self)
     end
   end
 
   # A Tao Yin-Yang-ed  :))
   class YinYang < Tao
-    def initialize(*parameters)
-      super
+    def initialize(layers, learning=Neuronet.learning)
+      super(layers, learning)
       Yin.reweigh(self)
       Yang.reweigh(self)
     end
