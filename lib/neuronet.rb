@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '5.0.0'
+  VERSION = '6.0.0'
 
   # The squash function for Neuronet is the sigmoid function.
   # One should scale the problem with most data points between -1 and 1,
@@ -159,7 +159,7 @@ module Neuronet
   end
 
   # A Feed Forward Network
-  class FeedForwardNetwork < Array
+  class FeedForward < Array
     # Whatchamacallits?
     def mu
       sum = 1.0
@@ -311,7 +311,7 @@ module Neuronet
   end
 
   # Series Network for similar input/output values
-  class ScaledNetwork < FeedForwardNetwork
+  class ScaledNetwork < FeedForward
     attr_accessor :distribution
 
     def initialize(layers)
@@ -405,6 +405,13 @@ module Neuronet
       super(layers)
       Yin.reweigh(self)
       Yang.reweigh(self)
+    end
+  end
+
+  def self.tao(ffn)
+    ffn.out.connect(ffn.in)
+    def ffn.mu
+      super + self.out.length*self.in.length
     end
   end
 end
