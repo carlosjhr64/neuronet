@@ -122,7 +122,8 @@ module Neuronet
       @connections.each{|connection| connection.backpropagate(de)}
     end
 
-    # note that although the weights are modified, activation is not updated until update is called....
+    # note that although the weights are modified,
+    # activation is not updated until update is called....
     def train( target, learning=Neuronet.learning )
       backpropagate( learning * (target - self.value) )
     end
