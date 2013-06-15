@@ -555,3 +555,21 @@ e[t] = X[t] - x[t] if the i'th neuron is also the output.
 e[t] = Sum(r){ w[r,t] * e[r] * Dif(b[r]){x[r]} } for the rest.
 
 Note how I sent the errors from the receiving neurons to the transmitting neuron. I hope this explains the theory well. I distilled it from the above sources.
+
+
+## Notes from reading neuronet
+
+For some Neuronet::FeedForward object, obj:
+
+	obj.output
+	obj.out.values
+	obj.out.map{|node| node.to_f}
+	obj.out.map{|node| node.value}
+	obj.out.map{|node| unsquash(node.activation)}
+	obj.out.map{|node| bias+connections }
+
+	O[i] = b + Sum(1,J){|j| W[i,j] Squash(I[j])}
+
+	100 +/- 1 = 50 + sum[1,50]{|j| w[i,j]I[j]}
+	de = 1/100
+	b += b*de
