@@ -2,9 +2,9 @@
 
 Library to create neural networks.
 
-This is **Gold** software, as I understand the
-[software release life cycle](http://en.wikipedia.org/wiki/Software_release_life_cycle),
-unless of course you find a bug I don't about.
+**Beta** software, as I understand the
+[software release life cycle](http://en.wikipedia.org/wiki/Software_release_life_cycle).
+I just noticed some problems with the backpropation...
 
 * Author:	<carlosjhr64@gmail.com>
 * Copyright:	2013
