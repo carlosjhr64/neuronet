@@ -16,9 +16,6 @@ module Neuronet
 
   DEFAULT_LEARNING = 0.1
   @@learning = DEFAULT_LEARNING
-  def self.default_learning
-    @@learning = DEFAULT_LEARNING
-  end
 
   def self.learning
     @@learning
@@ -26,15 +23,6 @@ module Neuronet
 
   def self.learning=(learning)
     @@learning =  learning
-  end
-
-  def self.random_walk(number)
-    1.0 / Math.sqrt(number+1.0)
-  end
-
-  # This is a suggested learning constant, based on the number of exemplars.
-  def self.set_suggested_learning(number)
-    @@learning = Neuronet.random_walk(number)
   end
 
   # By default, Neuronet builds a zeroed network.
