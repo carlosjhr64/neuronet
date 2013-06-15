@@ -7,118 +7,105 @@ module Neuronet
   # extremes under 2s, and no outbounds above 3s.
   # Standard deviations from the mean is probably a good way to figure the scale of the problem.
   def self.squash(unsquashed)
-    1.0 / (1.0 + Math.exp( -unsquashed ))
+    1.0 / (1.0 + Math.exp(-unsquashed))
   end
 
   def self.unsquash(squashed)
-    Math.log( squashed / (1.0 - squashed) )
-  end
-
-  DEFAULT_LEARNING = 0.1
-  @@learning = DEFAULT_LEARNING
-
-  def self.learning
-    @@learning
-  end
-
-  def self.learning=(learning)
-    @@learning =  learning
+    Math.log(squashed / (1.0 - squashed))
   end
 
   # By default, Neuronet builds a zeroed network.
   # Noise adds random fluctuations to create a search for minima.
   def self.noise
-    rand + rand
+    0.5 + rand
   end
 
-  # A Node
+  # A Node, used for the input layer.
   class Node
     attr_reader :activation
     # A Node is constant (Input)
     alias update activation
 
-    def initialize(val=0.0)
-      self.value = val
-    end
-
+    # The "real world" value of a node is the value of it's activation unsquashed.
     def value=(val)
       @activation = Neuronet.squash(val)
     end
 
+    def initialize(val=0.0)
+      self.value = val
+    end
+
+    # The "real world" value is stored as a squashed activation.
     def value
       Neuronet.unsquash(@activation)
     end
-    alias to_f value
 
-    def to_s
-      value.to_s
-    end
-
-    # Node is a terminal where training and backpropagation ends.
-    def train(target=nil, learning=nil)
+    # Node is a terminal where backpropagation ends.
+    def backpropagate(error)
       # to be over-ridden
       nil
     end
-    alias backpropagate train
   end
 
-  # A Connection
+  # A weighted connection to a neuron (or node).
   class Connection
     attr_accessor :node, :weight
     def initialize(node, weight=0.0)
       @node, @weight = node, weight
     end
 
+    # The value of a connection is the weighted activation of the connected node.
     def value
       @node.activation * @weight
     end
 
+    # Updates and returns the value of the connection.
+    # Updates the connected node.
     def update
       @node.update * @weight
     end
 
+    # Adjusts the connection weight according to error and
+    # backpropagates the error to the connected node.
     def backpropagate(error)
       @weight += @node.activation * error * Neuronet.noise
       @node.backpropagate(error)
     end
   end
 
-  # A Neuron
+  # A Neuron with bias and connections
   class Neuron < Node
     attr_reader :connections
     attr_accessor :bias
     def initialize(bias=0.0)
-      super
+      super(bias)
       @connections = []
       @bias = bias
     end
 
+    # Updates the activation with the current value of bias and updated values of connections.
     def update
       self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.update}
     end
 
-    # partial update, don't always need to burrow down to the terminal
+    # Updates the activation with the current values of bias and connections
+    # For when connections are already updated.
     def partial
       self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.value}
     end
 
+    # Adjusts bias according to error and
+    # backpropagates the error to the connections.
     def backpropagate(error)
-      # distribute the error evenly among contributors
-      biased = Neuronet.squash(@bias)
-      de = error / ( biased + @connections.inject(0.0){|sum,connection| sum + connection.node.activation } )
-      @bias += biased * de * Neuronet.noise
-      @connections.each{|connection| connection.backpropagate(de)}
+      @bias += error * Neuronet.noise
+      @connections.each{|connection| connection.backpropagate(error)}
     end
 
-    # note that although the weights are modified,
-    # activation is not updated until update is called....
-    def train( target, learning=Neuronet.learning )
-      backpropagate( learning * (target - self.value) )
-    end
-
+    # Connects the neuron to another node.
+    # Updates the activation with the new connection.
     # The default weight=0 means there is no initial association
-    def connect( node, weight=0.0 )
-      @connections.push( Connection.new(node,weight) )
+    def connect(node, weight=0.0)
+      @connections.push(Connection.new(node,weight))
       update
     end
   end
@@ -130,12 +117,9 @@ module Neuronet
       0.upto(length-1){|index| self[index] = Neuronet::Node.new }
     end
 
+    # This is where one enters the "real world" inputs.
     def set(inputs)
       0.upto(self.length-1){|index| self[index].value = inputs[index]}
-    end
-
-    def values
-      self.map{|node| node.to_f}
     end
   end
 
@@ -146,6 +130,7 @@ module Neuronet
       0.upto(length-1){|index| self[index] = Neuronet::Neuron.new }
     end
 
+    # Allows one to fully connect layers.
     def connect(layer, weight=0.0)
       # creates the neuron matrix... note that node can be either Neuron or Node class.
       self.each{|neuron| layer.each{|node| neuron.connect(node,weight) }}
@@ -156,28 +141,52 @@ module Neuronet
       self.each{|neuron| neuron.partial}
     end
 
-    def train(targets, learning=Neuronet.learning)
-      0.upto(self.length-1){|index| self[index].train(targets[index], learning) }
+    # Takes the real world targets for each node in this layer
+    # and backpropagates the error to each node.
+    # Note that the learning constant is really a value
+    # that needs to be determined for each network.
+    def train(targets, learning)
+      0.upto(self.length-1) do |index|
+        node = self[index]
+        node.backpropagate(learning*(targets[index] - node.value))
+      end
     end
 
+    # Returns the real world values of this layer.
     def values
-      self.map{|node| node.to_f}
+      self.map{|node| node.value}
     end
   end
 
   # A Feed Forward Network
   class FeedForwardNetwork < Array
+    # Whatchamacallits?
+    def mu
+      sum = 1.0
+      1.upto(self.length-1) do |i|
+        n, m = self[i-1].length, self[i].length
+        sum += n + n*m
+      end
+      return sum
+    end
+    def muk=(k)
+      @learning = k/mu
+    end
+    def num=(n)
+      @learning = 1.0/(Math.sqrt(1.0+n) * mu)
+    end
+
     attr_reader :in, :out
     attr_accessor :learning
-    def initialize(layers, learning=Neuronet.learning)
-      super( length = layers.length )
-      @learning = learning
+    def initialize(layers)
+      super(length = layers.length)
       @in = self[0] = Neuronet::InputLayer.new(layers[0])
       (1).upto(length-1){|index|
         self[index] = Neuronet::Layer.new(layers[index])
         self[index].connect(self[index-1])
       }
       @out = self.last
+      @learning = 1.0/mu
     end
 
     def update
@@ -190,19 +199,15 @@ module Neuronet
       update
     end
 
-    def train!(targets, learning=@learning)
-      @out.train(targets, learning)
+    def train!(targets)
+      @out.train(targets, @learning)
       update
     end
 
     # trains an input/output pair
-    def exemplar(inputs, targets, learning=@learning)
+    def exemplar(inputs, targets)
       set(inputs)
-      train!(targets, learning)
-    end
-
-    def values(layer)
-      self[layer].values
+      train!(targets)
     end
 
     def input
@@ -276,7 +281,9 @@ module Neuronet
     end
 
     def set_spread(inputs)
-      self.spread = Math.sqrt( inputs.map{|value| self.center - value}.inject(0.0){|sum,value| value*value + sum} / (inputs.length - 1.0) )
+      self.spread = Math.sqrt(inputs.map{|value|
+        self.center - value}.inject(0.0){|sum,value|
+          value*value + sum} / (inputs.length - 1.0))
     end
   end
 
@@ -307,13 +314,13 @@ module Neuronet
   class ScaledNetwork < FeedForwardNetwork
     attr_accessor :distribution
 
-    def initialize(layers, learning=Neuronet.learning)
-      super(layers, learning)
+    def initialize(layers)
+      super(layers)
       @distribution = Gaussian.new
     end
 
-    def train!(targets, learning=@learning)
-      super(@distribution.mapped_output(targets), learning)
+    def train!(targets)
+      super(@distribution.mapped_output(targets))
     end
 
     # @param (List of Float) values
@@ -337,10 +344,15 @@ module Neuronet
 
   # A Perceptron Hybrid
   class Tao < ScaledNetwork
+    def mu
+      sum = super
+      sum += self.first.length * self.last.length
+      return sum
+    end
     attr_reader :yin, :yang
-    def initialize(layers, learning=Neuronet.learning)
+    def initialize(layers)
       raise "Tao needs to be at least 3 layers" if layers.length < 3
-      super(layers, learning)
+      super(layers)
       # @out directly connects to @in
       self.out.connect(self.in)
       @yin = self[1] # first middle layer
@@ -352,7 +364,9 @@ module Neuronet
   class Yin < Tao
     def self.reweigh(myself)
       yin = myself.yin
-      raise "First hidden layer, yin, needs to have at least the same length as input" if yin.length < (in_length = myself.in.length)
+      if yin.length < (in_length = myself.in.length)
+        raise "First hidden layer, yin, needs to have at least the same length as input"
+      end
       # connections from yin[i] to in[i] are 1... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
@@ -361,8 +375,8 @@ module Neuronet
       end
     end
 
-    def initialize(layers, learning=Neuronet.learning)
-      super(layers, learning)
+    def initialize(layers)
+      super(layers)
       Yin.reweigh(self)
     end
   end
@@ -379,16 +393,16 @@ module Neuronet
       end
     end
 
-    def initialize(layers, learning=Neuronet.learning)
-      super(layers, learning)
+    def initialize(layers)
+      super(layers)
       Yang.reweigh(self)
     end
   end
 
   # A Tao Yin-Yang-ed  :))
   class YinYang < Tao
-    def initialize(layers, learning=Neuronet.learning)
-      super(layers, learning)
+    def initialize(layers)
+      super(layers)
       Yin.reweigh(self)
       Yang.reweigh(self)
     end
