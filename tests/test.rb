@@ -82,8 +82,8 @@ raise "Missing partial?" unless layer.respond_to?(:partial)
 raise "Missing train?" unless layer.respond_to?(:train)
 raise "Bad layer values?" unless layer.values == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-### FeedForwardNetwork ###
-ffn = Neuronet::FeedForwardNetwork.new([4,3,2])
+### FeedForward ###
+ffn = Neuronet::FeedForward.new([4,3,2])
 mu = 1 + 4 + 4*3 + 3 + 3*2
 raise "WUT IZZ MU???" unless ffn.mu == mu
 ffn.muk=0.5
@@ -187,3 +187,10 @@ end
 ### YinYang ###
 ffn = Neuronet::YinYang.new([4,4,4])
 # It works... I know it does.  :P
+
+### Bless to Tao ###
+ffn = Neuronet::FeedForward.new([5,4,3])
+mu1 = ffn.mu
+Neuronet.tao(ffn)
+mu2 = ffn.mu
+raise "mu should have upgraded" unless mu2 - mu1 = 5*3

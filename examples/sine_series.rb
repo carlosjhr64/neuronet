@@ -1,4 +1,3 @@
-gem 'neuronet' '~> 5.0'
 require 'neuronet'
 
 # Math::sin(x) cycles from 0.0 at x=0.0,
@@ -29,7 +28,7 @@ puts "Cycle step = #{(afrequency/cycle).round(3)}"
 ffnet = Neuronet::ScaledNetwork.new([input_layers, output_layers])
 # We're trying to train a function, so there's no noise
 # to smooth out over a number of data points.
-ffnet.learning = 0.7 # ~ 1.0/sqrt(1.0+N), where N=1
+ffnet.num = 1.0
 
 # Training...
 mma = amplitude # moving average set high to be averaged down.
@@ -41,12 +40,12 @@ while (mma/amplitude > 0.01) && (count < max_count) do # looking for 1%, but qui
   input = 0.upto(input_layers-1).inject([]){|v,t| v.push( function.call(phase,t) ) }
   ffnet.reset(input) # reset sets both ffnet and distribution
   guess = ffnet.output
-  # NaN error check.  Still need to figure out why this happens sometimes...
+  # I don't thing I get NaN anymore, but checking...
   raise "Got NaN" if guess.inject(false){|v,x| v ||= true if x.nan? }
   output = input_layers.upto(input_layers+output_layers-1).inject([]){|v,t| v.push( function.call(phase,t) ) }
   error2 = 0.upto(4).map{|i| guess[i] - output[i] }.inject(0.0){|v,x| v+=x*x } / 5.0 # five points!
   # Note that the real task is to describe the motion (deviation) from level
-  mma = (99.0*mma + Math.sqrt(error2)) / 100.0
+  mma = (127.0*mma + Math.sqrt(error2)) / 128.0
   mma = amplitude if mma > amplitude
   ffnet.train!(output) # ffnet trains the output
 end
@@ -76,8 +75,8 @@ puts "Examples:"
   guess = ffnet.output
   output = input_layers.upto(input_layers+output_layers-1).inject([]){|v,t| v.push( function.call(phase,t) ) }
   puts
-  puts "\tInput:\t#{input.map{|x| x.round(3) }.join(', ')}"
-  puts "\tOutput:\t#{output.map{|x| x.round(3) }.join(', ')}"
-  puts "\tGuess:\t#{guess.map{|x| x.round(3) }.join(', ')}"
+  puts "Input:\t#{input.map{|x| x.round(3) }.join(', ')}"
+  puts "Output:\t#{output.map{|x| x.round(3) }.join(', ')}"
+  puts "Guess:\t#{guess.map{|x| x.round(3) }.join(', ')}"
 end
 puts

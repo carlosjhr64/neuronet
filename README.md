@@ -492,7 +492,7 @@ Dif(z){Sig{z}} = -Exp{-z}/(1+Exp{-z})^2
 = (1-(1+Exp{-z}))/(1+Exp{-z})^2 
 = 1/(1+Exp{-z})^2 - 1/(1+Exp{-z}) 
 = Sig{z}^2 - Sig{z} 
-= Sig{z}*(Sig{z}-1) 
+= Sig{z}*(Sig{z}-1)  # <== THIS HAS TO BE WRONG! Looking for D{f}=f(1-f)
 
 Dif(y[r]){Sig{y[r]}} = Sig{y[r]}*(Sig{y[r]}-1) = 
 = x[r]*(x[r]-1) 
@@ -573,3 +573,45 @@ For some Neuronet::FeedForward object, obj:
 	100 +/- 1 = 50 + sum[1,50]{|j| w[i,j]I[j]}
 	de = 1/100
 	b += b*de
+
+If we say that the value of some output is
+
+	Output[o] = Bias[o] + Sum{ Connection[m,o] }
+
+has some error E
+
+	Target[o] = Output[o] + E
+
+Then there is an e such that
+
+	Output[o](1+e) = Output[o] + E
+	  (1+e) = (Output[o] + E)/Output[o]
+	  1+e = 1 + E/Output[o]
+	  e = E/Output[o]
+
+And Target can be set as
+
+	Target[o] = (Bias[o] + Sum{ Connection[m,o] })(1+e)
+	Target[o] = Bias[o](1+e) + Sum{ Connection[m,o] }(1+e)
+
+Assumping equipartition in error,
+we might then suggest the following correction to Bias:
+
+	Bias[o] = Bias[o](1+e)
+	  Bias[o] = Bias[o]+Bias[o]e
+	  Bias[o] += Bias[o]e
+
+
+	Remember that:
+	D{squash(u)} = squash(u)*(1-squash(u))*D{u}
+
+	@activation = squash( @bias + @connections...)
+	D{ @activation } = D{ squash( @bias + @connections...) }
+	D{ @activation } = @activation*(1-@activation) D{ @bias + @connections... }
+	Just the part due to bias...
+	D.bias{ @activation } = @activation*(1-@activation) D{ @bias }
+	D.bias{ @activation } / (@activation*(1-@activation)) = D{ @bias }
+	Just the part due to connection...
+	D.connection{ @activation } = @activation*(1-@activation) D{ @connections... }
+
+	D
