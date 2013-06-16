@@ -14,7 +14,7 @@ spec = Gem::Specification.new do |s|
   s.version = version
   s.date = Date.today.to_s
 
-  s.homepage = "https://sites.google.com/site/carlosjhr64/rubygems/neuronet"
+  s.homepage = "https://github.com/carlosjhr64/neuronet"
   s.summary = "Library to create neural networks."
   s.description = "Build custom neural networks. 100% 1.9 Ruby."
 

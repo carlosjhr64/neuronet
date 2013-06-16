@@ -1,7 +1,30 @@
 require 'neuronet'
-MANY = 50_000
+MANY = 10_000
 
-# Because our real world space is the Real numbers,
+def network(i)
+  ffn, name = nil, nil
+  case i
+  when 1
+    ffn = Neuronet::FeedForward.new([2,1])
+    name = '[2,1]'
+  when 2
+    ffn = Neuronet::FeedForward.new([2,2,1])
+    name = '[2,2,1]'
+  when 3
+    ffn = Neuronet::FeedForward.new([2,2,1])
+    Neuronet.tao(ffn)
+    name = '[2,2,1] Tao'
+  when 4
+    ffn = Neuronet::FeedForward.new([2,2,1])
+    Neuronet.tao(ffn)
+    Neuronet::Yin.reweigh(ffn)
+    Neuronet::Yang.reweigh(ffn)
+    name = '[2,2,1] Tao-Yin-Yang'
+  end
+  return ffn, name
+end
+
+# Because our problem space is the Real numbers,
 # define -1 (negative numbers) to be false,
 # and +1 (positive numbers) to be true.
 
@@ -10,12 +33,16 @@ data_or = [
   [[ 1, -1], [ 1]],	# T or F is T
   [[-1,  1], [ 1]],	# F or T is T
   [[ 1,  1], [ 1]],	# T or T is T
+			# Extra for balance
+  [[-1, -1], [-1]],	# F or F is F
 ]
 
 data_and = [
   [[-1, -1], [-1]],	# F and F is F
   [[ 1, -1], [-1]],	# T and F is F
   [[-1,  1], [-1]],	# F and T is F
+  [[ 1,  1], [ 1]],	# T and T is T
+			# Extra for balance
   [[ 1,  1], [ 1]],	# T and T is T
 ]
 
@@ -27,41 +54,17 @@ data_xor = [
 ]
 
 [[data_or,'OR'],[data_and,'AND'],[data_xor,'XOR']].each do |data,name|
-  puts "#{name} with [2,1] #{MANY} times trained."
-  ffn = Neuronet::FeedForward.new([2,1])
-  MANY.times do
-    data.each do |input, target|
-      ffn.exemplar(input, target)
+  1.upto(4) do |i|
+    ffn, type = network(i)
+    puts "#{name} with #{type} #{MANY} times trained."
+    MANY.times do
+      data.shuffle.each do |input, target|
+        ffn.exemplar(input, target)
+      end
+    end
+      data.each do |input, target|
+      ffn.set(input)
+      puts "#{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
     end
   end
-  data.each do |input, target|
-    ffn.set(input)
-    puts "#{input.join(",\t")}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
-  end
-
-  puts "#{name} with [2,2,1] #{MANY} times trained."
-  ffn = Neuronet::FeedForward.new([2,2,1])
-  MANY.times do
-    data.each do |input, target|
-      ffn.exemplar(input, target)
-    end
-  end
-  data.each do |input, target|
-    ffn.set(input)
-    puts "#{input.join(",\t")}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
-  end
-
-  puts "#{name} with [2,2,1] #{MANY} times trained with Tao."
-  ffn = Neuronet::FeedForward.new([2,2,1])
-  ffn.out.connect(ffn.in)
-  MANY.times do
-    data.each do |input, target|
-      ffn.exemplar(input, target)
-    end
-  end
-  data.each do |input, target|
-    ffn.set(input)
-    puts "#{input.join(",\t")}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
-  end
-
 end

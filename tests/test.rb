@@ -86,9 +86,9 @@ raise "Bad layer values?" unless layer.values == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 ffn = Neuronet::FeedForward.new([4,3,2])
 mu = 1 + 4 + 4*3 + 3 + 3*2
 raise "WUT IZZ MU???" unless ffn.mu == mu
-ffn.muk=0.5
+ffn.muk(0.5)
 raise "What the muk!?" unless ffn.learning == 0.5/mu
-ffn.num=2.0
+ffn.num(2.0)
 raise "Num num!?" unless ffn.learning == 1.0/(Math.sqrt(1.0 + 2.0) * mu)
 ffn.learning = 0.0123
 raise "Could not set learing constant." unless ffn.learning == 0.0123

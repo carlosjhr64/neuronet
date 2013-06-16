@@ -169,10 +169,10 @@ module Neuronet
       end
       return sum
     end
-    def muk=(k)
+    def muk(k=1.0)
       @learning = k/mu
     end
-    def num=(n)
+    def num(n)
       @learning = 1.0/(Math.sqrt(1.0+n) * mu)
     end
 
@@ -413,5 +413,11 @@ module Neuronet
     def ffn.mu
       super + self.out.length*self.in.length
     end
+    # What's the current value of learning.
+    l = ffn.learning
+    # Redo learning.
+    m = ffn.muk
+    # If learning was lower b/4, revert.
+    ffn.learning = l if l<m
   end
 end
