@@ -17,7 +17,7 @@ module Neuronet
   # By default, Neuronet builds a zeroed network.
   # Noise adds random fluctuations to create a search for minima.
   def self.noise
-    0.5 + rand
+    rand + rand
   end
 
   # A Node, used for the input layer.
@@ -177,6 +177,7 @@ module Neuronet
     end
 
     attr_reader :in, :out
+    attr_reader :yin, :yang
     attr_accessor :learning
     def initialize(layers)
       super(length = layers.length)
@@ -186,6 +187,8 @@ module Neuronet
         self[index].connect(self[index-1])
       }
       @out = self.last
+      @yin = self[1] # first middle layer
+      @yang = self[-2] # last middle layer
       @learning = 1.0/mu
     end
 
@@ -349,14 +352,11 @@ module Neuronet
       sum += self.first.length * self.last.length
       return sum
     end
-    attr_reader :yin, :yang
     def initialize(layers)
       raise "Tao needs to be at least 3 layers" if layers.length < 3
       super(layers)
       # @out directly connects to @in
       self.out.connect(self.in)
-      @yin = self[1] # first middle layer
-      @yang = self[-2] # last middle layer, may be yin.
     end
   end
 
