@@ -27,14 +27,14 @@ Then:
 	neuronet = Neuronet::ScaledNetwork.new([n, m, t])
 
 	# "Bless" it as a TaoYinYang,
-        # a perceptron hybrid with the middle layer
+	# a perceptron hybrid with the middle layer
 	# initially mirroring the input layer and
 	# mirrored by the output layer.
 
 	Neuronet::TaoYinYang.bless(neuronet)
 
-        # The following sets the learning constant
-        # to something I think is reasonable.
+	# The following sets the learning constant
+	# to something I think is reasonable.
 
 	neuronet.num(l)
 
@@ -52,10 +52,10 @@ Then:
 	data.each do |input, target|
 	  puts "Input:"
 	  pp input
-	  puts "Actual:"
+	  puts "Output:"
 	  neuronet.reset(input) # sets the input values
 	  pp neuronet.output # gets the output values
-	  puts "Actual:"
+	  puts "Target:"
 	  pp target
 	end
 
@@ -75,63 +75,81 @@ A neuronet with the wrong architecture for a problem will be unable to solve it.
 Raw data without hints as to what's important in the data will take longer to solve.
 
 As an analogy, think of what you can do with linear regression.
-Your raw data may not be a line, but if a transform converts it to a linear form,
+Your raw data might not be linear, but if a transform converts it to a linear form,
 you can use linear regression to find the best fit line, and
-from that deduce the properties untransformed data.
+from that deduce the properties of the untransformed data.
 Likewise, if you can transform the data into something the neuronet can solve,
 you can by inverse get back the anwser you're lookin for.
 
+# RANDOM NOTES I'M STILL EDITING BELOW...
 
 ## Example: Time Series
 
 First, a little motivation...
-A common use for a neural-net is to attempt to forecast future set of data points based on past set of data points, Time series.  To demonstrate, I'll train a network with the following function:
-f(t) = A + B*sine(C + D*t), t in [0,1,2,3,...]
-I'll set A, B, C, and D to some random number and see if eventually the network can predict the next set of values based on previous values.  I'll try:
-[f(n),...,f(n+19)] => [f(n+20),...,f(n+24)]
-That is... given 20 consecutive values, give the next 5 in the series.  There is no loss, and probably greater generality, if I set at random the phase (C above), so that for any given random phase we want:
-[f(0),...,f(19)] => [f(20),...,f(24)]
+A common use for a neural-net is to attempt to forecast future set of data points
+based on past set of data points, [Time series](http://en.wikipedia.org/wiki/Time_series).
+To demonstrate, I'll train a network with the following function:
 
-I'll be using Neuronet::ScaledNetwork which is available in neuronet as of version 2.
-Also note that the Sine function is entirely defined within a cycle ( 2*Math::PI ) and so parameters need only to be set within the cycle.  After a lot of testing, I've verified that a Perceptron is enough to solve the problem.  The Sine function is Linearly separable.  Adding hidden layers needlessly adds training time, but does converge.
-Also after a lot of testing I've determined the optimal learning constant to be somewhere a bit after 0.5, but before 1.0.  I believe that the optimal learning constant is this high because the sigmoid function is "amiable" to sine and there's no noise (we're training a function).  Intuitively, 0.5 is half stepping to the target value.  ScaledNetwork provides #set_suggested_learning which determines the learning constant from the number of data points, but in this case one can just pass it 1.
-In the example code below, I train the network to be within 1% of the actual oscillation.
+	f(t) = A + B sine(C + D t), t in [0,1,2,3,...]
 
-<<<Example Code>>>
+I'll set A, B, C, and D to some random number and see
+if eventually the network can predict the next set of values based on previous values.
+I'll try:
+
+	[f(n),...,f(n+19)] => [f(n+20),...,f(n+24)]
+
+That is... given 20 consecutive values, give the next 5 in the series.
+There is no loss, and probably greater generality,
+if I set at random the phase (C above), so that for any given random phase we want:
+
+	[f(0),...,f(19)] => [f(20),...,f(24)]
+
+I'll be using Neuronet::ScaledNetwork.
+Also note that the Sine function is entirely defined within a cycle ( 2*Math::PI ) and
+so parameters need only to be set within the cycle.
+After a lot of testing, I've verified that a Perceptron is enough to solve the problem.
+The Sine function is [linearly separable](http://en.wikipedia.org/wiki/Linearly_separable).
+Adding hidden layers needlessly adds training time, but does converge.
+
+	[Example Code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
 
 The gist of the code is:
-ffnet = Neuronet:ScaledNetwork.new([20,5]) # create ffnet, a 20/5 layered feed forward network.
-ffnt.learning = 0.7 # train as if there was a single data point (OK in this case)
-ffnet.reset( [f(0),...,f(19)] ) # set the scaling according to these values, and set the input layer to these values.
-guess = ffnet.output # what is the output with the given inputs?
-ffnet.train!( [f(20),...,f(24)] ) # train the network with the actual expected output.
+
+	# create ffnet, a 20/5 layered feed forward network.
+	ffnet = Neuronet:ScaledNetwork.new([20,5])
+
+	# train as if there was a single data point (OK in this case)
+	ffnt.num(1.0)
+
+	# set the scaling according to these values, and
+	# set the input layer to these values.
+	ffnet.reset( [f(0),...,f(19)] )
+
+	# what is the output with the given inputs?
+	guess = ffnet.output
+
+	# train the network with the actual expected output.
+	ffnet.train!( [f(20),...,f(24)] )
+
 Heres a sample output:
 
-Function(phase,t) = 3.272 + 5.036*Sin(phase + 1.365*t)
-Cycle step = 0.217
-.....
-Iterations:     574
-Relative Error (std/amplitude): 0.27%   Standard Deviation: 0.014
-Examples:
+	TODO
+	TODO
+	TODO
 
-        Input:  7.206, 0.997, -1.591, 3.561, 8.253, 5.019, -0.995, -0.217, 6.114, 7.923, 2.33, -1.763, 2.158, 7.853, 6.258, -0.089, -1.086, 4.853, 8.276, 3.736
-        Output: -1.542, 0.842, 7.094, 7.263, 1.081
-        Guess:  -1.536, 0.869, 7.098, 7.245, 1.067
 
-        Input:  4.402, 8.307, 4.199, -1.384, 0.443, 6.773, 7.531, 1.511, -1.706, 3.0, 8.139, 5.533, -0.672, -0.6, 5.634, 8.109, 2.886, -1.722, 1.619, 7.591
-        Output: 6.69, 0.349, -1.34, 4.311, 8.309
-        Guess:  6.69, 0.376, -1.324, 4.296, 8.285
+ScaledNetwork automatically scales each input via Neuronet::Gaussian,
+so the input needs to be many variables and
+the output entirely determined by the shape of the input and not it's scale.
+That is, two inputs that are different only in scale should
+produce outputs that are different only in scale.
+The input must have at least three points.
 
-        Input:  0.716, 6.998, 7.35, 1.212, -1.647, 3.323, 8.212, 5.24, -0.864, -0.385, 5.915, 8.009, 2.564, -1.754, 1.927, 7.749, 6.446, 0.092, -1.2, 4.625
-        Output: 8.297, 3.972, -1.467, 0.636, 6.935
-        Guess:  8.302, 3.97, -1.481, 0.634, 6.942
+You can tackle many problems just with Neuronet::ScaledNetwork as described above.
+So now that you're hopefully interested and want to go on to exactly how it all works,
+I'll describe Neuronet from the ground up.
 
-ScaledNetwork automatically scales each input via Neuronet::Gaussian, so the input needs to be many variables and the output entirely determined by the shape of the input and not it's scale.  That is, two inputs that are different only in scale should produce outputs that are different only in scale.  The input must have at least three points.
-
-You can tackle many problems just with Neuronet::ScaledNetwork as described above.  So now that you're hopefully interested and want to go on to exactly how it all works, I'll describe Neuronet from the ground up.
-
-Squashing Function
-
+## Squashing Function
 
 An artificial neural network uses an activation function that determines the activation value of a neuron.  This activation value is often thought of on/off or true/false.  Neuronet uses a sigmoid function to set the neuron's activation value between 1.0 and 0.0.  For classification problems, activation values near one are considered true while activation values near 0.0 are considered false.  In Neuronet I make a distinction between the neuron's activation value and it's representation to the problem.  In the case of a true or false problem, the neuron's value is either true or false, while it's activation is between 1.0 and 0.0.  This attribute, activation, need never appear in an implementation of Neuronet, but it is mapped back to it's unsquashed value every time the implementation asks for the neuron's value.
 
@@ -141,7 +159,7 @@ Neuronet.squash( unsquashed )
 Neuronet.unsquashed( squashed )
 Math.log( squashed / ( 1.0 - squashed ) )
 
-Learning Constant
+## Learning Constant
 
 
 One can think of a neural network as a sheet of very elastic rubber which one pokes and pulls to fit the training data while otherwise keeping the sheet as smooth as possible.  You don't want to hammer this malleable sheet too hard.  One concern is that the training data may contain noise, random errors.  So the training of the network should add up the true signal in the data while canceling out the noise.  This balance is set via the learning constant.
@@ -162,8 +180,7 @@ Neuronet.set_suggested_learning( number ) # where number is the number of data p
 
 In the case of setting number to 1.0, the learning constant would be the square root of 1/2.  This would suggest that although we're taking larger steps than half steps, due to the nature of a random walk, we're approaching the solution in half steps.
 
-Noise
-
+## Noise
 
 The literature I've read (probably outdated by now) would have one create a neural network with random weights and hope that training it will converge to a solution.  I've never really believed that to be a correct way.  Although the implementation is free to set all parameters for each neuron, Neuronet by default creates zeroed neurons.  Association between inputs and outputs are trained, and neurons differentiate from each other randomly.  Differentiation among neurons is achieved by noise in the back-propagation of errors.  This noise is provided by:
 
@@ -172,8 +189,7 @@ rand + rand
 
 I choose rand + rand to give the noise an average value of one and a bell shape.
 
-Node
-
+## Node
 
 A neuron is a node.  In Neuronet, Neuronet::Neuron subclasses Neuronet::Node.  A node has a value which the implementation can set.  A Node object is created via:
 Neuronet::Node.new( value=0.0 )
@@ -199,43 +215,41 @@ backpropagate( error ) # returns nil
 update # returns activation
 I consider these methods private.  I can't think of a reason they'd appear in the implementation.  Likewise, the implementation should not have to bother with activation.
 
-Scaling The Problem
-
+## Scaling The Problem
 
 It's early to be talking about scaling the problem, but since I just covered how to set values to a node above, it's a good time to start thinking about scale.
 The squashing function, sigmoid, maps real numbers (negative infinity, positive infinity) to the segment zero to one (0,1).  But for the sake of computation in a neural net, sigmoid works best if the problem is scaled to numbers between negative one and positive one (-1, 1).  Study the following table and see if you can see why:
 
-x  => sigmoid(x)
-9  => 0.99987...
-3  => 0.95257...
-2  => 0.88079...
-1  => 0.73105...
-0  => 0.50000...
--1 => 0.26894...
--2 => 0.11920...
--3 => 0.04742...
--9 => 0.00012...
+	x  => sigmoid(x)
+	9  => 0.99987...
+	3  => 0.95257...
+	2  => 0.88079...
+	1  => 0.73105...
+	0  => 0.50000...
+	-1 => 0.26894...
+	-2 => 0.11920...
+	-3 => 0.04742...
+	-9 => 0.00012...
 
 So as x gets much higher than 3, sigmoid(x) gets to be pretty close to just 1, and as x gets much lower than -3, sigmoid(x) gets to be pretty close to 0.  Also note that sigmoid is centered about 0.5 which maps to 0.0 in problem space.  It is for this reason that I suggest the problem be displaced (subtracted) by it's average to be centered about zero and scaled (divided) by it standard deviation.  For non gaussian data where outbounds are expected, you should probably scale by a multiple of the standard deviation so that most of the data fits within sigmoid's "field of view" (-1, 1).
 
-Connection
-
+## Connection
 
 This is where I think Neuronet gets it's architecture really right!  Connections between neurons (and nodes) are there own separate objects.  In other codes I've seen this is not abstracted out.  In Neuronet, a neuron contains it's bias, and a list of it's connections.  Each connection contains it's weight (strength) and connected terminal node.  Given a terminal, node, a connection is created as follows:
 connection = Neuronet::Connection.new( node, weight=0.0 )
 So a neuron connected to the given terminal node would have the created connection in its connections list.  This will be discussed below under the topic Neuron.  The object, connection, responds to the following methods:
+
 value
 update
 backpropagate( error )
-The value of a connection is the weighted activation of the node it's connected to ( weight*node.activation ).  Similarly, update is the updated value of a connection, which is the weighted updated activation of the node it's connected to ( weight*node.update ).  The method update is the one to use whenever the value of the inputs are changed (or right after training).  Otherwise, both update and value should give the same result with value avoiding the unnecessary back calculations.  The method backpropagate modifies the connection's weight in proportion to the error given and passes that error to its connected node via the node's backpropagate.
+The value of a connection is the weighted activation of the node it's connected to ( weight node.activation ).  Similarly, update is the updated value of a connection, which is the weighted updated activation of the node it's connected to ( weight*node.update ).  The method update is the one to use whenever the value of the inputs are changed (or right after training).  Otherwise, both update and value should give the same result with value avoiding the unnecessary back calculations.  The method backpropagate modifies the connection's weight in proportion to the error given and passes that error to its connected node via the node's backpropagate.
 I hope you're getting this and feeling a sense of eureka.  :)
 
-Neuron
-
+## Neuron
 
 Neuronet::Neuron is a Neuronet::Node with some extra features.  It adds two attributes: connections, and bias.  As mentioned above, connections is a list, aka Array, of the neuron's connections to other neurons (or nodes).  A neuron's bias is it's kicker (or deduction) to it's activation value as a sum of its connections values.  So a neuron's updated value is set as:
 
-self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.update}
+	self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.update}
 
 If you're not familiar with ruby's Array::inject method, it's the Ruby way of doing summations.  It's really cool once you get the gist of it.  Checkout:
 Jay Field's Thoughts on Ruby: inject
@@ -243,33 +257,34 @@ Induction ( for_all )
 But that's a digression...  Here's how an implementation creates a new neuron:
 neuron = Neuronet::Neuron.new( bias=0.0 )
 There's an attribute accessor for @bias, and an attribute reader for @connections.  The object, neuron, responds to the following methods:
-update
-partial
-backpropagate( error )
-train( target, learning=Neuronet.learning )
-connect( node, weight=0.0 )
+
+	update
+	partial
+	backpropagate( error )
+	train( target, learning=Neuronet.learning )
+	connect( node, weight=0.0 )
+
 The update method sets the neuron's value as described above.  The partial method sets the neuron's value without calling the connections update methods as follows:
 
-self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.value}
+	self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.value}
 
 It's not necessary to burrow all the way down to update the current neuron if it's connected neurons have all been updated.  The implementation should set it's algorithm to use partial instead of update as update will most likely needlessly update previously updated neurons.  The backpropagate method modifies the neuron's bias in proportion to the given error and passes on this error to each of its connection's backpropagate method.  The connect method is how the implementation adds a connection, the way to connect the neuron to another.  To connect neuron out to neuron in, for example, it is:
 
-in = Neuronet::Neuron.new
-out = Neuronet::Neuron.new
-out.connect(in)
+	in = Neuronet::Neuron.new
+	out = Neuronet::Neuron.new
+	out.connect(in)
 
 Think output connects to input.  Here, the input flow would be from in to out, while back-propagation of errors flows from out to in.  If you wanted to train the value of out, out.value, to be 1.5 with the given value of in set at 0.3, you do as follows:
 
-puts "(#{in}, #{out})"  # what you've got before (0.0, 0.0)
-in.value = 0.3
-out.train(1.5)
-out.partial # don't forget to update (no need to go deeper than a, so partial)
-puts "(#{in}, #{out})" # (0.3, 0.113022020702079)
+	puts "(#{in}, #{out})"  # what you've got before (0.0, 0.0)
+	in.value = 0.3
+	out.train(1.5)
+	out.partial # don't forget to update (no need to go deeper than a, so partial)
+	puts "(#{in}, #{out})" # (0.3, 0.113022020702079)
 
 Note that with continued training, b should approach it's target value of 1.5.
 
-InputLayer
-
+## InputLayer
 
 What follows next in lib/neuronet.rb's code is motivated by feedforward neural networks, and Neuronet eventually gets to build one.  Neuronet::InputLayer is an Array of Neuronet::Node's.  An input layer of a given length (number of nodes) is created as follows:
 input = Neuronet::InputLayer.new( length )
@@ -278,123 +293,133 @@ set( input )
 values
 For example, a three neuron input layer with it's neuron values set as -1, 0, and 1:
 
-input = Neuronet::InputLayer(3)
-input.set( [-1, 0, 1] )
-puts input.values.join(', ') # [-1.0,0.0,1.0].join(', ')
+	input = Neuronet::InputLayer(3)
+	input.set( [-1, 0, 1] )
+	puts input.values.join(', ') # [-1.0,0.0,1.0].join(', ')
 
-Layer
-
+## Layer
 
 In Neuronet, InputLayer is to Layer what Node is to Neuron.  Layer is an Array of Neurons.  A Layer object is created as follows:
-layer = Neuronet::Layer.new( length ) # length is the number of neurons in the layer
+
+	layer = Neuronet::Layer.new( length ) # length is the number of neurons in the layer
+
 The Layer object responds to the following methods:
-connect( layer, weight=0.0 )
-partial
-train( targets, learning=Neuronet.learning )
-values
+
+	connect( layer, weight=0.0 )
+	partial
+	train( targets, learning=Neuronet.learning )
+	values
+
 So now one can create layers, connect them, train them, and update them (via partial).  A Perceptron is built this way:
 
-n, m = 3, 3 # building a 3X3 perceptron
-input_layer = Neuronet::InputLayer.new( n )
-output_layer = Neuronet::Layer.new( m )
-output_layer.connect( input_layer )
-# to set the perceptron's input to -0.5,0.25,2.1...
-input_layer.set( [-0.5, 0.25, 2.1] )
-# to train it to -0.1, 0.2, 0.5
-output_layer.train( [-0.1, 0.2, 0.5] )
-output_layer.partial # update!
-# to see its values
-puts output_layer.values.join(', ')
+	n, m = 3, 3 # building a 3X3 perceptron
+	input_layer = Neuronet::InputLayer.new( n )
+	output_layer = Neuronet::Layer.new( m )
+	output_layer.connect( input_layer )
+	# to set the perceptron's input to -0.5,0.25,2.1...
+	input_layer.set( [-0.5, 0.25, 2.1] )
+	# to train it to -0.1, 0.2, 0.5
+	output_layer.train( [-0.1, 0.2, 0.5] )
+	output_layer.partial # update!
+	# to see its values
+	puts output_layer.values.join(', ')
 
 
-FeedForwardNetwork
-
+## FeedForwardNetwork
 
 Now we're building complete networks.  To create a feedforward neural network with optional middle layers, ffnn:
 ffnn = Neuronet::FeedForwardNetwork.new( [input, <layer1, ...,> output], learning=Neuronet.learning )
 The FeedForwardNetwork object, ffnn, responds to the following methods:
-learning=( learning_constant ) # to explicitly set a learning constant
-update
-set( inputs )
-train!( targets, learning=@learning )
-exemplar( inputs, targets, learning=@learning ) # trains an input/output pair
-values(layer) # layer's values
-input # in (first layer's) values
-output # out (last layer's) values
-And has the following attribute readers:
-in # input (first) layer
-out # output (last) layer
+
+	learning=( learning_constant ) # to explicitly set a learning constant
+	update
+	set( inputs )
+	train!( targets, learning=@learning )
+	exemplar( inputs, targets, learning=@learning ) # trains an input/output pair
+	values(layer) # layer's values
+	input # in (first layer's) values
+	output # out (last layer's) values
+	And has the following attribute readers:
+	in # input (first) layer
+	out # output (last) layer
+
 Notice that this time I've named the training method train! (with the exclamation mark).  This is because train! automatically does the update as well.  I thought it might be confusing that at the lower level one had to call train and either partial or update, so I made the distinction.
 Neuronet also provides a convenience method exemplar to train input / output pairs.  It's equivalent the following:
 
 ffnn.set( inputs ); ffnn.train!( targets );
 
-Scale
-
+## Scale
 
 Neuronet::Scale is a class to help scale problems to fit within a network's "field of view".  Given a list of values, it finds the minimum and maximum values and establishes a mapping to a scaled set of numbers between minus one and one (-1,1).  For example:
 
-scale = Neuronet::Scale.new
-values = [ 1, -3, 5, -2 ]
-scale.set( values )
-mapped = scale.mapped( values )
-puts mapped.join(', ') # 0.0, -1.0, 1.0, -0.75
-puts scale.unmapped( mapped ).join(', ') # 1.0, -3.0, 5.0, -2.0
+	scale = Neuronet::Scale.new
+	values = [ 1, -3, 5, -2 ]
+	scale.set( values )
+	mapped = scale.mapped( values )
+	puts mapped.join(', ') # 0.0, -1.0, 1.0, -0.75
+	puts scale.unmapped( mapped ).join(', ') # 1.0, -3.0, 5.0, -2.0
 
 The mapping is like:
 
-center = (maximum + minimum) / 2.0 if center.nil? # calculate center if not given
-spread = (maximum - minimum) / 2.0 if spread.nil? # calculate spread if not given
-inputs.map{ |value|   (value - center) / (factor * spread) }
+	center = (maximum + minimum) / 2.0 if center.nil? # calculate center if not given
+	spread = (maximum - minimum) / 2.0 if spread.nil? # calculate spread if not given
+	inputs.map{ |value|   (value - center) / (factor * spread) }
 
 One can change the range of the map to (-1/factor, 1/factor) where factor is the spread multiplier and force a (prehaps pre-calculated) value for center and spread.  The constructor is:
 scale = Neuronet::Scale.new( factor=1.0, center=nil, spread=nil )
 In the constructor, if the value of center is provided, then that value will be used instead of it being calculated from the values passed to method set.  Likewise, if spread is provided, that value of spread will be used.
 There are two attribute accessors:
-spread
-center
+
+	spread
+	center
+
 One attribute writer:
-init
+
+	init
+
 In the code, the attribute @init flags if there is a initiation phase to the calculation of @spread and @center.  For Scale, @init is true and the initiation phase calculates the intermediate values @min and @max (the minimum and maximum values in the data set).  It's possible for subclasses of Scale, such as Gaussian, to not have this initiation phase.
 An instance, scale, of class Scale will respond to the following methods considered to be public:
-set( inputs )
-mapped_input
-mapped_output
-unmapped_input
-unmapped_output
+
+	set( inputs )
+	mapped_input
+	mapped_output
+	unmapped_input
+	unmapped_output
+
 In Scale, mapped_input and mapped_output are synonyms of mapped, but in general this symmetry may be broken.  Likewise, unmapped_input and unmapped_output are synonyms of unmapped.
 Scale also provides the following methods which are considered private:
-set_init( inputs )
-set_spread( inputs )
-set_center( inputs )
-mapped( inputs )
-unmapped( outputs )
+
+	set_init( inputs )
+	set_spread( inputs )
+	set_center( inputs )
+	mapped( inputs )
+	unmapped( outputs )
+
 Except maybe for mapped and unmapped, there should be no reason for the implementation to call these directly.  These are expected to be overridden by subclasses.  For example, in Gaussian, set_spread calculates the standard deviation and set_center calculates the mean (average), while set_init is skipped by setting @init to false.
 
-Gaussian
-
+## Gaussian
 
 In Neuronet, Gaussian subclasses Scale and is used exactly the same way.  The only changes are that it calculates the arithmetic mean (average) for center and the standard deviation for spread.  The following private methods are overridden to provide that effect:
-set_center( inputs )
-inputs.inject(0.0,:+) / inputs.length
-set_spread( inputs )
-Math.sqrt( inputs.map{|value| self.center - value}.inject(0.0){|sum,value| value*value + sum} / (inputs.length - 1.0) )
 
-LogNormal
+	set_center( inputs )
+	inputs.inject(0.0,:+) / inputs.length
+	set_spread( inputs )
+	Math.sqrt( inputs.map{|value| self.center - value}.inject(0.0){|sum,value| value*value + sum} / (inputs.length - 1.0) )
 
+## LogNormal
 
 Neuronet::LogNormal subclasses Neuronet::Gaussian to transform the values to a logarithmic scale.  It overrides the following methods:
-set( inputs )
-super( inputs.map{|value| Math::log(value)} )
-mapped(inputs)
-super( inputs.map{|value| Math::log(value)} )
-unmapped(inputs)
-super( inputs.map{|value| Math::exp(value)} )
+
+	set( inputs )
+	super( inputs.map{|value| Math::log(value)} )
+	mapped(inputs)
+	super( inputs.map{|value| Math::log(value)} )
+	unmapped(inputs)
+	super( inputs.map{|value| Math::exp(value)} )
 
 So LogNormal is just Gaussian except that it first pipes values through a logarithm, and then pipes the output back through exponentiation.
 
-ScaledNetwork
-
+## ScaledNetwork
 
 So now we're back to where we started.  In Neuronet, ScaledNetwork is a subclass of FeedForwardNetwork.  It automatically scales the problem given to it by using a Scale type instance, Gaussian by default.  It adds on attribute accessor:
 distribution
@@ -403,25 +428,23 @@ ScaledNetwork also adds one method:
 reset( values )
 This method, reset, works just like FeedForwardNetwork's set method, but calls distribution.set( values ) first.  Sometimes you'll want to set the distribution with the entire data set and the use set, and then there will be times you'll want to set the distribution with each input and use reset.  For example, either:
 
-scaled_network.distribution.set( data_set.flatten )
-data_set.each do |inputs,outputs|
-  # ... do your stuff using scaled_network.set( inputs )
-end
+	scaled_network.distribution.set( data_set.flatten )
+	data_set.each do |inputs,outputs|
+  	# ... do your stuff using scaled_network.set( inputs )
+	end
 
 or:
 
-data_set.each do |inputs,outputs|
-  # ... do your stuff using scaled_network.reset( inputs )
-end
+	data_set.each do |inputs,outputs|
+	# ... do your stuff using scaled_network.reset( inputs )
+	end
 
-Pit Falls
+## Pit Falls
 
-
-When sub-classing a Neuronet::Scale type class, make sure mapped_input, mapped_output, unmapped_input, and unmapped_output are defined as you intended.  If you don't override them, they will point to the first ancestor that defines them.  I had a bug (in 2.0.0, fixed in 2.0.1) where I assumed overriding mapped redefined along all it's parent's synonyms... it does not work that way.
+When sub-classing a Neuronet::Scale type class, make sure mapped\_input, mapped\_output, unmapped\_input, and unmapped\_output are defined as you intended.  If you don't override them, they will point to the first ancestor that defines them.  I had a bug (in 2.0.0, fixed in 2.0.1) where I assumed overriding mapped redefined along all it's parent's synonyms... it does not work that way.
 Another pitfall is confusing the input/output flow in connections and back-propagation.  Remember to connect outputs to inputs (out.connect(in)) and to back-propagate from outputs to inputs (out.train(targets)).
 
-Custom Networks
-
+## Custom Networks
 
 To demonstrate how this library can build custom networks, I've created four new classes of feed forward networks.  By the way, I'm completely making these up and was about to call them HotDog, Taco, Burrito, and Enchilada when I then thought of Tao/Yin/Yang: 
 Tao
@@ -430,7 +453,8 @@ In Neuronet, Tao is a three or more layered feed forward neural network with it'
 Yin
 
 In Neuronet, Yin is a Tao with the first hidden layer, hereby called yin, initially set to have corresponding neuron pairs with it's input layer's with weights set to 1.0 and bias 0.5.  This makes yin initially mirror the input layer.  The correspondence is done between the first  neurons in the yin layer and the input layer.
-Yang
+
+## Yang
 
 In Neuronet, Yang is a Tao with it's output layer connected to the last hidden layer, hereby called yang,  such that corresponding neuron pairs have weights set to 1.0 and bias 0.5.  This makes output initially mirror yang.  The correspondence is done between the last neurons in the yang layer and the output layer.
 YinYang
@@ -438,32 +462,31 @@ YinYang
 In Neuronet, YinYang is a Tao that's been Yin'ed Yang'ed.  :))  
 That's a feed forward network of at least three layers with its output layer also connected directly to the input layer, and with the output layer initially mirroring the last hidden layer, and the first hidden layer initially mirroring the input layer.  Note that a particularly interesting YinYang with n inputs and m outputs would be constructed this way:
 
-yinyang = Neuronet::YinYang.new( [n, n+m, m] )
+	yinyang = Neuronet::YinYang.new( [n, n+m, m] )
 
 Here yinyang's hidden layer (which is both yin and yang) initially would have the first n neurons mirror the input and the last m neurons be mirrored by the output.  Another interesting YinYang would be:
 
-yinyang = Neuronet::YinYang.new( [n, n, n] )
+	yinyang = Neuronet::YinYang.new( [n, n, n] )
 
 The following code demonstrates what is meant by "mirroring":
 
-yinyang = Neuronet::YinYang.new( [3, 3, 3] )
-yinyang.reset( [-1,0,1] )
-puts yinyang.in.map{|x| x.activation}.join(', ')
-puts yinyang.yin.map{|x| x.activation}.join(', ')
-puts yinyang.out.map{|x| x.activation}.join(', ')
-puts yinyang.output.join(', ')
+	yinyang = Neuronet::YinYang.new( [3, 3, 3] )
+	yinyang.reset( [-1,0,1] )
+	puts yinyang.in.map{|x| x.activation}.join(', ')
+	puts yinyang.yin.map{|x| x.activation}.join(', ')
+	puts yinyang.out.map{|x| x.activation}.join(', ')
+	puts yinyang.output.join(', ')
 
 Here's the output:
 
-0.268941421369995, 0.5, 0.731058578630005
-0.442490985892539, 0.5, 0.557509014107461
-0.485626707638021, 0.5, 0.514373292361979
--0.0575090141074614, 0.0, 0.057509014107461
+	0.268941421369995, 0.5, 0.731058578630005
+	0.442490985892539, 0.5, 0.557509014107461
+	0.485626707638021, 0.5, 0.514373292361979
+	-0.0575090141074614, 0.0, 0.057509014107461
 
-Questions?
+## Questions?
 
-
-If you have any questions or comments, please use this web-page's comments feature below (you need to be signed in).
+Email me.
 
 
 ## Notes I had on my old ynot2day
