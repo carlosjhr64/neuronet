@@ -2,15 +2,10 @@
 
 Library to create neural networks.
 
-I've just noticed some problems with the backpropation...
-I've yanked all versions from rubygems.
-It's fixable and hope to have it back on rubygems soon.
-
 * Author:	<carlosjhr64@gmail.com>
 * Copyright:	2013
 * License:	[GPL](http://www.gnu.org/licenses/gpl.html)
 * Git Page:	<https://github.com/carlosjhr64/neuronet>
-* Tutorial:	<https://sites.google.com/site/carlosjhr64/rubygems/neuronet>
 
 ##  Installation
 
@@ -18,60 +13,76 @@ It's fixable and hope to have it back on rubygems soon.
 
 ## Synopsis
 
-Given some set of inputs and outputs.
-And a choice for the number of neurons of the middle layer, say 1+rms.
-And some good choice for the learning constant, say rw(N)=1/sqrt(1+N).
+Given some set of inputs and targets that are Array's of Float's.
 Then:
 
-	# data = [ [input, output],  ... }
+	# data = [ [input, target],  ... }
 	# n = input.length
-	# o = output.length
-	# m = 1+rms(n, o).to_i
-	# l = rw(data.length)
+	# t = target.length
+	# m = n + t
+	# l = data.length
 	# Then:
+	# Create a general purpose neurnet
 
-	ffn = Neuronet::ScaledNetwork.new([n, m, o])
-	ffn.learning = l
+	neuronet = Neuronet::ScaledNetwork.new([n, m, t])
 
-	# or
-	# ffn = Neuronet::ScaledNetwork.new([n, m, o], l)
-	# Training:
+	# "Bless" it as a TaoYinYang,
+        # a perceptron hybrid with the middle layer
+	# initially mirroring the input layer and
+	# mirrored by the output layer.
+
+	Neuronet::TaoYinYang.bless(neuronet)
+
+        # The following sets the learning constant
+        # to something I think is reasonable.
+
+	neuronet.num(l)
+
+	# Start training
 
 	MANY.times do
-	  data.shuffle.each do |input, output|
-	    ffn.reset(input)
-	    ffn.train!(output)
+	  data.shuffle.each do |input, target|
+	    neuronet.exemplar(input, target)
 	  end
 	end # or until some small enough error
 
-	# or
-	# data.each{|input, output| ffn.exemplar(input, output)}
-	# Once trained, you can set inputs and get outputs:
+	# See how well the training went
 
 	require 'pp'
-	while input = fromsomewhere.gets
-	  ffn.reset(input)
-	  pp ffn.output
+	data.each do |input, target|
+	  puts "Input:"
+	  pp input
+	  puts "Actual:"
+	  neuronet.reset(input) # sets the input values
+	  pp neuronet.output # gets the output values
+	  puts "Actual:"
+	  pp target
 	end
 
-## Notes I had on google sites
+## Introduction
 
-These are notes I had which needs review.
-Just want to hava a backup.
+Neuronet is a pure Ruby 1.9, sigmoid squashed, neural network building library.
+It allows one to build a network by connecting one neuron at a time, or a layer at a time,
+or up to a full feed forward network that automatically scales the inputs and outputs.
 
-From: <https://sites.google.com/site/carlosjhr64/rubygems/neuronet>
+I chose a TaoYinYang'ed ScaledNetwork neuronet for the synopsis because
+it'll probably handle most anything you'd throw at it.
+But there's a lot you can do to the data before throwing it at a neuronet.
+And you can build a neuronet specifically to solve a particular kind of problem.
+Properly transforming the data and choosing the right neuronet architecture
+can greatly reduce the amount of training time the neuronet will require.
+A neuronet with the wrong architecture for a problem will be unable to solve it.
+Raw data without hints as to what's important in the data will take longer to solve.
 
-Neuronet is a pure Ruby 1.9, sigmoid squashed, neural network building library.  It allows one to build a network by connecting one neuron at a time, or a layer at a time, or up to a full feed forward network that automatically scales the inputs and outputs.  This Ruby Gem can be found at:
+As an analogy, think of what you can do with linear regression.
+Your raw data may not be a line, but if a transform converts it to a linear form,
+you can use linear regression to find the best fit line, and
+from that deduce the properties untransformed data.
+Likewise, if you can transform the data into something the neuronet can solve,
+you can by inverse get back the anwser you're lookin for.
 
-https://rubygems.org/gems/neuronet
 
-In this page I document version 5.
-As you read the documentation that follows, I would recommend you also have a view of lib/neuronet.rb as I pretty much cover it section by section working my way down the file.
-
-
-
-Time Series
-
+## Example: Time Series
 
 First, a little motivation...
 A common use for a neural-net is to attempt to forecast future set of data points based on past set of data points, Time series.  To demonstrate, I'll train a network with the following function:

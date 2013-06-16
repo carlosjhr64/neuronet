@@ -19,10 +19,10 @@ spec = Gem::Specification.new do |s|
   s.description = "Build custom neural networks. 100% 1.9 Ruby."
 
   s.authors = ['carlosjhr64@gmail.com']
-  s.email = "carlosjhr64@gmail.com"
+  s.email = 'carlosjhr64@gmail.com'
 
   files = []
-  $stderr.puts "RBs"
+  $stderr.puts 'RBs'
   Find.find('./lib'){|fn|
     if fn=~/\.rb$/ then
       $stderr.puts fn
