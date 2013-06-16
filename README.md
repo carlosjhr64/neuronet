@@ -117,17 +117,25 @@ The gist of the
 [example code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
 is:
 
-The constructor
-:	neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS])
+* The constructor
 
-Setting learning constant
-:	neuronet.num(1.0)
-Setting the input values
-:	neuronet.reset(input)
-Getting the neuronet's output
-:	output = neuronet.output
-Training the target
-:	neuronet.train!(target)
+	neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS])
+
+* Setting learning constant
+
+	neuronet.num(1.0)
+
+* Setting the input values
+
+	neuronet.reset(input)
+
+* Getting the neuronet's output
+
+	output = neuronet.output
+
+* Training the target
+
+	neuronet.train!(target)
 
 Heres a sample output:
 
