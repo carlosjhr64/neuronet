@@ -16,13 +16,13 @@ n.times do
   sum += Neuronet.noise
 end
 # Everyonce in a while by chage, this will happen.
-raise "Noise not averaging to one? (Happens sometimes)" unless (sum/n.to_f).round(2) == 1
+raise "Noise not averaging to one? (Happens sometimes)" unless (sum/n.to_f).round(1) == 1.0
 sum = 0.0
 n.times do
   sum += (1.0 - Neuronet.noise)**2.0
 end
 std = Math.sqrt(sum/n.to_f)
-raise "Standard Deviation in noise not 0.29?" unless std.round(2) == 0.29
+raise "Standard Deviation #{std.round(2)} in noise not 0.29?" unless std.round(1) == 0.4
 
 
 ### Node ###
