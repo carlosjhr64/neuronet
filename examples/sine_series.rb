@@ -28,7 +28,7 @@ puts "Cycle step = #{(afrequency/cycle).round(3)}"
 ffnet = Neuronet::ScaledNetwork.new([input_layers, output_layers])
 # We're trying to train a function, so there's no noise
 # to smooth out over a number of data points.
-ffnet.num = 1.0
+ffnet.num(1.0)
 
 # Training...
 mma = amplitude # moving average set high to be averaged down.

@@ -353,7 +353,6 @@ module Neuronet
       return sum
     end
     def initialize(layers)
-      raise "Tao needs to be at least 3 layers" if layers.length < 3
       super(layers)
       # @out directly connects to @in
       self.out.connect(self.in)
