@@ -144,7 +144,7 @@ raise "ScaledNetwork should have Guassian." unless ffn.distribution.class == Neu
 raise "ScaledNetwork should respond to reset" unless ffn.respond_to?(:reset)
 
 ### Tao ###
-ffn = Neuronet::Tao.new([6,5,4,3,2])
+ffn = Neuronet::Tao.bless Neuronet::ScaledNetwork.new([6,5,4,3,2])
 mu = 1 + 6 + 6*5 + 5 + 5*4 + 4 + 4*3 + 3 + 3*2 + 6*2
 raise "MU???" unless ffn.mu == mu
 raise "Yin should be a layer." unless ffn.yin.class == Neuronet::Layer
@@ -161,12 +161,12 @@ end
 ### Yin ###
 complained = false
 begin
-  ffn = Neuronet::Yin.new([5,3,3])
+  ffn = Neuronet::Yin.bless Neuronet::FeedForward.new([5,3,3])
 rescue Exception
   complained = true
 end
 raise "Should have complained about Input longer than Yin" unless complained
-ffn = Neuronet::Yin.new([3,3,3])
+ffn = Neuronet::Yin.bless Neuronet::FeedForward.new([3,3,3])
 0.upto(ffn.yin.length-1) do |i|
   raise "Yin is supposed to initially mirror input" unless ffn.yin[i].connections[i].weight == 1
 end
@@ -174,23 +174,18 @@ end
 ### Yang ###
 complained = false
 begin
-  ffn = Neuronet::Yang.new([3,3,5])
+  ffn = Neuronet::Yang.bless Neuronet::FeedForward.new([3,3,5])
 rescue Exception
   complained = true
 end
 raise "Should have complained about Output longer than Yang" unless complained
-ffn = Neuronet::Yang.new([3,3,3])
+ffn = Neuronet::Yang.bless Neuronet::FeedForward.new([3,3,3])
 0.upto(ffn.out.length-1) do |i|
   raise "Output is supposed to initially mirror Yang" unless ffn.out[i].connections[i].weight == 1
 end
 
-### YinYang ###
-ffn = Neuronet::YinYang.new([4,4,4])
+### TaoYinYang ###
+ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([3,5,2])
 # It works... I know it does.  :P
-
-### Bless to Tao ###
-ffn = Neuronet::FeedForward.new([5,4,3])
-mu1 = ffn.mu
-Neuronet.tao(ffn)
-mu2 = ffn.mu
-raise "mu should have upgraded" unless mu2 - mu1 = 5*3
+mu = ffn.mu
+raise "mu should have upgraded" unless mu == 1 + 3 + 3*5 + 5 + 5*2 + 3*2

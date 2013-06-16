@@ -346,22 +346,27 @@ module Neuronet
   end
 
   # A Perceptron Hybrid
-  class Tao < ScaledNetwork
+  module Tao
     def mu
       sum = super
       sum += self.first.length * self.last.length
       return sum
     end
-    def initialize(layers)
-      super(layers)
+    def self.bless(myself)
       # @out directly connects to @in
-      self.out.connect(self.in)
+      myself.out.connect(myself.in)
+      myself.extend Tao
+      # Save current learning and set it to muk(1).
+      l, m = myself.learning, myself.muk
+      # If learning was lower b/4, revert.
+      myself.learning = l if l<m
+      return myself
     end
   end
 
-  # A Tao with @in initially tied to @yin
-  class Yin < Tao
-    def self.reweigh(myself)
+  # sets @yin to initially mirror @in
+  module Yin
+    def self.bless(myself)
       yin = myself.yin
       if yin.length < (in_length = myself.in.length)
         raise "First hidden layer, yin, needs to have at least the same length as input"
@@ -372,17 +377,13 @@ module Neuronet
         node.connections[index].weight = 1.0
         node.bias = -0.5
       end
-    end
-
-    def initialize(layers)
-      super(layers)
-      Yin.reweigh(self)
+      return myself
     end
   end
 
-  # A Tao with yang initially tied to output
-  class Yang < Tao
-    def self.reweigh(myself)
+  # sets @out to initially mirror @yang
+  module Yang
+    def self.bless(myself)
       offset = myself.yang.length - (out_length = (out = myself.out).length)
       raise "Last hidden layer, yang, needs to have at least the same length as output" if offset < 0
       0.upto(out_length-1) do |index|
@@ -390,33 +391,44 @@ module Neuronet
         node.connections[offset+index].weight = 1.0
         node.bias = -0.5
       end
-    end
-
-    def initialize(layers)
-      super(layers)
-      Yang.reweigh(self)
+      return myself
     end
   end
 
-  # A Tao Yin-Yang-ed  :))
-  class YinYang < Tao
-    def initialize(layers)
-      super(layers)
-      Yin.reweigh(self)
-      Yang.reweigh(self)
+  # And convenient composites...
+
+  # Yin-Yang-ed  :))
+  module YinYang
+    def self.bless(myself)
+      Yin.bless(myself)
+      Yang.bless(myself)
+      return myself
     end
   end
 
-  def self.tao(ffn)
-    ffn.out.connect(ffn.in)
-    def ffn.mu
-      super + self.out.length*self.in.length
+  module TaoYinYang
+    def self.bless(myself)
+      Tao.bless(myself)
+      Yin.bless(myself)
+      Yang.bless(myself)
+      return myself
     end
-    # What's the current value of learning.
-    l = ffn.learning
-    # Redo learning.
-    m = ffn.muk
-    # If learning was lower b/4, revert.
-    ffn.learning = l if l<m
   end
+
+  module TaoYin
+    def self.bless(myself)
+      Tao.bless(myself)
+      Yin.bless(myself)
+      return myself
+    end
+  end
+
+  module TaoYang
+    def self.bless(myself)
+      Tao.bless(myself)
+      Yang.bless(myself)
+      return myself
+    end
+  end
+
 end

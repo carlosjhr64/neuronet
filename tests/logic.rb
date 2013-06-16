@@ -11,15 +11,11 @@ def network(i)
     ffn = Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1]'
   when 3
-    ffn = Neuronet::FeedForward.new([2,3,1])
-    Neuronet.tao(ffn)
+    ffn = Neuronet::Tao.bless Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1] Tao'
   when 4
-    ffn = Neuronet::FeedForward.new([2,3,1])
-    Neuronet.tao(ffn)
-    Neuronet::Yin.reweigh(ffn)
-    Neuronet::Yang.reweigh(ffn)
-    name = '[2,3,1] Tao-Yin-Yang'
+    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,1])
+    name = '[2,3,1] TaoYinYang'
   end
   return ffn, name
 end

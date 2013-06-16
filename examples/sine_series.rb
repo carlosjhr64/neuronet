@@ -35,7 +35,7 @@ mma = amplitude # moving average set high to be averaged down.
 count = 0
 while (mma/amplitude > 0.01) && (count < max_count) do # looking for 1%, but quit if it's taking too long
   count += 1
-  print '.' if count%100 == 0
+  print '.' if count%5000 == 0
   phase = random.call # any random starting point for the series
   input = 0.upto(input_layers-1).inject([]){|v,t| v.push( function.call(phase,t) ) }
   ffnet.reset(input) # reset sets both ffnet and distribution

@@ -11,21 +11,14 @@ def network(i)
     ffn = Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1]'
   when 3
-    ffn = Neuronet::FeedForward.new([2,3,1])
-    Neuronet.tao(ffn)
+    ffn = Neuronet::Tao.bless Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1] Tao'
   when 4
-    ffn = Neuronet::FeedForward.new([2,3,1])
-    Neuronet.tao(ffn)
-    Neuronet::Yin.reweigh(ffn)
-    Neuronet::Yang.reweigh(ffn)
-    name = '[2,3,1] Tao-Yin-Yang'
+    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,1])
+    name = '[2,3,1] TaoYinYang'
   when 5
-    ffn = Neuronet::FeedForward.new([2,3,2,1])
-    Neuronet.tao(ffn)
-    Neuronet::Yin.reweigh(ffn)
-    Neuronet::Yang.reweigh(ffn)
-    name = '[2,3,2,1] Tao-Yin-Yang'
+    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,2,1])
+    name = '[2,3,2,1] TaoYinYang'
   end
   return ffn, name
 end
@@ -50,9 +43,9 @@ end
       puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
     end
   end
+end
   puts <<EOT
 I've yet to observe any of the provided architectures do multiplication.
 If you figure out an network architecture that can to multiplication,
 email me a description of it at carlosjhr64@gmail.com.
 EOT
-end
