@@ -117,27 +117,38 @@ The gist of the
 [example code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
 is:
 
-	# create ffnet, a 20/5 layered feed forward network.
-	ffnet = Neuronet:ScaledNetwork.new([20,5])
+The constructor
+:	neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS])
 
-	# train as if there was a single data point (OK in this case)
-	ffnt.num(1.0)
-
-	# set the scaling according to these values, and
-	# set the input layer to these values.
-	ffnet.reset( [f(0),...,f(19)] )
-
-	# what is the output with the given inputs?
-	guess = ffnet.output
-
-	# train the network with the actual expected output.
-	ffnet.train!( [f(20),...,f(24)] )
+Setting learning constant
+:	neuronet.num(1.0)
+Setting the input values
+:	neuronet.reset(input)
+Getting the neuronet's output
+:	output = neuronet.output
+Training the target
+:	neuronet.train!(target)
 
 Heres a sample output:
 
-	TODO
-	TODO
-	TODO
+	f(phase, t) = 3.002 + 3.28*Sin(phase + 1.694*t)
+	Cycle step = 0.27
+
+	Iterations:	1738
+	Relative Error (std/B): 0.79%	Standard Deviation: 0.026
+	Examples:
+
+	Input:	0.522, 1.178, 5.932, 4.104, -0.199, 2.689, 6.28, 2.506, -0.154, 4.276, 5.844, 1.028, 0.647, 5.557, 4.727, 0.022, 2.011, 6.227, 3.198, -0.271
+	Target:	3.613, 6.124, 1.621, 0.22, 5.069
+	Output:	3.575, 6.101, 1.664, 0.227, 5.028
+
+	Input:	5.265, 5.079, 0.227, 1.609, 6.12, 3.626, -0.27, 3.184, 6.229, 2.024, 0.016, 4.716, 5.565, 0.656, 1.017, 5.837, 4.288, -0.151, 2.493, 6.28
+	Target:	2.703, -0.202, 4.091, 5.938, 1.189
+	Output:	2.728, -0.186, 4.062, 5.931, 1.216
+
+	Input:	5.028, 0.193, 1.669, 6.14, 3.561, -0.274, 3.25, 6.217, 1.961, 0.044, 4.772, 5.524, 0.61, 1.07, 5.87, 4.227, -0.168, 2.558, 6.281, 2.637
+	Target:	-0.188, 4.153, 5.908, 1.135, 0.557
+	Output:	-0.158, 4.112, 5.887, 1.175, 0.564
 
 
 ScaledNetwork automatically scales each input via Neuronet::Gaussian,
