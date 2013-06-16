@@ -8,18 +8,18 @@ def network(i)
     ffn = Neuronet::FeedForward.new([2,1])
     name = '[2,1]'
   when 2
-    ffn = Neuronet::FeedForward.new([2,2,1])
-    name = '[2,2,1]'
+    ffn = Neuronet::FeedForward.new([2,3,1])
+    name = '[2,3,1]'
   when 3
-    ffn = Neuronet::FeedForward.new([2,2,1])
+    ffn = Neuronet::FeedForward.new([2,3,1])
     Neuronet.tao(ffn)
-    name = '[2,2,1] Tao'
+    name = '[2,3,1] Tao'
   when 4
-    ffn = Neuronet::FeedForward.new([2,2,1])
+    ffn = Neuronet::FeedForward.new([2,3,1])
     Neuronet.tao(ffn)
     Neuronet::Yin.reweigh(ffn)
     Neuronet::Yang.reweigh(ffn)
-    name = '[2,2,1] Tao-Yin-Yang'
+    name = '[2,3,1] Tao-Yin-Yang'
   end
   return ffn, name
 end
@@ -62,9 +62,9 @@ data_xor = [
         ffn.exemplar(input, target)
       end
     end
-      data.each do |input, target|
+    data.each do |input, target|
       ffn.set(input)
-      puts "#{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
+      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
     end
   end
 end
