@@ -79,7 +79,7 @@ Your raw data might not be linear, but if a transform converts it to a linear fo
 you can use linear regression to find the best fit line, and
 from that deduce the properties of the untransformed data.
 Likewise, if you can transform the data into something the neuronet can solve,
-you can by inverse get back the anwser you're lookin for.
+you can by inverse get back the answer you're lookin for.
 
 # RANDOM NOTES I'M STILL EDITING BELOW...
 
@@ -105,15 +105,17 @@ if I set at random the phase (C above), so that for any given random phase we wa
 	[f(0),...,f(19)] => [f(20),...,f(24)]
 
 I'll be using Neuronet::ScaledNetwork.
-Also note that the Sine function is entirely defined within a cycle ( 2*Math::PI ) and
-so parameters need only to be set within the cycle.
-After a lot of testing, I've verified that a Perceptron is enough to solve the problem.
-The Sine function is [linearly separable](http://en.wikipedia.org/wiki/Linearly_separable).
+Also note that the Sine function is entirely defined within a cycle ( 2 Math::PI ) and
+so parameters (particularly C) need only to be set within the cycle.
+After a lot of testing, I've verified that a 
+[Perceptron](http://en.wikipedia.org/wiki/Perceptron) is enough to solve the problem.
+The Sine function is [Linearly separable](http://en.wikipedia.org/wiki/Linearly_separable).
 Adding hidden layers needlessly adds training time, but does converge.
 
-	[Example Code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
 
-The gist of the code is:
+The gist of the
+[example code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
+is:
 
 	# create ffnet, a 20/5 layered feed forward network.
 	ffnet = Neuronet:ScaledNetwork.new([20,5])
