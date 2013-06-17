@@ -1,7 +1,7 @@
 require 'neuronet'
 
 ### Squash/UnSquash ###
-raise "Expected version 6.0.0" unless Neuronet::VERSION == '6.0.0'
+raise "Expected version 6.0.1" unless Neuronet::VERSION == '6.0.1'
 raise "Bad Squash 0.0" unless Neuronet.squash(0.0) == 0.5
 raise "Bad Squash 1.0" unless Neuronet.squash(1.0).round(3) == 0.731
 raise "Bad Squash -1.0" unless Neuronet.squash(-1.0).round(3) == 0.269
@@ -89,7 +89,7 @@ raise "WUT IZZ MU???" unless ffn.mu == mu
 ffn.muk(0.5)
 raise "What the muk!?" unless ffn.learning == 0.5/mu
 ffn.num(2.0)
-raise "Num num!?" unless ffn.learning == 1.0/(Math.sqrt(1.0 + 2.0) * mu)
+raise "Num num!?" unless ffn.learning == 1.0/(Math.sqrt(2.0) * mu)
 ffn.learning = 0.0123
 raise "Could not set learing constant." unless ffn.learning == 0.0123
 raise "ffn.in is not InputLayer?" unless ffn.in.class == Neuronet::InputLayer

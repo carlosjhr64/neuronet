@@ -46,6 +46,6 @@ end
 end
   puts <<EOT
 I've yet to observe any of the provided architectures do multiplication.
-If you figure out an network architecture that can to multiplication,
+If you figure out an network architecture that can do multiplication,
 email me a description of it at carlosjhr64@gmail.com.
 EOT
