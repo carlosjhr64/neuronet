@@ -1,4 +1,4 @@
-# Neuronet 6.0.0
+# Neuronet 6.0.1
 
 Library to create neural networks.
 
@@ -66,7 +66,7 @@ It allows one to build a network by connecting one neuron at a time, or a layer 
 or up to a full feed forward network that automatically scales the inputs and outputs.
 
 I chose a TaoYinYang'ed ScaledNetwork neuronet for the synopsis because
-it'll probably handle most anything you'd throw at it.
+it will probably handle most anything with 3 or more input variables you'd throw at it.
 But there's a lot you can do to the data before throwing it at a neuronet.
 And you can build a neuronet specifically to solve a particular kind of problem.
 Properly transforming the data and choosing the right neuronet architecture
@@ -187,11 +187,11 @@ This attribute, activation, need never appear in an implementation of Neuronet, 
 it is mapped back to it's unsquashed value every time
 the implementation asks for the neuron's value.
 
-	Neuronet.squash( unsquashed )
-	1.0 / ( 1.0 + Math.exp( -unsquashed ) )
+[Neuronet.squash( unsquashed )](http://rubydoc.info/gems/neuronet/Neuronet.squash)
+:	1.0 / ( 1.0 + Math.exp( -unsquashed ) )
 
-	Neuronet.unsquashed( squashed )
-	Math.log( squashed / ( 1.0 - squashed ) )
+[Neuronet.unsquashed( squashed )](http://rubydoc.info/gems/neuronet/Neuronet.unsquash)
+:	Math.log( squashed / ( 1.0 - squashed ) )
 
 ## Learning Constant
 
