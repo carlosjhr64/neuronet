@@ -339,176 +339,153 @@ Email me.
 
 # Theory
 
-The following is a dislation of notes I had from years ago...  I cite two books:
+## The Biological Description of a Neuron
+
+Usually a neuron is described as being either on or off.
+I think it is more useful to describe a neuron as having a pulse rate.
+A neuron would either have a high or a low pulse rate.
+In absence of any stimuli from neighbohring neurons, the neuron may also have a rest pulse rate.
+A neuron receives stimuli from other neurons through the axons that connects them.
+These axons communicate to the receiving neuron the pulse rates of the transmitting neurons.
+The signal from other neurons are either strengthen or weakened at the synapse, and
+might either inhibit or excite the receiving neuron.
+Regardless of how much stimuli the neuron gets,
+a neuron has a maximum pulse it cannot exceed.
 
-* [Neural Networks & Fuzzy Logic](http://books.google.com/books/about/C++_Neural_Networks_and_Fuzzy_Logic.html?id=WWY5AAAACAAJ)
+## The Mathematical Model of a Neuron
 
-by Dr. Valluru B. Rao and Hayagriva V. Rao (1995), and
+Since my readers here are probably Ruby programmers, I'll write the math in a Ruby-ish way.
+Allow me to sum this way:
 
-* [Neural Computing Architectures](http://books.google.com/books?id=ixEbHQAACAAJ&dq=Neural+Computing+Architectures+edited+by+Igor+Aleksander+(1989)&hl=en&sa=X&ei=HTi_UaDpFYaayQHVm4DoBQ&ved=0CDkQ6AEwAA)
+	module Enumerable
+	  def sum
+	    map{|a| yield(a)}.inject(0, :+)
+	  end
+	end
+	[1,2,3].sum{|i| 2*i} == 2+4+6 # => true
 
-edited by Igor Aleksander (1989) which includes "A theory of neural networks" by Eduardo R. Caianiello, and
-"Backpropagation in non-feedforward networks" by Luis B. Almeida.
+Can I convince you that taking the derivative of a function looks like this?
 
+	def d(x)
+	  dx = SMALL
+	  f = yield(x)
+	  (yield(x+dx) - f)/dx
+	end
+	dfdx = d(a){|x| f(x)}
 
-The following is my analysis of the general mathematics of neural networks, which clarity I have not found elsewhere. 
+So the Ruby-ish way to write one of the rules of Calculus is:
 
-First, let me define my notation. I hate to reinvent the wheel (well, actually, it is kind of fun to do so), but I do not know the standard math notation when using straight ASCII typed from a normal keyboard. So I define the notation for sumation, differentiation, the sigmoid function, and the exponential function given as Exp{}. Indexes to vectors and arrays are bracketed with []. Objects acted on by functions are bracketed by {}. Grouping of variables/objects is achieved with (). I also use () to include parameters that modify a function.
-
-Definition of Sum:
-
-Sum(j=1 to 3){A[j]} = A[1]+A[2]+A[3] 
-Sum(i=0 to N){f[i]} = f[i]+...+f[N]
-
-Definition of Dif:
-
-Dif(x){x^n} = n*x^(n-1) 
-Dif(y){f{u}} = Dif(u){f{u}}*Dif(y){u}
-
-Definition of Sig:
-
-Sig{z} = 1/(1+Exp{-z})
-
-Next, I describe a mathematical model of a neuron. Usually a neuron is described as being either on or off. I believe it more usefull to describe a neuron as having a pulse rate. A boolean (true or false) neuron would either have a high or a low pulse rate. In absence of any stimuli from neighbohring neurons, the neuron may also have a rest pulse rate. The rest pulse rate is due to the the bias of a neuron. A neuron receives stimuli from other neurons through the axons that connect them. These axons communicate to the receiving neuron the pulse rates of the transmitting neurons. The signal from other neurons are either strengthen or weakened at the synapse, and might either inhibit or excite the receiving neuron. The sum of all these signals is the activation of the receiving neuron. The activation of a neuron determines the neuron's actual response (its pulse rate), which the neuron then transmits to other neurons through its axons. Finally, a neuron has a maximum pulse rate which I map to 1, and a minimum pulse rate of 0.
-
-Let the bias of a neuron be b[], the activation, y[], the response, x[], and the weights, w[,]. The pulse rate of a receiving neuron, r, is related to its activation which is related to the pulse rates of the other transmitting neurons, t, by the following equations:
-
-x[r] = Sig{ y[r] } 
-y[r] = b[r] + Sum(All t){ w[r,t] * x[t] } 
-x[r] = Sig{ b[r] + Sum(All t){w[r,t] * x[t]} }
-
-Next I try to derive the learning rule of the neural network. Somehow, a neuron can be trained to become more or less sensitive to stimuli from another neuron and to become more or less sensitive in general. That is, we can change the neuron's bias and synaptic weights. To do it right, I need an estimate of the error in the neuron's pulse and relate this to the correction needed in the bias and each synaptic weight. This type of error analysis is usually aproximated through differentiation. What is the error in the pulse rate due to an error in a synaptic weight?
-
-Dif(w[r,t]){x[r]} = Dif(y[r]){Sig{y[r]}}*Dif(w[r,t]){y[r]}} 
-
-Dif(z){Sig{z}} = -Exp{-z}/(1+Exp{-z})^2 
-= (1-1-Exp{-z})/(1+Exp{-z})^2 
-= (1-(1+Exp{-z}))/(1+Exp{-z})^2 
-= 1/(1+Exp{-z})^2 - 1/(1+Exp{-z}) 
-= Sig{z}^2 - Sig{z} 
-= Sig{z}*(Sig{z}-1)  # <== THIS HAS TO BE WRONG! Looking for D{f}=f(1-f)
-
-Dif(y[r]){Sig{y[r]}} = Sig{y[r]}*(Sig{y[r]}-1) = 
-= x[r]*(x[r]-1) 
-
-Dif(w[r,t]){y[r]} = Dif(w[r,t]){Sum(t){w[r,t]*x[t]}} = x[t] 
-
-Dif(w[r,t]){x[r]} = x[r] * (x[r]-1) * x[t]
-
-Let X[r] be the correct pulse rate. The error in the pulse rate is the difference between the correct value and the actual computation, e[r]=X[r]-x[r]. Let dx[r,t] be the error in x[r] due to weight w[r,t]. Consider that dx[r,t]/dw[r,t] aproximates Dif(w[r,t]){x[r]}.
-
-dx[r,t]/dw[r,t] = Dif(w[r,t]){x[r]} 
-dx[r,t] = x[r] * (x[r]-1) * x[t] * dw[r,t]
-
-Then e[r] is the sum of all errors, dx[r,t].
-
-e[r] = Sum(t){ dx[r,t] } = 
-= Sum(t=1 to N){ x[r]*(x[r]-1)*x[t]*dw[r,t] }
-
-Straight Algebra thus far. Now the tricky part... I have related the error in a neuron's pulse to the sum of the errors in the neurons receiving synapses. What I really want is to relate it to a particular synapse. This information is lost in the sum, and I must rely on statistical chance. Let me first pretend I know that the error partitions itself among the synapses with distribution u[i,j].
-
-e[r] = Sum(t=1 to N){ u[r,t] e[r] } 
-u[r,t] * e[r] = x[r] * (x[r]-1) * x[t] * dw[r,t]
-
-The average value of u[r,t] is probably 1/N. In any case, the point is that this average is a small number less than 1. We use an equi-partition hypothesis and assume that each dw[r,t] is equally likely to be the source of error. Let u[r,t] ~ u, a small number, for all r and t. The best estimate of dw[r,t] becomes:
-
-u * e[r] = x[r] * (x[r]-1) * x[t] * dw[r,t] 
-dw[r,t] = u * e[r] / ( x[r] * (x[r]-1) * x[t] ) ???
-
-If u~1/N was not tricky, then consider this. x[] is meant to converge to either 0 or 1. That is x[] is meant to be boolean. Note how the above equation for dw[i,j] could not really work if x[] truly were 0 or 1. But x[] is a fuzzy variable never really achieving 0 or 1.
-
-How do I conclude that... dw[r,t]=u * x[r] * (1-x[r]) * x[t] * e[r] ...which is the correct learning rule?
-
-This is the part of the Neural Net jargon I have not been able to bring to my level. I believe the answer is buried in what is being called transposition of linear networks. My analysis is correct up to this:
-
-u * e[r] = x[r] * (x[r]-1) * x[t] * dw[r,t]
-
-This equation relates the error in the pulse of neuron to the error in the synaptic weight between the transmiting neuron, t, and the receiving neuron, r. I believe the transposition of linear networks states that the relationship remains the same when back propagating the error in the neural pulse to the the synaptic weight. That is, we do not invert the multiplication factor. This seems intuitive, but I admit I am confused by the paradox in the algebra above. Thus...
-
-The Learning Rule for the (0,1) sigmoid neuron 
-dw[r,t] = x[r] * (x[r]-1) * x[t] * u * e[r]
-
-The derivation for the correction to the bias is analogous. Note that the x[t] factor does not appear in this case.
-
-db[r] = Dif(b[r]){x[r]} * u * e[r] 
-= x[r]*(x[r]-1)*Dif(b[r]){br} * u * e[r] = x[r]*(x[r]-1)*1 * u * e[r] 
-db[r] = x[r]*(x[r]-1) * u * e[r]
-
-I was able to arrive at an estimate to the correction needed for the output neuron's synaptic weight and bias. I knew what the output was suppose to be, X[r], and the actual computation, x[r]. The error of the output neuron, e[r], was X[r]-x[r]. But what if the neuron was not an output neuron? I need to propagate back the error of the output neuron (and later for the general receiving neuron) to each of its transmitting neuron. The error of a transmitting neuron is assigned to be the sum of all errors propagated back from all of its receiving neurons.
-
-e[t] = Sum(r){ x[r] * (x[r]-1) * x[t] * u * e[r] }
-
-Then, when we get to adjusting the transmitting neuron we will have an estimate of its pulse error. These are the learning equations for the general neural network:
-
-dw[r,t] = Dif(w[r,t]){x[r]} * u * e[r] 
-db[r] = Dif(b[r]){x[r]} * u * e[r]
-
-The above equations give the correction to the synaptic weight and neural bias once we are given the error in a neuron. Next, we need to propagate back the known errors in the output through the network.
-
-e[t] = X[t] - x[t] if the i'th neuron is also the output. 
-e[t] = Sum(r){ w[r,t] * e[r] * Dif(b[r]){x[r]} } for the rest.
-
-Note how I sent the errors from the receiving neurons to the transmitting neuron. I hope this explains the theory well. I distilled it from the above sources.
-
-
-## Notes from reading neuronet
-
-For some Neuronet::FeedForward object, obj:
-
-	obj.output
-	obj.out.values
-	obj.out.map{|node| node.to_f}
-	obj.out.map{|node| node.value}
-	obj.out.map{|node| unsquash(node.activation)}
-	obj.out.map{|node| bias+connections }
-
-	O[i] = b + Sum(1,J){|j| W[i,j] Squash(I[j])}
-
-	100 +/- 1 = 50 + sum[1,50]{|j| w[i,j]I[j]}
-	de = 1/100
-	b += b*de
-
-If we say that the value of some output is
-
-	Output[o] = Bias[o] + Sum{ Connection[m,o] }
-
-has some error E
-
-	Target[o] = Output[o] + E
-
-Then there is an e such that
-
-	Output[o](1+e) = Output[o] + E
-	  (1+e) = (Output[o] + E)/Output[o]
-	  1+e = 1 + E/Output[o]
-	  e = E/Output[o]
-
-And Target can be set as
-
-	Target[o] = (Bias[o] + Sum{ Connection[m,o] })(1+e)
-	Target[o] = Bias[o](1+e) + Sum{ Connection[m,o] }(1+e)
-
-Assumping equipartition in error,
-we might then suggest the following correction to Bias:
-
-	Bias[o] = Bias[o](1+e)
-	  Bias[o] = Bias[o]+Bias[o]e
-	  Bias[o] += Bias[o]e
-
-
-	Remember that:
-	D{squash(u)} = squash(u)*(1-squash(u))*D{u}
-
-	@activation = squash( @bias + @connections...)
-	D{ @activation } = D{ squash( @bias + @connections...) }
-	D{ @activation } = @activation*(1-@activation) D{ @bias + @connections... }
-	Just the part due to bias...
-	D.bias{ @activation } = @activation*(1-@activation) D{ @bias }
-	D.bias{ @activation } / (@activation*(1-@activation)) = D{ @bias }
-	Just the part due to connection...
-	D.connection{ @activation } = @activation*(1-@activation) D{ @connections... }
-
-	D
+	d{|x| Ax^n} == nAx^(n-1)
+
+We won't bother distinguishing integers from floats.
+The sigmoid function is:
+
+	def sigmoid(x)
+	  1/(1+exp(-x))
+	end
+	sigmoid(a) == 1/(1+exp(a))
+
+A neuron's pulserate increases with increasing stimulus, so
+we need a model that adds up all the stimuli a neuron gets.
+The sum of all stimuli we will call the neuron's value.
+(I find this confusing, but
+it works out that it is this sum that will give us the problem space value.)
+To model the neuron's rest pulse, we'll say that it has a bias value, it's own stimuli.
+Stimuli from other neurons comes through the connections, so there is a sum over all the connections.
+The stimuli from other transmitting neurons is be proportional to their own pulsetates and
+the weight the receiving neuron gives them.
+In the model we will call the pulserate the neuron's activation.
+Lastly, to more closely match the code, a neuron is a node.
+This is what we have so far:
+
+	value = bias + connections.sum{|connection| connection.weight * connection.node.activation }
+
+	# or by their biological synonyms
+
+	stimulus = unsquashed_rest_pulse_rate +
+	  connections.sum{|connection| connection.weight * connection.neuron.pulserate}
+
+Unsquashed rest pulse rate?  Yeah, I'm about to close the loop here.
+As described, a neuron can have a very low pulse rate, effectively zero,
+and a maximum pulse which I will define as being one.
+The sigmoid function will take any amount it gets and squashes it to a number between zero and one,
+which is what we need to model the neuron's behavior.
+To get the node's activation (aka neuron's pulserate) from the node's value (aka neuron's stimulus),
+we squash the value with the sigmoid function.
+
+	# the node's activation from it's value
+	activation = sigmoid(value)
+
+	# or by their biological synonyms
+
+	# the neuron's pulserate from its stimulus
+	pulserate = sigmoid(stimulus)
+
+So the "rest pulse rate" is sigmoid("unsquashed rest pulse rate").
+
+There's a lot of really complicated math in understanding how neural networks work.
+But if we concentrate on just the part pertinent to the bacpkpropagation code, it's not that bad.
+The trick is to do the analysis in the problem space (otherwise things get real ugly).
+When we train a neuron, we want the neuron's value to match a target as closely as possible.
+The deviation from the target is the error:
+
+	error = target - value
+
+Where does the error come from?
+It comes from deviations from the ideal bias and weights the neuron should have.
+
+	target = value + error
+	target = bias + bias_error +
+	  connections.sum{|connection| (connection.weight + weight_error) * connection.node.activation }
+	error = bias_error + connections.sum{|connection| weight_error * connection.node.activation }
+
+Next we assume that the errors are equally likely everwhere,
+so that the bias error is expected to be same on average as weight error.
+That's where the learning constant comes in.
+We need to divide the error equally among all contributors, say 1/N.
+Then:
+
+	error = error/N + connections.sum{|connection| error/N * connection.node.activation }
+
+Note that if the equation above represents the entire network, then
+
+	N = 1 + connections.length
+
+So now that we know the error, we can modify the bias and weights.
+
+	bias += error/N
+	connection.weight += connection.node.activation * error/N
+
+The Calculus is:
+
+	d{|bias| bias + connections.sum{|connection| connection.weight * connection.node.activation }}
+	  == d{|bias| bias}
+
+	d{|connection.weight| bias + connections.sum{|connection| connection.weight * connection.node.activation }}
+	  == connection.node.activation * d{|weight| connection.weight }
+
+So what's all the ugly math you'll see elsewhere?
+Well, you can try to do the above analysis in neuron space.
+Then you're inside the squash function.
+I'll just show derivative of the sigmoid function:
+
+	d{|x| sigmoid(x)} ==
+	  d{|x| 1/(1+exp(-x))} ==
+	  1/(1+exp(-x))^2 * d{|x|(1+exp(-x)} ==
+	  1/(1+exp(-x))^2 * d{|x|(exp(-x)} ==
+	  1/(1+exp(-x))^2 * d{|x| -x}*exp(-x) ==
+	  1/(1+exp(-x))^2 * (-1)*exp(-x) ==
+	  -exp(-x)/(1+exp(-x))^2 ==
+	  (1 -1 - exp(-x))/(1+exp(-x))^2 ==
+	  (1 - (1 + exp(-x)))/(1+exp(-x))^2 ==
+	  (1 - 1/sigmoid(x)) * sigmoid^2(x) ==
+	  (sigmoid(x) - 1) * sigmoid(x) ==
+	  sigmoid(x)*(sigmoid(x) - 1)
+	# =>
+	d{|x| sigmoid(x)} == sigmoid(x)*(sigmoid(x) - 1)
+
+From there you try to find the errors from the point of view of the activation instead of the value.
+But as the code clearly shows, the analysis need not get this deep.
 
 ## Learning Constant
 
