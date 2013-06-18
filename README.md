@@ -2,10 +2,11 @@
 
 Library to create neural networks.
 
+* Gem:		<https://rubygems.org/gems/neuronet>
+* Git:		<https://github.com/carlosjhr64/neuronet>
 * Author:	<carlosjhr64@gmail.com>
 * Copyright:	2013
 * License:	[GPL](http://www.gnu.org/licenses/gpl.html)
-* Git Page:	<https://github.com/carlosjhr64/neuronet>
 
 ##  Installation
 
@@ -75,7 +76,8 @@ can greatly reduce the amount of training time the neuronet will require.
 A neuronet with the wrong architecture for a problem will be unable to solve it.
 Raw data without hints as to what's important in the data will take longer to solve.
 
-As an analogy, think of what you can do with linear regression.
+As an analogy, think of what you can do with
+[linear regression](http://en.wikipedia.org/wiki/Linear_regression).
 Your raw data might not be linear, but if a transform converts it to a linear form,
 you can use linear regression to find the best fit line, and
 from that deduce the properties of the untransformed data.
@@ -92,7 +94,7 @@ To demonstrate, I'll train a network with the following function:
 
 	f(t) = A + B sine(C + D t), t in [0,1,2,3,...]
 
-I'll set A, B, C, and D to some random number and see
+I'll set A, B, C, and D with random numbers and see
 if eventually the network can predict the next set of values based on previous values.
 I'll try:
 
@@ -106,7 +108,7 @@ if I set at random the phase (C above), so that for any given random phase we wa
 
 I'll be using [Neuronet::ScaledNetwork](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork).
 Also note that the Sine function is entirely defined within a cycle ( 2 Math::PI ) and
-so parameters (particularly C) need only to be set within the cycle.
+so parameters (particularly C) need only to be set within this cycle.
 After a lot of testing, I've verified that a 
 [Perceptron](http://en.wikipedia.org/wiki/Perceptron) is enough to solve the problem.
 The Sine function is [Linearly separable](http://en.wikipedia.org/wiki/Linearly_separable).
@@ -165,8 +167,6 @@ The input must have at least three points.
 You can tackle many problems just with
 [Neuronet::ScaledNetwork](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork)
 as described above.
-So now that you're hopefully interested and want to go on to exactly how it all works,
-I'll describe Neuronet from the ground up.
 
 # Component Architecture
 
@@ -255,6 +255,8 @@ Here's a sample output:
 
 Note that the tiny neuronet has a limit on how precisely it can match the target, and
 even after a million times training it won't do any beter than when it trains a few thousands.
+[code](https://github.com/carlosjhr64/neuronet/blob/master/examples/neurons.rb)
+
 
 ## InputLayer and Layer
 
@@ -272,13 +274,13 @@ You can set the input values and update this way:
 	in.set([1,2,3,4,5,6,7,8,9])
 	out.partial
 
-Partial means the update wont travel further than the current layer.
-which it's all we have in this case anyways.
-You get the output like this:
+Partial means the update wont travel further than the current layer,
+which is all we have in this case anyways.
+You get the output this way:
 
 	output = out.output # returns an array of values
 
-You train to target this way:
+You train this way:
 
 	target = [1] #<= whatever value you want in the array
 	learning = 0.1
@@ -286,10 +288,10 @@ You train to target this way:
 
 ## FeedForward Network
 
-Most if the time, you'll just use a network created with the
+Most of the time, you'll just use a network created with the
 [FeedForward](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward) class,
 or a modified version or subclass of it.
-Here we build a neuronet with four layer.
+Here we build a neuronet with four layers.
 The input layer has four neurons, and the output has three.
 Then we train it with a list of inputs and targets
 using the method [#exemplar](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward:exemplar):
@@ -323,7 +325,7 @@ Tao
 
 Perceptrons are already very capable and quick to train.
 By connecting the input layer to the output layer of a multilayer FeedForward network,
-you'll get what the Perceptron solution quicker while the middle layers work on the harder problem.
+you'll get the Perceptron solution quicker while the middle layers work on the harder problem.
 You can do that this way:
 
 	neronet.out.connect(neuronet.in)
@@ -398,10 +400,14 @@ Note that sigmoid is centered about 0.5 which maps to 0.0 in problem space.
 It is for this reason that I suggest the problem be displaced (subtracted)
 by it's average to be centered about zero and scaled (divided) by it standard deviation.
 Try to get most of the data to fit within sigmoid's central "field of view" (-1, 1).
-Say stuff about scaling the problem...
 
 ## Scale, Gaussian, and Log Normal
 
+Neuronet provides three classes to help scale the problem space.
+[Neuronet::Scale](http://rubydoc.info/gems/neuronet/Neuronet/Scale)
+is the simplest most straight forward.
+It finds the range and center of a list of values, and
+linearly tranforms it to a range of (-1,1) centered at 0.
 For example:
 
 	scale = Neuronet::Scale.new
@@ -411,7 +417,7 @@ For example:
 	puts mapped.join(', ') # 0.0, -1.0, 1.0, -0.75
 	puts scale.unmapped( mapped ).join(', ') # 1.0, -3.0, 5.0, -2.0
 
-The mapping is like:
+The mapping is the following:
 
 	center = (maximum + minimum) / 2.0 if center.nil? # calculate center if not given
 	spread = (maximum - minimum) / 2.0 if spread.nil? # calculate spread if not given
@@ -419,7 +425,7 @@ The mapping is like:
 
 One can change the range of the map to (-1/factor, 1/factor)
 where factor is the spread multiplier and force
-a (prehaps pre-calculated) value for center and spread.
+a (perhaps pre-calculated) value for center and spread.
 The constructor is:
 
 	scale = Neuronet::Scale.new( factor=1.0, center=nil, spread=nil )
@@ -428,24 +434,41 @@ In the constructor, if the value of center is provided, then
 that value will be used instead of it being calculated from the values passed to method set.
 Likewise, if spread is provided, that value of spread will be used.
 
-So LogNormal is just Gaussian except that it first pipes values through a logarithm, and
+[Neuronet::Gaussian](http://rubydoc.info/gems/neuronet/Neuronet/Gaussian)
+works the same way, except that it uses the average value of the list given
+for the center, and the standard deviation for the spread.
+
+And [Neuronet::LogNormal](http://rubydoc.info/gems/neuronet/Neuronet/LogNormal)
+is just like Gaussian except that it first pipes values through a logarithm, and
 then pipes the output back through exponentiation.
 
 ## ScaledNetwork
 
-
-For example, either:
+[Neuronet::ScaledNetwork](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork)
+automates the problem space scaling.
+You can choose to do your scaling over the entire data set if you think
+the relative scale of the individual inputs matter.
+For example if in the problem one apple is good but two is to many...
+In that case do this:
 
 	scaled_network.distribution.set( data_set.flatten )
 	data_set.each do |inputs,outputs|
   	# ... do your stuff using scaled_network.set( inputs )
 	end
 
-or:
+If on the other hand the scale of the individual inputs is not the relevant feature,
+you can you your scaling per individual input.
+For example a small apple is an apple, and so is the big one.  They're both apples.
+Then do this:
 
 	data_set.each do |inputs,outputs|
 	# ... do your stuff using scaled_network.reset( inputs )
 	end
+
+Note that in the first case you are using
+[#set](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork:set)
+and in the second case you are using
+[#reset](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork:reset).
 
 ### Pit Falls
 
@@ -453,13 +476,12 @@ When sub-classing a Neuronet::Scale type class,
 make sure mapped\_input, mapped\_output, unmapped\_input,
 and unmapped\_output are defined as you intended.
 If you don't override them, they will point to the first ancestor that defines them.
-I had a bug (in 2.0.0, fixed in 2.0.1) where
-I assumed overriding mapped redefined along all it's parent's synonyms...
-it does not work that way.
+Overriding #mapped does piggyback the aliases and
+they will continue to point to the original #mapped method.
+
 Another pitfall is confusing the input/output flow in connections and back-propagation.
 Remember to connect outputs to inputs (out.connect(in)) and
 to back-propagate from outputs to inputs (out.train(targets)).
-
 
 # Interesting Custom Networks
 
