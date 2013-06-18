@@ -7,11 +7,11 @@ Library to create neural networks.
 * License:	[GPL](http://www.gnu.org/licenses/gpl.html)
 * Git Page:	<https://github.com/carlosjhr64/neuronet>
 
-#  Installation
+##  Installation
 
 	gem install neuronet
 
-# Synopsis
+## Synopsis
 
 Given some set of inputs and targets that are Array's of Float's.
 Then:
@@ -59,7 +59,7 @@ Then:
 	  pp target
 	end
 
-# Introduction
+## Introduction
 
 Neuronet is a pure Ruby 1.9, sigmoid squashed, neural network building library.
 It allows one to build a network by connecting one neuron at a time, or a layer at a time,
@@ -81,9 +81,10 @@ from that deduce the properties of the untransformed data.
 Likewise, if you can transform the data into something the neuronet can solve,
 you can by inverse get back the answer you're lookin for.
 
-# Example: Time Series
+# Examples
 
-First, a little motivation...
+## Time Series
+
 A common use for a neural-net is to attempt to forecast future set of data points
 based on past set of data points, [Time series](http://en.wikipedia.org/wiki/Time_series).
 To demonstrate, I'll train a network with the following function:
@@ -109,7 +110,6 @@ After a lot of testing, I've verified that a
 [Perceptron](http://en.wikipedia.org/wiki/Perceptron) is enough to solve the problem.
 The Sine function is [Linearly separable](http://en.wikipedia.org/wiki/Linearly_separable).
 Adding hidden layers needlessly adds training time, but does converge.
-
 
 The gist of the
 [example code](https://github.com/carlosjhr64/neuronet/blob/master/examples/sine_series.rb)
@@ -153,7 +153,6 @@ Heres a sample output:
 	Target:	-0.188, 4.153, 5.908, 1.135, 0.557
 	Output:	-0.158, 4.112, 5.887, 1.175, 0.564
 
-
 ScaledNetwork automatically scales each input via
 [Neuronet::Gaussian](http://rubydoc.info/gems/neuronet/Neuronet/Gaussian),
 so the input needs to be many variables and
@@ -168,68 +167,235 @@ as described above.
 So now that you're hopefully interested and want to go on to exactly how it all works,
 I'll describe Neuronet from the ground up.
 
-# STILL EDITING. MOVED A LOT INTO RDOC.
+# Component Architecture
 
-Stuff To Say...
+## Nodes and Neurons
 
-Think output connects to input.
-Here, the input flow would be from in to out,
-while back-propagation of errors flows from out to in.
-If you wanted to train the value of out, out.value,
-to be 1.5 with the given value of in set at 0.3, you do as follows:
+[Nodes](http://rubydoc.info/gems/neuronet/Neuronet/Node)
+are used to set inputs while
+[Neurons](http://rubydoc.info/gems/neuronet/Neuronet/Neuron)
+are used for outputs and middle layers.
+It's easy to create and connect Nodes and Neurons.
+You can assemble custom neuronets one neuron at a time.
+Too illustrate, here's a simple network that adds two random numbers.
 
-	puts "(#{in}, #{out})"  # what you've got before (0.0, 0.0)
-	in.value = 0.3
-	out.train(1.5)
-	out.partial # don't forget to update (no need to go deeper than a, so partial)
-	puts "(#{in}, #{out})" # (0.3, 0.113022020702079)
+	require 'neuronet'
+	include Neuronet
 
-Note that with continued training, b should approach it's target value of 1.5.
+	def random
+	  rand - rand
+	end
+
+	# create the input nodes
+	a = Node.new
+	b = Node.new
+
+	# create the output neuron
+	sum = Neuron.new
+
+	# and a neuron on the side
+	adjuster = Neuron.new
+
+	# connect the adjuster to a and b
+	adjuster.connect(a)
+	adjuster.connect(b)
+
+	# connect sum to a and b
+	sum.connect(a)
+	sum.connect(b)
+	# and to the adjuster
+	sum.connect(adjuster)
+
+	# The learning constant is about...
+	learning = 0.1
+
+	# Train the tiny network
+	10_000.times do
+	  a.value = x = random
+	  b.value = y = random
+	  target = x+y
+	  output = sum.update
+	  sum.backpropagate(learning*(target-output))
+	end
+
+	# Let's see how well the training went
+	10.times do
+	  a.value = x = random
+	  b.value = y = random
+	  target = x+y
+	  output = sum.update
+	  puts "#{x.round(3)} + #{y.round(3)} = #{target.round(3)}"
+	  puts "  Neuron says #{output.round(3)}, #{(100.0*(target-output)/target).round(2)}% error."
+	end
 
 
-For example, a three neuron input layer with it's neuron values set as -1, 0, and 1:
+Here's a sample output:
 
-	input = Neuronet::InputLayer(3)
-	input.set( [-1, 0, 1] )
-	puts input.values.join(', ') # [-1.0,0.0,1.0].join(', ')
+	0.003 + -0.413 = -0.41
+	  Neuron says -0.413, -0.87% error.
+	-0.458 + 0.528 = 0.07
+	  Neuron says 0.07, -0.45% error.
+	0.434 + -0.125 = 0.309
+	  Neuron says 0.313, -1.43% error.
+	-0.212 + 0.34 = 0.127
+	  Neuron says 0.131, -2.83% error.
+	-0.364 + 0.659 = 0.294
+	  Neuron says 0.286, 2.86% error.
+	0.045 + 0.323 = 0.368
+	  Neuron says 0.378, -2.75% error.
+	0.545 + 0.901 = 1.446
+	  Neuron says 1.418, 1.9% error.
+	-0.451 + -0.486 = -0.937
+	  Neuron says -0.944, -0.77% error.
+	-0.008 + 0.219 = 0.211
+	  Neuron says 0.219, -3.58% error.
+	0.61 + 0.554 = 1.163
+	  Neuron says 1.166, -0.25% error.
 
-A Layer object is created as follows:
+Note that the tiny neuronet has a limit on how precisely it can match the target, and
+even after a million times training it won't do any beter than when it trains a few thousands.
 
-	# length is the number of neurons in the layer
-	layer = Neuronet::Layer.new( length )
+## InputLayer and Layer
 
-So now one can create layers, connect them, train them, and update them (via partial).
-A Perceptron is built this way:
+Instead of working with individual neurons, you can work with layers.
+Here we build a [Perceptron](http://en.wikipedia.org/wiki/Perceptron):
 
-	n, m = 3, 3 # building a 3X3 perceptron
-	input_layer = Neuronet::InputLayer.new( n )
-	output_layer = Neuronet::Layer.new( m )
-	output_layer.connect( input_layer )
-	# to set the perceptron's input to -0.5,0.25,2.1...
-	input_layer.set( [-0.5, 0.25, 2.1] )
-	# to train it to -0.1, 0.2, 0.5
-	output_layer.train( [-0.1, 0.2, 0.5] )
-	output_layer.partial # update!
-	# to see its values
-	puts output_layer.values.join(', ')
+	in = InputLayer.new(9)
+	out = Layer.new(1)
+	out.connect(in)
 
+When making connections keep in mind "outputs connects to inputs",
+not the other way around.
+You can set the input values and update this way:
 
+	in.set([1,2,3,4,5,6,7,8,9])
+	out.partial
 
-Now we're building complete networks.
-To create a feedforward neural network with optional middle layers, ffnn:
+Partial means the update wont travel further than the current layer.
+which it's all we have in this case anyways.
+You get the output like this:
 
-	ffnn = Neuronet::FeedForwardNetwork.new([input, <layer1, ...,> output])
+	output = out.output # returns an array of values
 
+You train to target this way:
 
-Notice that this time I've named the training method train! (with the exclamation mark).
-This is because train! automatically does the update as well.
-I thought it might be confusing that at the lower level one had to call train and
-either partial or update, so I made the distinction.
-Neuronet also provides a convenience method exemplar to train input / output pairs.
-It's equivalent the following:
+	target = [1] #<= whatever value you want in the array
+	learning = 0.1
+	out.train(target, learning)
 
+## FeedForward Network
 
-Scale
+Most if the time, you'll just use a network created with the
+[FeedForward](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward) class,
+or a modified version or subclass of it.
+Here we build a neuronet with four layer.
+The input layer has four neurons, and the output has three.
+Then we train it with a list of inputs and targets
+using the method [#exemplar](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward:exemplar):
+
+	neuronet = Neuronet::FeedForward.new([4,5,6,3])
+	LIST.each do |input, target|
+	  neuronet.exemplar(input, target)
+	  # you could also train this way:
+	  # neuronet.set(input)
+	  # neuronet.train!(target)
+	end
+
+The first layer is the input layer and the last layer is the output layer.
+Neuronet also names the second and second last layer.
+The second layer is called yin.
+The second last layer is called yang.
+For the example above, we can check their lengths.
+
+	puts neuronet.in.length #=> 4
+	puts neuronet.yin.length #=> 5
+	puts neuronet.yang.length #=> 6
+	puts neuronet.out.length #=> 3
+	
+## Tao, Yin, and Yang
+
+Tao
+:	(in Chinese philosophy) The absolute principle underlying the universe, combining within itself the principles of yin and yang and...
+
+Perceptrons are already very capable and quick to train.
+By connecting the input layer to the output layer of a multilayer FeedForward network,
+you'll get what the Perceptron solution quicker while the middle layers work on the harder problem.
+You can do that this way:
+
+	neronet.out.connect(neuronet.in)
+
+But giving that a name, [Tao](http://rubydoc.info/gems/neuronet/Neuronet/Tao),
+(<== Trust, that's funny!)
+and using a prototype pattern to modify the instance is more fun:
+
+	Tao.bless(neuronet)
+
+Yin
+:	(in Chinese philosophy) The passive female principle of the universe, characterized as female and sustaining and associated with earth,...
+
+Initially FeedForward sets the weights of all connections to zero.
+That is, there is no association made from input to ouput.
+Changes in the inputs have no effect on the output.
+Training begins the process that sets the weights to associate the two.
+But you can also manually set the initial weights.
+One useful way to initially set the weigths is to have one layer mirror another.
+The [Yin](http://rubydoc.info/gems/neuronet/Neuronet/Yin) bless makes yin mirror the input.
+
+	Yin.bless(neuronet)
+
+Yang
+:	(in Chinese philosophy) The active male principle of the universe, characterized as male and creative and associated with heaven, heat,...
+
+One the other hand, the [Yang](http://rubydoc.info/gems/neuronet/Neuronet/Yang)
+bless makes the output mirror yang.
+
+	Yang.bless(neuronet)
+
+Bless
+:	(of a priest) Pronounce words in a religious rite, to confer or invoke divine favor upon.
+
+The reason Tao, Yin, and Yang are not classes onto themselves is that
+you can combine these, and a protoptype pattern (bless) works better in this case.
+Bless is the keyword used in [Perl](http://www.perl.org/) to create objects,
+so it's not without precedent.
+To combine all three features, Tao, Yin, and Yang, do this:
+
+	Tao.bless Yin.bless Yang.bless neuronet
+
+To save typing, the library provides the possible combinations.
+For example:
+
+	TaoYinYang.bless neuronet
+
+# Scaling The Problem
+
+The squashing function, sigmoid, maps real numbers (negative infinity, positive infinity)
+to the segment zero to one (0,1).
+But for the sake of computation in a neural net,
+sigmoid works best if the problem is scaled to numbers
+between negative one and positive one (-1, 1).
+Study the following table and see if you can see why:
+
+	 x => sigmoid(x)
+	 9 => 0.99987...
+	 3 => 0.95257...
+	 2 => 0.88079...
+	 1 => 0.73105...
+	 0 => 0.50000...
+	-1 => 0.26894...
+	-2 => 0.11920...
+	-3 => 0.04742...
+	-9 => 0.00012...
+
+As x gets much higher than 3, sigmoid(x) gets to be pretty close to just 1, and
+as x gets much lower than -3, sigmoid(x) gets to be pretty close to 0.
+Note that sigmoid is centered about 0.5 which maps to 0.0 in problem space.
+It is for this reason that I suggest the problem be displaced (subtracted)
+by it's average to be centered about zero and scaled (divided) by it standard deviation.
+Try to get most of the data to fit within sigmoid's central "field of view" (-1, 1).
+Say stuff about scaling the problem...
+
+## Scale, Gaussian, and Log Normal
 
 For example:
 
@@ -260,7 +426,7 @@ Likewise, if spread is provided, that value of spread will be used.
 So LogNormal is just Gaussian except that it first pipes values through a logarithm, and
 then pipes the output back through exponentiation.
 
-ScaledNetwork
+## ScaledNetwork
 
 
 For example, either:
@@ -276,7 +442,7 @@ or:
 	# ... do your stuff using scaled_network.reset( inputs )
 	end
 
-Pit Falls
+### Pit Falls
 
 When sub-classing a Neuronet::Scale type class,
 make sure mapped\_input, mapped\_output, unmapped\_input,
@@ -290,21 +456,8 @@ Remember to connect outputs to inputs (out.connect(in)) and
 to back-propagate from outputs to inputs (out.train(targets)).
 
 
-Custom Networks
+# Interesting Custom Networks
 
-To demonstrate how this library can build custom networks,
-I've created four new classes of feed forward networks.
-By the way, I'm completely making these up and was about to call them
-HotDog, Taco, Burrito, and Enchilada when I then thought of Tao/Yin/Yang: 
-
-Say something about why "bless".
-It's a *prototype* pattern.
-
-In Neuronet, YinYang is a Tao that's been Yin'ed Yang'ed.  :))  
-That's a feed forward network of at least three layers with
-its output layer also connected directly to the input layer, and
-with the output layer initially mirroring the last hidden layer, and
-the first hidden layer initially mirroring the input layer.
 Note that a particularly interesting YinYang with n inputs and m outputs
 would be constructed this way:
 
@@ -333,9 +486,6 @@ Here's the output:
 	0.485626707638021, 0.5, 0.514373292361979
 	-0.0575090141074614, 0.0, 0.057509014107461
 
-## Questions?
-
-Email me.
 
 # Theory
 
@@ -423,6 +573,8 @@ we squash the value with the sigmoid function.
 
 So the "rest pulse rate" is sigmoid("unsquashed rest pulse rate").
 
+## Backpropagation of Errors
+
 There's a lot of really complicated math in understanding how neural networks work.
 But if we concentrate on just the part pertinent to the bacpkpropagation code, it's not that bad.
 The trick is to do the analysis in the problem space (otherwise things get real ugly).
@@ -439,7 +591,7 @@ It comes from deviations from the ideal bias and weights the neuron should have.
 	  connections.sum{|connection| (connection.weight + weight_error) * connection.node.activation }
 	error = bias_error + connections.sum{|connection| weight_error * connection.node.activation }
 
-Next we assume that the errors are equally likely everwhere,
+Next we assume that the errors are equally likely everywhere,
 so that the bias error is expected to be same on average as weight error.
 That's where the learning constant comes in.
 We need to divide the error equally among all contributors, say 1/N.
@@ -496,7 +648,6 @@ One concern is that the training data may contain noise, random errors.
 So the training of the network should add up the true signal in the data
 while canceling out the noise.  This balance is set via the learning constant.
 
-
 	neuronet.learning
 	# Returns the current value of the network's learning constant
 
@@ -523,29 +674,6 @@ the learning constant would be the square root of 1/2.
 This would suggest that although we're taking larger steps than half steps,
 due to the nature of a random walk, we're approaching the solution in half steps.
 
-## Scaling The Problem
+# Questions?
 
-The squashing function, sigmoid, maps real numbers (negative infinity, positive infinity)
-to the segment zero to one (0,1).
-But for the sake of computation in a neural net,
-sigmoid works best if the problem is scaled to numbers
-between negative one and positive one (-1, 1).
-Study the following table and see if you can see why:
-
-	 x => sigmoid(x)
-	 9 => 0.99987...
-	 3 => 0.95257...
-	 2 => 0.88079...
-	 1 => 0.73105...
-	 0 => 0.50000...
-	-1 => 0.26894...
-	-2 => 0.11920...
-	-3 => 0.04742...
-	-9 => 0.00012...
-
-As x gets much higher than 3, sigmoid(x) gets to be pretty close to just 1, and
-as x gets much lower than -3, sigmoid(x) gets to be pretty close to 0.
-Note that sigmoid is centered about 0.5 which maps to 0.0 in problem space.
-It is for this reason that I suggest the problem be displaced (subtracted)
-by it's average to be centered about zero and scaled (divided) by it standard deviation.
-Try to get most of the data to fit within sigmoid's central "field of view" (-1, 1).
+Email me!
