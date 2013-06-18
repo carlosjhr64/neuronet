@@ -325,7 +325,6 @@ You can do that this way:
 	neronet.out.connect(neuronet.in)
 
 But giving that a name, [Tao](http://rubydoc.info/gems/neuronet/Neuronet/Tao),
-(<== Trust, that's funny!)
 and using a prototype pattern to modify the instance is more fun:
 
 	Tao.bless(neuronet)
