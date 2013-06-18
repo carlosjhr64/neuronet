@@ -1,5 +1,10 @@
 # TODOs
 
+Issues with set, reset, train, train!, and exemplar.
+	It's present ways to trip the user.
+	Want to make it hard to use these the wrong way.
+	Or easier to use them the right way?
+
 Maybe add a wrapper around nn.
 
 ## DONE

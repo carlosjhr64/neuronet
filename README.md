@@ -13,16 +13,16 @@ Library to create neural networks.
 
 ## Synopsis
 
-Given some set of inputs and targets that are Array's of Float's.
-Then:
+Given some set of inputs (of at least length 3) and
+targets that are Array's of Float's.  Then:
 
 	# data = [ [input, target],  ... }
-	# n = input.length
+	# n = input.length # > 3
 	# t = target.length
 	# m = n + t
 	# l = data.length
 	# Then:
-	# Create a general purpose neurnet
+	# Create a general purpose neuronet
 
 	neuronet = Neuronet::ScaledNetwork.new([n, m, t])
 
@@ -42,7 +42,8 @@ Then:
 
 	MANY.times do
 	  data.shuffle.each do |input, target|
-	    neuronet.exemplar(input, target)
+	    neuronet.reset(input)
+	    neuronet.train!(target)
 	  end
 	end # or until some small enough error
 
@@ -315,7 +316,10 @@ For the example above, we can check their lengths.
 ## Tao, Yin, and Yang
 
 Tao
-:	(in Chinese philosophy) The absolute principle underlying the universe, combining within itself the principles of yin and yang and...
+:	The absolute principle underlying the universe,
+	combining within itself the principles of yin and yang and
+	signifying the way, or code of behavior,
+	that is in harmony with the natural order.
 
 Perceptrons are already very capable and quick to train.
 By connecting the input layer to the output layer of a multilayer FeedForward network,
@@ -330,7 +334,8 @@ and using a prototype pattern to modify the instance is more fun:
 	Tao.bless(neuronet)
 
 Yin
-:	(in Chinese philosophy) The passive female principle of the universe, characterized as female and sustaining and associated with earth,...
+:	The passive female principle of the universe, characterized as female and
+	sustaining and associated with earth, dark, and cold.
 
 Initially FeedForward sets the weights of all connections to zero.
 That is, there is no association made from input to ouput.
@@ -343,7 +348,8 @@ The [Yin](http://rubydoc.info/gems/neuronet/Neuronet/Yin) bless makes yin mirror
 	Yin.bless(neuronet)
 
 Yang
-:	(in Chinese philosophy) The active male principle of the universe, characterized as male and creative and associated with heaven, heat,...
+:	The active male principle of the universe, characterized as male and
+	creative and associated with heaven, heat, and light.
 
 One the other hand, the [Yang](http://rubydoc.info/gems/neuronet/Neuronet/Yang)
 bless makes the output mirror yang.
@@ -351,7 +357,7 @@ bless makes the output mirror yang.
 	Yang.bless(neuronet)
 
 Bless
-:	(of a priest) Pronounce words in a religious rite, to confer or invoke divine favor upon.
+:	Pronounce words in a religious rite, to confer or invoke divine favor upon.
 
 The reason Tao, Yin, and Yang are not classes onto themselves is that
 you can combine these, and a protoptype pattern (bless) works better in this case.
