@@ -470,13 +470,13 @@ Note that in the first case you are using
 and in the second case you are using
 [#reset](http://rubydoc.info/gems/neuronet/Neuronet/ScaledNetwork:reset).
 
-### Pit Falls
+# Pit Falls
 
 When sub-classing a Neuronet::Scale type class,
 make sure mapped\_input, mapped\_output, unmapped\_input,
 and unmapped\_output are defined as you intended.
 If you don't override them, they will point to the first ancestor that defines them.
-Overriding #mapped does piggyback the aliases and
+Overriding #mapped does not piggyback the aliases and
 they will continue to point to the original #mapped method.
 
 Another pitfall is confusing the input/output flow in connections and back-propagation.
