@@ -488,19 +488,19 @@ to back-propagate from outputs to inputs (out.train(targets)).
 Note that a particularly interesting YinYang with n inputs and m outputs
 would be constructed this way:
 
-	yinyang = Neuronet::YinYang.new( [n, n+m, m] )
+	yinyang = YinYang.bless FeedForward.new( [n, n+m, m] )
 
 Here yinyang's hidden layer (which is both yin and yang)
 initially would have the first n neurons mirror the input and
 the last m neurons be mirrored by the output.
 Another interesting YinYang would be:
 
-	yinyang = Neuronet::YinYang.new( [n, n, n] )
+	yinyang = YinYang.bless FeedForward.new( [n, n, n] )
 
 The following code demonstrates what is meant by "mirroring":
 
-	yinyang = Neuronet::YinYang.new( [3, 3, 3] )
-	yinyang.reset( [-1,0,1] )
+	yinyang = YinYang.bless FeedForward.new( [3, 3, 3] )
+	yinyang.set( [-1,0,1] )
 	puts yinyang.in.map{|x| x.activation}.join(', ')
 	puts yinyang.yin.map{|x| x.activation}.join(', ')
 	puts yinyang.out.map{|x| x.activation}.join(', ')
@@ -513,7 +513,6 @@ Here's the output:
 	0.485626707638021, 0.5, 0.514373292361979
 	-0.0575090141074614, 0.0, 0.057509014107461
 
-
 # Theory
 
 ## The Biological Description of a Neuron
@@ -521,7 +520,7 @@ Here's the output:
 Usually a neuron is described as being either on or off.
 I think it is more useful to describe a neuron as having a pulse rate.
 A neuron would either have a high or a low pulse rate.
-In absence of any stimuli from neighbohring neurons, the neuron may also have a rest pulse rate.
+In absence of any stimuli from neighboring neurons, the neuron may also have a rest pulse rate.
 A neuron receives stimuli from other neurons through the axons that connects them.
 These axons communicate to the receiving neuron the pulse rates of the transmitting neurons.
 The signal from other neurons are either strengthen or weakened at the synapse, and
@@ -568,7 +567,8 @@ The sum of all stimuli we will call the neuron's value.
 (I find this confusing, but
 it works out that it is this sum that will give us the problem space value.)
 To model the neuron's rest pulse, we'll say that it has a bias value, it's own stimuli.
-Stimuli from other neurons comes through the connections, so there is a sum over all the connections.
+Stimuli from other neurons comes through the connections,
+so there is a sum over all the connections.
 The stimuli from other transmitting neurons is be proportional to their own pulsetates and
 the weight the receiving neuron gives them.
 In the model we will call the pulserate the neuron's activation.
@@ -585,9 +585,11 @@ This is what we have so far:
 Unsquashed rest pulse rate?  Yeah, I'm about to close the loop here.
 As described, a neuron can have a very low pulse rate, effectively zero,
 and a maximum pulse which I will define as being one.
-The sigmoid function will take any amount it gets and squashes it to a number between zero and one,
+The sigmoid function will take any amount it gets and
+squashes it to a number between zero and one,
 which is what we need to model the neuron's behavior.
-To get the node's activation (aka neuron's pulserate) from the node's value (aka neuron's stimulus),
+To get the node's activation (aka neuron's pulserate)
+from the node's value (aka neuron's stimulus),
 we squash the value with the sigmoid function.
 
 	# the node's activation from it's value
@@ -680,7 +682,19 @@ while canceling out the noise.  This balance is set via the learning constant.
 
 	neuronet.learning = float
 	# where float is greater than zero but less than one.
-	# Sets the global learning constant by an implementation given value
+
+By default, Neuronet::FeedForward sets the learning constant to 1/N, where
+N is the number of biases and weights in the network
+(plus one, just because...).  You can get the vale of N with
+[#mu](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward:mu).
+
+So I'm now making up a few more names for stuff.
+The number of contributors to errors in the network is  #mu.
+The learning constant based on #mu is
+[#muk](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward:muk).
+You can modify the learning constant to some fraction of muk, say 0.7, this way:
+
+	neuronet.muk(0.7)
 
 I've not come across any hard rule for the learning constant.
 I have my own intuition derived from the behavior of random walks.
@@ -688,18 +702,12 @@ The distance away from a starting point in a random walk is
 proportional to the square root of the number of steps.
 I conjecture that the number of training data points is related to
 the optimal learning constant in the same way.
-I have come across 0.2 as a good value for the learning constant, which
-would mean the proponent of this value was working with a data set size of about 25.
-In any case, I've had good results with the following:
+So I provide a way to set the learning constant based on the size of the data with
+[#num](http://rubydoc.info/gems/neuronet/Neuronet/FeedForward:num)
 
-	# where number is the number of data points
-	neuronet.learning( number )
-	1.0 / Math.sqrt( number + 1.0 )
+	neuronet.num(n)
 
-In the case of setting number to 1.0,
-the learning constant would be the square root of 1/2.
-This would suggest that although we're taking larger steps than half steps,
-due to the nature of a random walk, we're approaching the solution in half steps.
+The value of #num(n) is #muk(1.0)/Math.sqrt(n)).
 
 # Questions?
 
