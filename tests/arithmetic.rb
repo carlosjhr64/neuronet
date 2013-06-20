@@ -19,6 +19,12 @@ def network(i)
   when 5
     ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,2,1])
     name = '[2,3,2,1] TaoYinYang'
+  when 6
+    ffn = Neuronet::Brahma.bless Neuronet::FeedForward.new([2,4,1])
+    name = '[2,4,1] Brahma'
+  when 7
+    ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
+    name = '[2,4,1] TaoBrahma'
   end
   return ffn, name
 end
@@ -28,7 +34,7 @@ end
   ['Subtract',Proc.new{|a,b|a-b}],
   ['Multiply',Proc.new{|a,b|a*b}],
 ].each do |name, f|
-  1.upto(5) do |i|
+  1.upto(7) do |i|
     ffn, type = network(i)
     puts "#{name} with #{type} #{MANY} times trained."
     MANY.times do
@@ -36,12 +42,22 @@ end
       target = [f.call(input[0], input[1])]
       ffn.exemplar(input, target)
     end
+    good = true
+    ok = true
     3.times do
       input = [rand-rand, rand-rand].map{|x| x.round(3)}
       target = [f.call(input[0], input[1])].map{|x| x.round(3)}
       ffn.set(input)
       puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
+      t,o = target.first, ffn.output.first
+      n,d = [t.abs,o.abs].minmax
+      e = n/d
+      s = ((t<=>0.0) == (o<=>0.0))
+      good &&= (s && (e>0.90))
+      ok &&= (s && (e>0.75))
     end
+    puts "Close Enough!" if good
+    puts "Failed!" unless ok
   end
 end
   puts <<EOT

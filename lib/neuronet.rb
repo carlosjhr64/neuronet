@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '6.0.1'
+  VERSION = '6.1.0'
 
   # An artificial neural network uses a squash function
   # to determine the activation value of a neuron.
@@ -25,6 +25,9 @@ module Neuronet
   def self.unsquash(squashed)
     Math.log(squashed / (1.0 - squashed))
   end
+
+  BZERO = 1.0/(1.0-2.0*squash(1.0))
+  WONE  = -2.0*BZERO
 
   # Although the implementation is free to set all parameters for each neuron,
   # Neuronet by default creates zeroed neurons.
@@ -478,10 +481,10 @@ module Neuronet
     end
   end
 
-  # Yin is a network wich has its @yin layer initially mirroring @in.
+  # Yin is a network which has its @yin layer initially mirroring @in.
   module Yin
-    # Yin.bless sets the bias of each @yin[i] to 0.5, and
-    # the weight of pairing (@yin[i], @in[i]) connections to one.
+    # Yin.bless increments the bias of each @yin[i] by BZERO, and
+    # the weight of pairing (@yin[i], @in[i]) connections by WONE.
     # This makes @yin initially mirror @in.
     # The pairing is done starting with (@yin[0], @in[0]).
     # That is, starting with (@yin.first, @in.first).
@@ -490,11 +493,11 @@ module Neuronet
       if yin.length < (in_length = myself.in.length)
         raise "First hidden layer, yin, needs to have at least the same length as input"
       end
-      # connections from yin[i] to in[i] are 1... mirroring to start.
+      # connections from yin[i] to in[i] are WONE... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
-        node.connections[index].weight = 1.0
-        node.bias = -0.5
+        node.connections[index].weight += WONE
+        node.bias += BZERO
       end
       return myself
     end
@@ -502,8 +505,8 @@ module Neuronet
 
   # Yang is a network wich has its @out layer initially mirroring @yang.
   module Yang
-    # Yang.bless sets the bias of each @yang[i] to 0.5, and
-    # the weight of pairing (@out[i], @yang[i]) connections to one.
+    # Yang.bless increments the bias of each @yang[i] by BZERO, and
+    # the weight of pairing (@out[i], @yang[i]) connections by WONE.
     # This makes @out initially mirror @yang.
     # The pairing is done starting with (@out[-1], @yang[-1]).
     # That is, starting with (@out.last, @yang.last).
@@ -514,8 +517,8 @@ module Neuronet
       # the net effect to is pair @out.last with @yang.last, and so on down.
       0.upto(out_length-1) do |index|
         node = out[index]
-        node.connections[offset+index].weight = 1.0
-        node.bias = -0.5
+        node.connections[offset+index].weight += WONE
+        node.bias += BZERO
       end
       return myself
     end
@@ -524,8 +527,8 @@ module Neuronet
   # A Yin Yang composite provided for convenience.
   module YinYang
     def self.bless(myself)
-      Yin.bless(myself)
       Yang.bless(myself)
+      Yin.bless(myself)
       return myself
     end
   end
@@ -533,9 +536,9 @@ module Neuronet
   # A Tao Yin Yang composite provided for convenience.
   module TaoYinYang
     def self.bless(myself)
-      Tao.bless(myself)
-      Yin.bless(myself)
       Yang.bless(myself)
+      Yin.bless(myself)
+      Tao.bless(myself)
       return myself
     end
   end
@@ -543,8 +546,8 @@ module Neuronet
   # A Tao Yin composite provided for convenience.
   module TaoYin
     def self.bless(myself)
-      Tao.bless(myself)
       Yin.bless(myself)
+      Tao.bless(myself)
       return myself
     end
   end
@@ -552,8 +555,65 @@ module Neuronet
   # A Tao Yang composite provided for convenience.
   module TaoYang
     def self.bless(myself)
-      Tao.bless(myself)
       Yang.bless(myself)
+      Tao.bless(myself)
+      return myself
+    end
+  end
+
+  # Brahma is a network which has its @yin layer initially mirror and "shadow" @in.
+  # I'm calling it shadow until I can think of a better name.
+  # Note that a Brahma, Yin bless combination overwrite eachother and is probably useless.
+  module Brahma
+    # Brahma.bless increments the weights of pairing even yin (@yin[2*i], @in[i]) connections by WONE.
+    # and pairing odd yin (@yin[2*i+1], @in[i]) connections by negative WONE.
+    # Likewise the bias with BZERO.
+    # This makes @yin initially mirror and shadow @in.
+    # The pairing is done starting with (@yin[0], @in[0]).
+    # That is, starting with (@yin.first, @in.first).
+    def self.bless(myself)
+      yin = myself.yin
+      if yin.length < 2*(in_length = myself.in.length)
+        raise "First hidden layer, yin, needs to be at least twice the length as input"
+      end
+      # connections from yin[2*i] to in[i] are WONE... mirroring to start.
+      # connections from yin[2*i+1] to in[i] are -WONE... shadowing to start.
+      0.upto(in_length-1) do |index|
+        even = yin[2*index]
+        odd = yin[(2*index)+1]
+        even.connections[index].weight += WONE
+        even.bias += BZERO
+        odd.connections[index].weight  -= WONE
+        odd.bias -= BZERO
+      end
+      return myself
+    end
+  end
+
+  # A Brahma Yang composite provided for convenience.
+  module BrahmaYang
+    def self.bless(myself)
+      Brahma.bless(myself)
+      Yang.bless(myself)
+      return myself
+    end
+  end
+
+  # A Brahma Yang composite provided for convenience.
+  module TaoBrahma
+    def self.bless(myself)
+      Brahma.bless(myself)
+      Tao.bless(myself)
+      return myself
+    end
+  end
+
+  # A Tao Brahma Yang composite provided for convenience.
+  module TaoBrahmaYang
+    def self.bless(myself)
+      Yang.bless(myself)
+      Brahma.bless(myself)
+      Tao.bless(myself)
       return myself
     end
   end

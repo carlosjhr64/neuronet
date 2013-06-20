@@ -1,7 +1,7 @@
 require 'neuronet'
 
 ### Squash/UnSquash ###
-raise "Expected version 6.0.1" unless Neuronet::VERSION == '6.0.1'
+raise "Expected version 6.1.0" unless Neuronet::VERSION == '6.1.0'
 raise "Bad Squash 0.0" unless Neuronet.squash(0.0) == 0.5
 raise "Bad Squash 1.0" unless Neuronet.squash(1.0).round(3) == 0.731
 raise "Bad Squash -1.0" unless Neuronet.squash(-1.0).round(3) == 0.269
@@ -168,7 +168,8 @@ end
 raise "Should have complained about Input longer than Yin" unless complained
 ffn = Neuronet::Yin.bless Neuronet::FeedForward.new([3,3,3])
 0.upto(ffn.yin.length-1) do |i|
-  raise "Yin is supposed to initially mirror input" unless ffn.yin[i].connections[i].weight == 1
+  raise "Yin is supposed to initially mirror input" unless ffn.yin[i].connections[i].weight == Neuronet::WONE
+  raise "Yin should have BZERO bias." unless ffn.yin[i].bias == Neuronet::BZERO
 end
 
 ### Yang ###
@@ -181,7 +182,8 @@ end
 raise "Should have complained about Output longer than Yang" unless complained
 ffn = Neuronet::Yang.bless Neuronet::FeedForward.new([3,3,3])
 0.upto(ffn.out.length-1) do |i|
-  raise "Output is supposed to initially mirror Yang" unless ffn.out[i].connections[i].weight == 1
+  raise "Output is supposed to initially mirror Yang" unless ffn.out[i].connections[i].weight == Neuronet::WONE
+  raise "Output with Yang should have BZERO bias." unless ffn.out[i].bias == Neuronet::BZERO
 end
 
 ### TaoYinYang ###

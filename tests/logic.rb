@@ -16,6 +16,12 @@ def network(i)
   when 4
     ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1] TaoYinYang'
+  when 5
+    ffn = Neuronet::Brahma.bless Neuronet::FeedForward.new([2,4,1])
+    name = '[2,4,1] Brahma'
+  when 6
+    ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
+    name = '[2,4,1] TaoBrahma'
   end
   return ffn, name
 end
@@ -50,7 +56,7 @@ data_xor = [
 ]
 
 [[data_or,'OR'],[data_and,'AND'],[data_xor,'XOR']].each do |data,name|
-  1.upto(4) do |i|
+  1.upto(6) do |i|
     ffn, type = network(i)
     puts "#{name} with #{type} #{MANY} times trained."
     MANY.times do
@@ -58,9 +64,15 @@ data_xor = [
         ffn.exemplar(input, target)
       end
     end
+    ok = true
     data.each do |input, target|
       ffn.set(input)
       puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
+      ok &&= (ffn.output.first<=>0.0)==target.first
     end
+    puts "Failed!" unless ok
+    puts
   end
+  puts "###"
+  puts
 end

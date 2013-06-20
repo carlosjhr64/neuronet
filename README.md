@@ -315,7 +315,7 @@ For the example above, we can check their lengths.
 	puts neuronet.yang.length #=> 6
 	puts neuronet.out.length #=> 3
 	
-## Tao, Yin, and Yang
+## Tao, Yin, Yang, and Brahma
 
 Tao
 :	The absolute principle underlying the universe,
@@ -346,6 +346,8 @@ Training begins the process that sets the weights to associate the two.
 But you can also manually set the initial weights.
 One useful way to initially set the weigths is to have one layer mirror another.
 The [Yin](http://rubydoc.info/gems/neuronet/Neuronet/Yin) bless makes yin mirror the input.
+The length of yin must be at least that of in.
+The pairing starts with in.first and yin.first on up.
 
 	Yin.bless(neuronet)
 
@@ -353,10 +355,23 @@ Yang
 :	The active male principle of the universe, characterized as male and
 	creative and associated with heaven, heat, and light.
 
-One the other hand, the [Yang](http://rubydoc.info/gems/neuronet/Neuronet/Yang)
+On the other hand, the [Yang](http://rubydoc.info/gems/neuronet/Neuronet/Yang)
 bless makes the output mirror yang.
+The length of yang must be a least that of out.
+The pairing starts from yang.last and out.last on down.
 
 	Yang.bless(neuronet)
+
+Brahma
+:	The creator god in later Hinduism, who forms a triad with Vishnu the preserver and Shiva the destroyer.
+
+[Brahma](http://rubydoc.info/gems/neuronet/Neuronet/Brahma)
+pairs each input node with two yin neurons sending them respectively the positive and negative value of its activation.
+I'd say then that yin both mirrors and shadows input.
+The length of yin must be at least twice that of in.
+The pairing starts with in.first and yin.first on up.
+
+	Brahma.bless(neuronet)
 
 Bless
 :	Pronounce words in a religious rite, to confer or invoke divine favor upon.
@@ -708,6 +723,49 @@ So I provide a way to set the learning constant based on the size of the data wi
 	neuronet.num(n)
 
 The value of #num(n) is #muk(1.0)/Math.sqrt(n)).
+
+## Mirroring
+
+Because the squash function is not linear, mirroring is going to be warped.
+Nonetheless, I'd like to map zeroes to zeroes and ones to ones.
+That gives us the following two equations:
+
+	weight*sigmoid(1.0) + bias = 1.0
+	weight*sigmoid(0.0) + bias = 0.0
+
+We can solve that!  Consider the zeroes to zeroes map:
+
+	weight*sigmoid(0.0) + bias = 0.0
+	weight*sigmoid(0.0) = -bias
+	weight*0.5 = -bias
+	weight = -2*bias
+
+Now the ones to ones:
+
+	weight*sigmoid(1.0) + bias = 1.0
+	-2.0*bias*sigmoid(1.0) + bias = 1.0
+	bias*(-2.0*sigmoid(1.0) + 1.0) = 1.0
+	bias = 1.0 / (1.0 - 2.0*sigmoid(1.0))
+
+We get the numerical values:
+
+	bias = -2.163953413738653  # BZERO
+	weight = 4.327906827477306 # WONE
+
+In the code I call this bias and weight BZERO and WONE respectively.
+What about "shadowing"?
+
+	weight*sigmoid(1.0) + bias = -1.0
+	weight*sigmoid(0.0) + bias = 0.0
+
+	weight = -2.0*bias # <== same a before
+
+	weight*sigmoid(1.0) + bias = -1.0
+	-2.0*bias*sigmoid(1.0) + bias = -1.0
+	bias*(-2.0*sigmoid(1.0) + 1.0) = -1.0
+	bias = -1.0 / (-2.0*sigmoid(1.0) + 1.0)
+	bias = 1.0 / (2.0*sigmoid(1.0) - 1.0)
+	# ^== this is just negative what we got before.
 
 # Questions?
 
