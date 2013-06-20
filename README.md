@@ -508,25 +508,9 @@ would be constructed this way:
 Here yinyang's hidden layer (which is both yin and yang)
 initially would have the first n neurons mirror the input and
 the last m neurons be mirrored by the output.
-Another interesting YinYang would be:
+Another interesting YinYang would be an input to output mirror:
 
 	yinyang = YinYang.bless FeedForward.new( [n, n, n] )
-
-The following code demonstrates what is meant by "mirroring":
-
-	yinyang = YinYang.bless FeedForward.new( [3, 3, 3] )
-	yinyang.set( [-1,0,1] )
-	puts yinyang.in.map{|x| x.activation}.join(', ')
-	puts yinyang.yin.map{|x| x.activation}.join(', ')
-	puts yinyang.out.map{|x| x.activation}.join(', ')
-	puts yinyang.output.join(', ')
-
-Here's the output:
-
-	0.268941421369995, 0.5, 0.731058578630005
-	0.442490985892539, 0.5, 0.557509014107461
-	0.485626707638021, 0.5, 0.514373292361979
-	-0.0575090141074614, 0.0, 0.057509014107461
 
 # Theory
 
@@ -766,6 +750,36 @@ What about "shadowing"?
 	bias = -1.0 / (-2.0*sigmoid(1.0) + 1.0)
 	bias = 1.0 / (2.0*sigmoid(1.0) - 1.0)
 	# ^== this is just negative what we got before.
+
+Shadowing is just the negative of mirroring.
+There's a test, [tests/mirror.rb](https://github.com/carlosjhr64/neuronet/blob/master/tests/mirror.rb),
+which demostrates mirroring.  Here's the output:
+
+	### YinYang ###
+	Input:
+	-1.0,	0.0,	1.0
+	In:
+	0.2689414213699951,	0.5,	0.7310585786300049
+	Yin/Yang:
+	0.2689414213699951,	0.5,	0.7310585786300049
+	0.2689414213699951,	0.5,	0.7310585786300049
+	Out:
+	0.2689414213699951,	0.5,	0.7310585786300049
+	Output:
+	-1.0000000000000002,	0.0,	1.0
+
+	### BrahmaYang ###
+	Input:
+	-1.0,	0.0,	1.0
+	In:
+	0.2689414213699951,	0.5,	0.7310585786300049
+	Yin/Yang:
+	0.2689414213699951,	0.7310585786300049,	0.5,	0.5,	0.7310585786300049,	0.2689414213699951
+	0.2689414213699951,	0.7310585786300049,	0.5,	0.5,	0.7310585786300049,	0.2689414213699951
+	Out:
+	0.2689414213699951,	0.7310585786300049,	0.5,	0.5,	0.7310585786300049,	0.2689414213699951
+	Output:
+	-1.0000000000000002,	1.0,	0.0,	0.0,	1.0,	-1.0000000000000002
 
 # Questions?
 
