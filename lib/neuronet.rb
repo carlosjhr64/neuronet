@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '6.1.0'
+  VERSION = '6.1.200127'
 
   # An artificial neural network uses a squash function
   # to determine the activation value of a neuron.

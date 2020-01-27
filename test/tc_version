@@ -1,0 +1,21 @@
+#! ruby
+require 'test/unit'
+
+class TestVersion < Test::Unit::TestCase
+  def test_version
+    version = '6.1.200127'
+    assert_equal(version, `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first)
+    if File.exist?('data/VERSION')
+      assert_equal(version, File.read('data/VERSION').strip)
+    end
+    if executable = `ls bin/* 2> /dev/null`.split.first
+      assert_equal(version, `#{executable} --version`.strip)
+    end
+    if gemspec = `ls *.gemspec 2> /dev/null`.split.first
+      assert_equal(version, `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{gemspec}`.split.first)
+    end
+    if readme = `ls README.* 2> /dev/null`.split.first
+      assert_equal(version, `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{readme}`.split.first)
+    end
+  end
+end
