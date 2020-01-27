@@ -11,11 +11,11 @@ def yield_script
     while line = fh.gets
       line_number += 1
       case line
+      when "    #!> TODO\n"
+        break
       when /^    +[^$#]/, /^   +#{ROCKET}/, /^   +#{MATCH}/
         script << line  unless line.match? /^\s*#/
         case line
-        when "    #!> TODO\n"
-          break
         when /#{ROCKET}/, /#{MATCH}/
           actual = nil
           begin
