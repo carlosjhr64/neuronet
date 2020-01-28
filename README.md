@@ -114,7 +114,7 @@ Your raw data might not be linear, but if a transform converts it to a linear fo
 you can use linear regression to find the best fit line, and
 from that deduce the properties of the untransformed data.
 Likewise, if you can transform the data into something the neuronet can solve,
-you can by inverse get back the answer you're lookin for.
+you can by inverse get back the answer you're looking for.
 
 # Examples
 
@@ -167,7 +167,7 @@ is:
 	neuronet.train!(target)
 	...
 
-Heres a sample output:
+Here's a sample output:
 
 	f(phase, t) = 3.002 + 3.28*Sin(phase + 1.694*t)
 	Cycle step = 0.27
@@ -286,7 +286,7 @@ Here's a sample output:
 	  Neuron says 1.166, -0.25% error.
 
 Note that the tiny neuronet has a limit on how precisely it can match the target, and
-even after a million times training it won't do any beter than when it trains a few thousands.
+even after a million times training it won't do any better than when it trains a few thousands.
 [code](https://github.com/carlosjhr64/neuronet/blob/master/examples/neurons.rb)
 
 
@@ -356,7 +356,7 @@ Tao
 	that is in harmony with the natural order.
 
 Perceptrons are already very capable and quick to train.
-By connecting the input layer to the output layer of a multilayer FeedForward network,
+By connecting the input layer to the output layer of a multi-layer FeedForward network,
 you'll get the Perceptron solution quicker while the middle layers work on the harder problem.
 You can do that this way:
 
@@ -372,11 +372,11 @@ Yin
 	sustaining and associated with earth, dark, and cold.
 
 Initially FeedForward sets the weights of all connections to zero.
-That is, there is no association made from input to ouput.
+That is, there is no association made from input to output.
 Changes in the inputs have no effect on the output.
 Training begins the process that sets the weights to associate the two.
 But you can also manually set the initial weights.
-One useful way to initially set the weigths is to have one layer mirror another.
+One useful way to initially set the weights is to have one layer mirror another.
 The [Yin](http://rubydoc.info/gems/neuronet/Neuronet/Yin) bless makes yin mirror the input.
 The length of yin must be at least that of in.
 The pairing starts with in.first and yin.first on up.
@@ -454,7 +454,7 @@ Neuronet provides three classes to help scale the problem space.
 [Neuronet::Scale](http://rubydoc.info/gems/neuronet/Neuronet/Scale)
 is the simplest most straight forward.
 It finds the range and center of a list of values, and
-linearly tranforms it to a range of (-1,1) centered at 0.
+linearly transforms it to a range of (-1,1) centered at 0.
 For example:
 
 	scale = Neuronet::Scale.new
@@ -592,7 +592,7 @@ The sigmoid function is:
 	end
 	sigmoid(a) == 1/(1+exp(a))
 
-A neuron's pulserate increases with increasing stimulus, so
+A neuron's pulse rate increases with increasing stimulus, so
 we need a model that adds up all the stimuli a neuron gets.
 The sum of all stimuli we will call the neuron's value.
 (I find this confusing, but
@@ -600,9 +600,9 @@ it works out that it is this sum that will give us the problem space value.)
 To model the neuron's rest pulse, we'll say that it has a bias value, it's own stimuli.
 Stimuli from other neurons comes through the connections,
 so there is a sum over all the connections.
-The stimuli from other transmitting neurons is be proportional to their own pulsetates and
+The stimuli from other transmitting neurons is be proportional to their own pulse rates and
 the weight the receiving neuron gives them.
-In the model we will call the pulserate the neuron's activation.
+In the model we will call the pulse rate the neuron's activation.
 Lastly, to more closely match the code, a neuron is a node.
 This is what we have so far:
 
@@ -610,6 +610,7 @@ This is what we have so far:
 
 	# or by their biological synonyms
 
+        # TODO: .pulse_rate  :-??
 	stimulus = unsquashed_rest_pulse_rate +
 	  connections.sum{|connection| connection.weight * connection.neuron.pulserate}
 
@@ -619,7 +620,7 @@ and a maximum pulse which I will define as being one.
 The sigmoid function will take any amount it gets and
 squashes it to a number between zero and one,
 which is what we need to model the neuron's behavior.
-To get the node's activation (aka neuron's pulserate)
+To get the node's activation (aka neuron's pulse rate)
 from the node's value (aka neuron's stimulus),
 we squash the value with the sigmoid function.
 
@@ -636,7 +637,7 @@ So the "rest pulse rate" is sigmoid("unsquashed rest pulse rate").
 ## Backpropagation of Errors
 
 There's a lot of really complicated math in understanding how neural networks work.
-But if we concentrate on just the part pertinent to the bacpkpropagation code, it's not that bad.
+But if we concentrate on just the part pertinent to the backpropagation code, it's not that bad.
 The trick is to do the analysis in the problem space (otherwise things get real ugly).
 When we train a neuron, we want the neuron's value to match a target as closely as possible.
 The deviation from the target is the error:
@@ -785,7 +786,7 @@ What about "shadowing"?
 
 Shadowing is just the negative of mirroring.
 There's a test, [tests/mirror.rb](https://github.com/carlosjhr64/neuronet/blob/master/tests/mirror.rb),
-which demostrates mirroring.  Here's the output:
+which demonstrates mirroring.  Here's the output:
 
 	### YinYang ###
 	Input:
