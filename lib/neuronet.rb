@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '6.1.200127'
+  VERSION = '6.1.200128'
 
   # An artificial neural network uses a squash function
   # to determine the activation value of a neuron.
@@ -97,7 +97,7 @@ module Neuronet
       @node.update * @weight
     end
 
-    # Connectoin#backpropagate modifies the connection's weight
+    # Connection#backpropagate modifies the connection's weight
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
     def backpropagate(error)
@@ -222,7 +222,7 @@ module Neuronet
   class FeedForward < Array
     # Whatchamacallits?
     # The learning constant is given different names...
-    # often some greek letter.
+    # often some Greek letter.
     # It's a small number less than one.
     # Ideally, it divides the errors evenly among all contributors.
     # Contributors are the neurons' biases and the connections' weights.
@@ -241,7 +241,7 @@ module Neuronet
     end
     # Given that the learning constant is initially set to 1/mu as defined above,
     # muk gives a way to modify the learning constant by some factor, k.
-    # In theory, when there is no noice in the target data, k can be set to 1.0.
+    # In theory, when there is no noise in the target data, k can be set to 1.0.
     # If the data is noisy, k is set to some value less than 1.0.
     def muk(k=1.0)
       @learning = k/mu
@@ -263,8 +263,8 @@ module Neuronet
 
     # I find very useful to name certain layers:
     #	[0]	@in	Input Layer
-    #	[1]	@yin	Tipically the first middle layer
-    #	[-2]	@yang	Tipically the last middle layer
+    #	[1]	@yin	Typically the first middle layer
+    #	[-2]	@yang	Typically the last middle layer
     #	[-1]	@out	Output Layer
     def initialize(layers)
       super(length = layers.length)
@@ -325,7 +325,7 @@ module Neuronet
     # there is a initiation phase to the calculation of @spread and @center.
     # For Scale, @init is true and the initiation phase calculates
     # the intermediate values @min and @max (the minimum and maximum values in the data set).
-    # It's possible for subclasses of Scale, such as Gaussian, to not have this initiation phase.
+    # It's possible for sub-classes of Scale, such as Gaussian, to not have this initiation phase.
     def initialize(factor=1.0,center=nil,spread=nil)
       @factor,@center,@spread = factor,center,spread
       @centered, @spreaded = center.nil?, spread.nil?
@@ -372,7 +372,7 @@ module Neuronet
   end
 
   # "Normal Distribution"
-  # Gaussian subclasses Scale and is used exactly the same way.
+  # Gaussian sub-classes Scale and is used exactly the same way.
   # The only changes are that it calculates the arithmetic mean (average) for center and
   # the standard deviation for spread.
   class Gaussian < Scale
@@ -393,7 +393,7 @@ module Neuronet
   end
 
   # "Log-Normal Distribution"
-  # LogNormal subclasses Gaussian to transform the values to a logarithmic scale. 
+  # LogNormal sub-classes Gaussian to transform the values to a logarithmic scale. 
   class LogNormal < Gaussian
     def initialize(factor=1.0,center=nil,spread=nil)
       super(factor, center, spread)
@@ -419,7 +419,7 @@ module Neuronet
   # ScaledNetwork is a subclass of FeedForwardNetwork.
   # It automatically scales the problem given to it
   # by using a Scale type instance set in @distribution.
-  # The attribute, @distribution, is set to Neuronet::Gausian.new by default,
+  # The attribute, @distribution, is set to Neuronet::Gaussian.new by default,
   # but one can change this to Scale, LogNormal, or one's own custom mapper.
   class ScaledNetwork < FeedForward
     attr_accessor :distribution
@@ -503,7 +503,7 @@ module Neuronet
     end
   end
 
-  # Yang is a network wich has its @out layer initially mirroring @yang.
+  # Yang is a network which has its @out layer initially mirroring @yang.
   module Yang
     # Yang.bless increments the bias of each @yang[i] by BZERO, and
     # the weight of pairing (@out[i], @yang[i]) connections by WONE.
@@ -563,7 +563,7 @@ module Neuronet
 
   # Brahma is a network which has its @yin layer initially mirror and "shadow" @in.
   # I'm calling it shadow until I can think of a better name.
-  # Note that a Brahma, Yin bless combination overwrite eachother and is probably useless.
+  # Note that a Brahma, Yin bless combination overwrite each other and is probably useless.
   module Brahma
     # Brahma.bless increments the weights of pairing even yin (@yin[2*i], @in[i]) connections by WONE.
     # and pairing odd yin (@yin[2*i+1], @in[i]) connections by negative WONE.
