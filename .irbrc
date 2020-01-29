@@ -1,4 +1,5 @@
 require 'neuronet'
+include Neuronet
 
 # IRB Tools
 require 'irbtools/configure'
