@@ -1,14 +1,14 @@
 Gem::Specification.new do |s|
 
   s.name     = 'neuronet'
-  s.version  = '6.1.200127'
+  s.version  = '6.1.200128'
 
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
 
   s.author   = 'carlosjhr64'
   s.email    = 'carlosjhr64@gmail.com'
 
-  s.date     = '2020-01-27'
+  s.date     = '2020-01-28'
   s.licenses = ['MIT']
 
   s.description = <<DESCRIPTION

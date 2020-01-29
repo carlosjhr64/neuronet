@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 require 'test/unit'
+require 'rubbish'
 
 DICTIONARY = '.dictionary'
 README     = 'README.md'
@@ -7,11 +8,8 @@ README     = 'README.md'
 class TestReadmeSpell < Test::Unit::TestCase
   def test_readme_rocket_test
     return unless File.exist? README
-    errors = `egrep '^[[:graph:]]' #{README} | spell | sort -u`.split
-    if File.exist? DICTIONARY
-      cleared = File.read(DICTIONARY).split
-      errors.delete_if{|_|cleared.include?_}
-    end
-    assert_empty errors.join(' '), "Possible spelling errors"
+    system "touch #{DICTIONARY}" unless File.exist? DICTIONARY
+    diff = Rubbish.bash "colordiff #{DICTIONARY} <(egrep '^[[:graph:]]' README.md | spell | sort -u)"
+    flunk "Needed dictionary change:\n"+diff  unless diff.empty?
   end
 end
