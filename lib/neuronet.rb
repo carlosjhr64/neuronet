@@ -1,6 +1,7 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200130'
+  VERSION = '7.0.200131'
+  FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
   # to determine the activation value of a neuron.
@@ -46,12 +47,13 @@ module Neuronet
   # One may choose not to have noise.
   IDENTITY = lambda{|error|error}
 
-  class << self; attr_accessor :squash, :unsquash, :bzero, :wone, :noise; end
+  class << self; attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format; end
   self.squash   = SQUASH
   self.unsquash = UNSQUASH
   self.bzero    = BZERO
   self.wone     = WONE
   self.noise    = NOISE
+  self.format   = FORMAT
 
   # In Neuronet, there are two main types of objects: Nodes and Connections.
   # A Node has a value which the implementation can set.
@@ -88,7 +90,7 @@ module Neuronet
     end
 
     def inspect
-      "(%.14g)" % self.value
+      '(' + (Neuronet.format % self.value) + ')'
     end
   end
 
@@ -132,7 +134,7 @@ module Neuronet
     end
 
     def inspect
-      ("%.14g" % @weight)+@node.inspect
+      (Neuronet.format % @weight)+@node.inspect
     end
   end
 
@@ -195,7 +197,7 @@ module Neuronet
     end
 
     def inspect
-      super + ("%.14g" % @bias) + '[' + @connections.map{|c|c.inspect}.join(',') + ']'
+      super + (Neuronet.format % @bias) + '[' + @connections.map{|c|c.inspect}.join(',') + ']'
     end
   end
 
