@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 6.1.200128](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.200130](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 

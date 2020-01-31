@@ -1,0 +1,50 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+
+class TestLambdas < Test::Unit::TestCase
+  include Neuronet
+
+  def test_squash
+    # SQUASH maps Float to (0.0, 1.0) centered around 0.5.
+    assert_equal 0.5, SQUASH[0.0], "Centered"
+    assert_equal 1.0, SQUASH[-1.0]+SQUASH[1.0], "Balanced"
+    assert_equal 1.0, (SQUASH[-2.0]+SQUASH[2.0]).round(15), "Balanced"
+    assert_equal 1.0, (SQUASH[-3.0]+SQUASH[3.0]).round(15), "Balanced"
+    -3.upto(2).each{|n| assert SQUASH[n] < SQUASH[n+1], "Ordered"}
+    assert SQUASH[3.0] < 1.0, "Bounded(under one)"
+    assert SQUASH[-3.0] > 0.0, "Bounded(over zero)"
+
+    assert_equal Neuronet.squash, SQUASH
+  end
+
+  def test_unsquash
+    assert_equal 0.0, UNSQUASH[0.5], "Zeroed"
+    -3.upto(3).each{|n| assert_equal n, UNSQUASH[SQUASH[n]].round(14), "Unsquashes"}
+
+    assert_equal Neuronet.unsquash, UNSQUASH
+  end
+
+  def test_mirror
+    # mirror
+    assert_equal -1.0, BZERO + WONE*SQUASH[-1.0]
+    assert_equal  0.0, BZERO + WONE*SQUASH[ 0.0]
+    assert_equal  1.0, BZERO + WONE*SQUASH[ 1.0]
+
+    # shadow (trival, but... :-??)
+    assert_equal  1.0, -BZERO - WONE*SQUASH[-1.0]
+    assert_equal  0.0, -BZERO - WONE*SQUASH[ 0.0]
+    assert_equal -1.0, -BZERO - WONE*SQUASH[ 1.0]
+
+    assert_equal Neuronet.bzero, BZERO
+    assert_equal Neuronet.wone, WONE
+  end
+
+  def test_noise
+    assert NOISE[1] > 0.0
+    assert NOISE[1] < 2.0
+    refute NOISE[1] == NOISE[1]
+
+    assert_equal Neuronet.noise, NOISE
+  end
+end

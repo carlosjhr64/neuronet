@@ -1,0 +1,28 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestNeuron < Test::Unit::TestCase
+  def test_neuron
+    neuron = Neuron.new
+    assert_equal '(0)0[]', neuron.inspect
+    assert_equal 0.0, neuron.value
+    assert_equal 0.5, neuron.activation
+
+    # bias is zero and there are no connection..
+    assert_equal 0.0, neuron.partial
+    assert_equal 0.0, neuron.update
+    assert_equal 0.0, neuron.value
+    assert_equal 0.5, neuron.activation
+
+    assert_equal neuron, neuron.backpropagate(1.0,IDENTITY)
+    assert_equal '(0)1[]', neuron.inspect
+    assert_equal 0.0, neuron.value
+    assert_equal 1.0, neuron.update
+    assert_equal 1.0, neuron.value
+
+    neuron = Neuron.new.connect Node.new
+    assert_equal '(0)0[0(0)]', neuron.inspect
+  end
+end

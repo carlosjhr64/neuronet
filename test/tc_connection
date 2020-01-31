@@ -1,0 +1,28 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestConnection < Test::Unit::TestCase
+  def test_connection
+    n = Node.new
+    c = Connection.new n
+    assert_equal '0(0)', c.inspect
+
+    n = Node.new 1.25
+    c = Connection.new n, 0.33
+    assert_equal '0.33(1.25)', c.inspect
+    assert_equal n, c.node
+    assert_equal 0.33, c.weight
+    assert_equal 0.33*SQUASH[1.25], c.value
+    assert_equal 0.33*SQUASH[1.25], c.partial
+    assert_equal 0.33*SQUASH[1.25], c.update
+
+    c.backpropagate(0.01, IDENTITY)
+    assert_equal 0.33+SQUASH[1.25]*0.01, c.weight
+    # but the input node remains the same!
+    assert_equal '(1.25)', n.inspect
+
+    # TODO: test update and partial with neuron instance
+  end
+end

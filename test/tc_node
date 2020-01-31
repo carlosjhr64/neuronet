@@ -1,0 +1,26 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestNode < Test::Unit::TestCase
+  def test_node
+    node = Node.new
+    assert_equal '(0)', node.inspect
+    assert_equal 0.0, node.value
+    assert_equal 0.5, node.activation
+    assert_equal 0.5, node.partial
+    assert_equal 0.5, node.update
+    # backpropagate returns self
+    assert_equal node, node.backpropagate(1.0)
+    # backpropagate did nothing...
+    assert_equal '(0)', node.inspect
+    # we can reset node to another value
+    node.value = 1.0
+    assert_equal 1.0, node.value
+    assert_equal '(1)', node.inspect
+    assert_equal SQUASH[1], node.activation
+    assert_equal SQUASH[1], node.partial
+    assert_equal SQUASH[1], node.update
+  end
+end

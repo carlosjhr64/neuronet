@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '6.1.200128'
+  VERSION = '7.0.200130'
 
   # An artificial neural network uses a squash function
   # to determine the activation value of a neuron.
@@ -18,15 +18,20 @@ module Neuronet
   # One should scale the problem with most data points between -1 and 1,
   # extremes under 2s, and no outbounds above 3s.
   # Standard deviations from the mean is probably a good way to figure the scale of the problem.
-  def self.squash(unsquashed)
+  SQUASH = lambda do |unsquashed|
     1.0 / (1.0 + Math.exp(-unsquashed))
   end
-
-  def self.unsquash(squashed)
+  UNSQUASH = lambda do |squashed|
     Math.log(squashed / (1.0 - squashed))
   end
 
-  BZERO = 1.0/(1.0-2.0*squash(1.0))
+  # I'll want to have a neuron mirror a node later.
+  # I derive BZERO and WONE in README.md, but
+  # the point here is that values -1, 0, and 1 map back to themselves:
+  #   BZERO + WONE*SQUASH[-1.0] #=> -1.0
+  #   BZERO + WONE*SQUASH[0.0]  #=> 0.0
+  #   BZERO + WONE*SQUASH[1.0]  #=> 1.0
+  BZERO = 1.0/(1.0-2.0*SQUASH[1.0])
   WONE  = -2.0*BZERO
 
   # Although the implementation is free to set all parameters for each neuron,
@@ -34,11 +39,19 @@ module Neuronet
   # Association between inputs and outputs are trained, and
   # neurons differentiate from each other randomly.
   # Differentiation among neurons is achieved by noise in the back-propagation of errors.
-  # This noise is provided by Neuronet.noise.
+  # This noise is provided by rand + rand.
   # I chose rand + rand to give the noise an average value of one and a bell shape distribution.
-  def self.noise
-    rand + rand
-  end
+  NOISE = lambda{|error|error*(rand + rand)}
+
+  # One may choose not to have noise.
+  IDENTITY = lambda{|error|error}
+
+  class << self; attr_accessor :squash, :unsquash, :bzero, :wone, :noise; end
+  self.squash   = SQUASH
+  self.unsquash = UNSQUASH
+  self.bzero    = BZERO
+  self.wone     = WONE
+  self.noise    = NOISE
 
   # In Neuronet, there are two main types of objects: Nodes and Connections.
   # A Node has a value which the implementation can set.
@@ -49,26 +62,33 @@ module Neuronet
   class Node
     attr_reader :activation
     # A Node is constant (Input)
-    alias update activation
+    alias :update  :activation
+    alias :partial :activation
 
     # The "real world" value of a node is the value of it's activation unsquashed.
-    def value=(val)
-      @activation = Neuronet.squash(val)
+    # So, set the activation to the squashed real world value.
+    def value=(value)
+      @activation = Neuronet.squash[value]
     end
 
-    def initialize(val=0.0)
-      self.value = val
+    def initialize(value=0.0)
+      self.value = value
     end
 
     # The "real world" value is stored as a squashed activation.
+    # So for value, return the unsquashed activation.
     def value
-      Neuronet.unsquash(@activation)
+      Neuronet.unsquash[@activation]
     end
 
     # Node is a terminal where backpropagation ends.
-    def backpropagate(error)
+    def backpropagate(error, noise=nil)
       # to be over-ridden
-      nil
+      self
+    end
+
+    def inspect
+      "(%.14g)" % self.value
     end
   end
 
@@ -97,12 +117,22 @@ module Neuronet
       @node.update * @weight
     end
 
+    # TODO: added purely on symmetry, but what's the use case?
+    def partial
+      @node.partial * @weight
+    end
+
     # Connection#backpropagate modifies the connection's weight
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
-    def backpropagate(error)
-      @weight += @node.activation * error * Neuronet.noise
+    def backpropagate(error, noise=Neuronet.noise)
+      @weight += @node.activation * noise[error]
       @node.backpropagate(error)
+      self
+    end
+
+    def inspect
+      ("%.14g" % @weight)+@node.inspect
     end
   end
 
@@ -115,17 +145,13 @@ module Neuronet
   class Neuron < Node
     attr_reader :connections
     attr_accessor :bias
-    def initialize(bias=0.0)
-      super(bias)
-      @connections = []
+    def initialize(value=0.0, bias: 0.0, connections: [])
+      super(value)
+      @connections = connections
       @bias = bias
     end
 
     # Updates the activation with the current value of bias and updated values of connections.
-    # If you're not familiar with ruby's Array::inject method,
-    # it is a Ruby way of doing summations. Checkout:
-    # [Jay Field's Thoughts on Ruby: inject](http://blog.jayfields.com/2008/03/ruby-inject.html)
-    # [Induction ( for_all )](http://carlosjhr64.blogspot.com/2011/02/induction.html)
     def update
       self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.update}
     end
@@ -145,11 +171,12 @@ module Neuronet
     # passes on this error to each of its connection's backpropagate method.
     # While updates flows from input to output,
     # back-propagation of errors flows from output to input.
-    def backpropagate(error)
+    def backpropagate(error, noise=Neuronet.noise)
       # Adjusts bias according to error and...
-      @bias += error * Neuronet.noise
+      @bias += noise[error]
       # backpropagates the error to the connections.
-      @connections.each{|connection| connection.backpropagate(error)}
+      @connections.each{|connection| connection.backpropagate(error, noise)}
+      self
     end
 
     # Connects the neuron to another node.
@@ -164,7 +191,11 @@ module Neuronet
     # Think output connects to input.
     def connect(node, weight=0.0)
       @connections.push(Connection.new(node,weight))
-      update
+      self
+    end
+
+    def inspect
+      super + ("%.14g" % @bias) + '[' + @connections.map{|c|c.inspect}.join(',') + ']'
     end
   end
 
@@ -210,6 +241,7 @@ module Neuronet
         node = self[index]
         node.backpropagate(learning*(targets[index] - node.value))
       end
+      self
     end
 
     # Returns the real world values of this layer.
@@ -289,15 +321,17 @@ module Neuronet
       update
     end
 
-    def train!(targets)
+    def train(targets)
       @out.train(targets, @learning)
       update
+      self
     end
 
     # trains an input/output pair
     def exemplar(inputs, targets)
       set(inputs)
-      train!(targets)
+      train(targets)
+      self
     end
 
     def input
@@ -429,7 +463,7 @@ module Neuronet
       @distribution = Gaussian.new
     end
 
-    def train!(targets)
+    def train(targets)
       super(@distribution.mapped_output(targets))
     end
 
@@ -496,8 +530,8 @@ module Neuronet
       # connections from yin[i] to in[i] are WONE... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
-        node.connections[index].weight += WONE
-        node.bias += BZERO
+        node.connections[index].weight += WONE # +?
+        node.bias += BZERO # +?
       end
       return myself
     end
@@ -517,8 +551,8 @@ module Neuronet
       # the net effect to is pair @out.last with @yang.last, and so on down.
       0.upto(out_length-1) do |index|
         node = out[index]
-        node.connections[offset+index].weight += WONE
-        node.bias += BZERO
+        node.connections[offset+index].weight += WONE # +?
+        node.bias += BZERO # +?
       end
       return myself
     end
@@ -581,10 +615,10 @@ module Neuronet
       0.upto(in_length-1) do |index|
         even = yin[2*index]
         odd = yin[(2*index)+1]
-        even.connections[index].weight += WONE
-        even.bias += BZERO
-        odd.connections[index].weight  -= WONE
-        odd.bias -= BZERO
+        even.connections[index].weight += WONE # +?
+        even.bias += BZERO # +?
+        odd.connections[index].weight  -= WONE # +?
+        odd.bias -= BZERO # +?
       end
       return myself
     end
