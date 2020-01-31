@@ -1,0 +1,23 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestInputLayer < Test::Unit::TestCase
+  def test_input_layer
+    yin = InputLayer.new 3
+    assert_equal '[(0), (0), (0)]', yin.inspect
+
+    yin.set [1,2,3]
+    assert_equal '[(1), (2), (3)]', yin.inspect
+
+    # and sparse sets...
+    yin.set({1 => 2.2})
+    assert_equal '[(0), (2.2), (0)]', yin.inspect
+
+    yin = InputLayer.new 3, [1,2,3]
+    assert_equal '[(1), (2), (3)]', yin.inspect
+    yin = InputLayer.new(3, {0=>1.1, 2=>3.3})
+    assert_equal '[(1.1), (0), (3.3)]', yin.inspect
+  end
+end

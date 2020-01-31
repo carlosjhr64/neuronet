@@ -1,0 +1,20 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestLayer < Test::Unit::TestCase
+  def test_layer
+    layer = Layer.new 3
+    assert_equal '[(0)0[], (0)0[], (0)0[]]', layer.inspect
+    yin = InputLayer.new 3
+    inspect = '[(0)0[0(0),0(0),0(0)], (0)0[0(0),0(0),0(0)], (0)0[0(0),0(0),0(0)]]'
+    assert_equal inspect, layer.connect(yin).inspect
+    assert_equal inspect, layer.partial.inspect
+    assert_equal [0.0, 0.0, 0.0], layer.values
+    # See README about determining the learning in this case.
+    layer.train([-1,0,1], 1.0/1.75, NO_NOISE)
+    layer.partial
+    assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
+  end
+end
