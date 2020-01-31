@@ -7,9 +7,9 @@ class TestLayer < Test::Unit::TestCase
   def test_layer
     Node.label = 'a'
     layer = Layer.new 3
-    assert_equal '[(a:0)0[], (b:0)0[], (c:0)0[]]', layer.inspect
+    assert_equal '[(a:0)0[],(b:0)0[],(c:0)0[]]', layer.inspect
     yin = InputLayer.new 3
-    inspect = '[(a:0)0[0(d:0),0(e:0),0(f:0)], (b:0)0[0(d:0),0(e:0),0(f:0)], (c:0)0[0(d:0),0(e:0),0(f:0)]]'
+    inspect = '[(a:0)0[0(d:0),0(e:0),0(f:0)],(b:0)0[0(d:0),0(e:0),0(f:0)],(c:0)0[0(d:0),0(e:0),0(f:0)]]'
     assert_equal inspect, layer.connect(yin).inspect
     assert_equal inspect, layer.partial.inspect
     assert_equal [0.0, 0.0, 0.0], layer.values

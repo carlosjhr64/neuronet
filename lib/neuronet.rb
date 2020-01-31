@@ -96,6 +96,10 @@ module Neuronet
     def inspect
       "(#{@label}:" + (Neuronet.format % self.value) + ')'
     end
+
+    def to_s
+      "(#{@label}:" + (Neuronet.format % self.value) + ')'
+    end
   end
 
   # Connections between neurons (and nodes) are there own separate objects.
@@ -218,6 +222,10 @@ module Neuronet
       0.upto(self.length-1){|index| self[index].value = inputs[index].to_f}
       self
     end
+
+   def inspect
+     '['+self.map{|node| node.inspect}.join(',')+']'
+   end
   end
 
   # Just a regular Layer.
@@ -257,6 +265,10 @@ module Neuronet
     def values
       self.map{|node| node.value}
     end
+
+   def inspect
+     '['+self.map{|node| node.inspect}.join(',')+']'
+   end
   end
 
   # A Feed Forward Network
