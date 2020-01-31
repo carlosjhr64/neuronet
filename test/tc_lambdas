@@ -47,4 +47,10 @@ class TestLambdas < Test::Unit::TestCase
 
     assert_equal Neuronet.noise, NOISE
   end
+
+  def test_no_noise
+    any = rand
+    assert_equal any, IDENTITY[any]
+    assert NO_NOISE == IDENTITY
+  end
 end

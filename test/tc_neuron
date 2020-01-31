@@ -16,11 +16,10 @@ class TestNeuron < Test::Unit::TestCase
     assert_equal 0.0, neuron.value
     assert_equal 0.5, neuron.activation
 
-    assert_equal neuron, neuron.backpropagate(1.0,IDENTITY)
+    assert_equal neuron, neuron.backpropagate(1.0, NO_NOISE)
     assert_equal '(0)1[]', neuron.inspect
-    assert_equal 0.0, neuron.value
     assert_equal 1.0, neuron.update
-    assert_equal 1.0, neuron.value
+    assert_equal '(1)1[]', neuron.inspect
 
     neuron = Neuron.new.connect Node.new
     assert_equal '(0)0[0(0)]', neuron.inspect

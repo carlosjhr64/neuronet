@@ -42,10 +42,10 @@ module Neuronet
   # Differentiation among neurons is achieved by noise in the back-propagation of errors.
   # This noise is provided by rand + rand.
   # I chose rand + rand to give the noise an average value of one and a bell shape distribution.
-  NOISE = lambda{|error|error*(rand + rand)}
+  NOISE = lambda{|error| error*(rand + rand)}
 
   # One may choose not to have noise.
-  IDENTITY = lambda{|error|error}
+  NO_NOISE = IDENTITY = lambda{|error| error}
 
   class << self; attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format; end
   self.squash   = SQUASH
@@ -134,7 +134,7 @@ module Neuronet
     end
 
     def inspect
-      (Neuronet.format % @weight)+@node.inspect
+      (Neuronet.format % @weight) + @node.inspect
     end
   end
 
@@ -155,7 +155,7 @@ module Neuronet
 
     # Updates the activation with the current value of bias and updated values of connections.
     def update
-      self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.update}
+      self.value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.update}
     end
 
     # For when connections are already updated,
@@ -165,7 +165,7 @@ module Neuronet
     # The implementation should set it's algorithm to use partial
     # instead of update as update will most likely needlessly update previously updated neurons.
     def partial
-      self.value = @bias + @connections.inject(0.0){|sum,connection| sum + connection.value}
+      self.value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.value}
     end
 
     # The backpropagate method modifies
@@ -192,31 +192,33 @@ module Neuronet
     #	out.connect(in)
     # Think output connects to input.
     def connect(node, weight=0.0)
-      @connections.push(Connection.new(node,weight))
+      @connections.push(Connection.new(node, weight))
       self
     end
 
     def inspect
-      super + (Neuronet.format % @bias) + '[' + @connections.map{|c|c.inspect}.join(',') + ']'
+      super + (Neuronet.format % @bias) + '[' + @connections.map{|c| c.inspect}.join(',') + ']'
     end
   end
 
   # Neuronet::InputLayer is an Array of Neuronet::Node's.
   # It can be used for the input layer of a feed forward network.
   class InputLayer < Array
-    def initialize(length) # number of nodes
+    def initialize(length, inputs=[]) # number of nodes
       super(length)
-      0.upto(length-1){|index| self[index] = Neuronet::Node.new }
+      0.upto(length-1){|index| self[index] = Neuronet::Node.new inputs[index].to_f}
     end
 
     # This is where one enters the "real world" inputs.
     def set(inputs)
-      0.upto(self.length-1){|index| self[index].value = inputs[index]}
+      0.upto(self.length-1){|index| self[index].value = inputs[index].to_f}
+      self
     end
   end
 
   # Just a regular Layer.
   # InputLayer is to Layer what Node is to Neuron.
+  # But Layer does not sub-class InputLayer(it's different enough).
   class Layer < Array
     def initialize(length)
       super(length)
@@ -224,9 +226,10 @@ module Neuronet
     end
 
     # Allows one to fully connect layers.
-    def connect(layer, weight=0.0)
+    def connect(layer, weight=[])
       # creates the neuron matrix... note that node can be either Neuron or Node class.
-      self.each{|neuron| layer.each{|node| neuron.connect(node,weight) }}
+      i = -1
+      self.each{|neuron| layer.each{|node| neuron.connect(node, weight[i+=1].to_f) }}
     end
 
     # updates layer with current values of the previous layer
@@ -238,10 +241,10 @@ module Neuronet
     # and backpropagates the error to each node.
     # Note that the learning constant is really a value
     # that needs to be determined for each network.
-    def train(targets, learning)
+    def train(targets, learning, noise=Neuronet.noise)
       0.upto(self.length-1) do |index|
         node = self[index]
-        node.backpropagate(learning*(targets[index] - node.value))
+        node.backpropagate(learning*(targets[index] - node.value), noise)
       end
       self
     end
