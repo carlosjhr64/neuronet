@@ -8,6 +8,7 @@ class TestNeuron < Test::Unit::TestCase
     Node.label = 'a'
     neuron = Neuron.new
     assert_equal '(a:0)0[]', neuron.inspect
+    assert_equal '(a:0)', neuron.to_s
     assert_equal 0.0, neuron.value
     assert_equal 0.5, neuron.activation
 
@@ -25,5 +26,6 @@ class TestNeuron < Test::Unit::TestCase
     ###      :b         connect :c
     neuron = Neuron.new.connect Node.new
     assert_equal '(b:0)0[0(c:0)]', neuron.inspect
+    assert_equal '(b:0)', neuron.to_s
   end
 end

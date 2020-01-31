@@ -144,6 +144,10 @@ module Neuronet
     def inspect
       (Neuronet.format % @weight) + @node.inspect
     end
+
+    def to_s
+      (Neuronet.format % @weight) + @node.to_s
+    end
   end
 
   # A Neuron is a Node with some extra features.
@@ -205,7 +209,7 @@ module Neuronet
     end
 
     def inspect
-      super + (Neuronet.format % @bias) + '[' + @connections.map{|c| c.inspect}.join(',') + ']'
+      super + (Neuronet.format % @bias) + '[' + @connections.map{|c| c.to_s}.join(',') + ']'
     end
   end
 

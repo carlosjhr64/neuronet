@@ -8,6 +8,7 @@ class TestNode < Test::Unit::TestCase
     Node.label = 'a'
     node = Node.new
     assert_equal '(a:0)', node.inspect
+    assert_equal '(a:0)', node.to_s
     assert_equal 0.0, node.value
     assert_equal 0.5, node.activation
     assert_equal 0.5, node.partial

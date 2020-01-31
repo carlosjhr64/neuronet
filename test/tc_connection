@@ -9,6 +9,7 @@ class TestConnection < Test::Unit::TestCase
     n = Node.new
     c = Connection.new n
     assert_equal '0(a:0)', c.inspect
+    assert_equal '0(a:0)', c.to_s
 
     n = Node.new 1.25
     c = Connection.new n, 0.33
@@ -23,7 +24,5 @@ class TestConnection < Test::Unit::TestCase
     assert_equal 0.33+SQUASH[1.25]*0.01, c.weight
     # but the input node remains the same!
     assert_equal '(b:1.25)', n.inspect
-
-    # TODO: test update and partial with neuron instance
   end
 end
