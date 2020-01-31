@@ -62,7 +62,10 @@ module Neuronet
   # It is a terminal for backpropagation of errors.
   # Nodes are used for the input layer.
   class Node
-    attr_reader :activation
+    class <<self; attr_accessor :label; end
+    Node.label = 'a'
+
+    attr_reader :activation, :label
     # A Node is constant (Input)
     alias :update  :activation
     alias :partial :activation
@@ -75,6 +78,7 @@ module Neuronet
 
     def initialize(value=0.0)
       self.value = value
+      @label = Node.label and Node.label = Node.label.succ
     end
 
     # The "real world" value is stored as a squashed activation.
@@ -90,7 +94,7 @@ module Neuronet
     end
 
     def inspect
-      '(' + (Neuronet.format % self.value) + ')'
+      "(#{@label}:" + (Neuronet.format % self.value) + ')'
     end
   end
 
