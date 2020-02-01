@@ -275,9 +275,9 @@ module Neuronet
       self.map{|node| node.value}
     end
 
-   def inspect
-     '['+self.map{|node| node.inspect}.join(',')+']'
-   end
+    def inspect
+      '['+self.map{|node| node.inspect}.join(',')+']'
+    end
   end
 
   # A Feed Forward Network
@@ -287,21 +287,23 @@ module Neuronet
     attr_accessor :learning
 
     # I find very useful to name certain layers:
-    #	[0]	@in	Input Layer
-    #	[1]	@yin	Typically the first middle layer
-    #	[-2]	@yang	Typically the last middle layer
-    #	[-1]	@out	Output Layer
+    #  [0]    @in     Input Layer
+    #  [1]    @yin    Typically the first middle layer
+    #  [-2]   @yang   Typically the last middle layer
+    #  [-1]   @out    Output Layer
     def initialize(layers)
-      super(length = layers.length)
+      length = layers.length
+      raise "Need at least 2 layers"  if length < 2
+      super(length)
       @in = self[0] = Neuronet::InputLayer.new(layers[0])
-      (1).upto(length-1){|index|
+      1.upto(length-1) do |index|
         self[index] = Neuronet::Layer.new(layers[index])
         self[index].connect(self[index-1])
-      }
-      @out = self.last
-      @yin = self[1] # first middle layer
-      @yang = self[-2] # last middle layer
-      @learning = 0.5
+      end
+      @out      = self.last
+      @yin      = self[1]   # first middle layer
+      @yang     = self[-2]  # last middle layer
+      @learning = 1.0 / length
     end
 
     def update
@@ -314,9 +316,19 @@ module Neuronet
       @in.set(inputs)
     end
 
-    def train(targets, learning=@learning, noise=Neuronet.noise)
+    def set!(inputs)
+      set(inputs)
+      update
+    end
+
+    def train(targets, learning=@learning, noise: Neuronet.noise)
       @out.train(targets, learning, noise)
       self
+    end
+
+    def train!(targets, learning=@learning, noise: Neuronet.noise)
+      @out.train(targets, learning, noise)
+      update
     end
 
     # trains an input/output pair
