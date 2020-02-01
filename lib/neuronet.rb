@@ -339,16 +339,15 @@ module Neuronet
     def update
       # update up the layers
       (1).upto(self.length-1){|index| self[index].partial}
+      self
     end
 
     def set(inputs)
       @in.set(inputs)
-      update
     end
 
-    def train(targets)
-      @out.train(targets, @learning)
-      update
+    def train(targets, learning=@learning, noise=Neuronet.noise)
+      @out.train(targets, learning, noise)
       self
     end
 
@@ -365,6 +364,10 @@ module Neuronet
 
     def output
       @out.values
+    end
+
+    def inspect
+      self.map{|layer| layer.inspect}.join("\n")
     end
   end
 
