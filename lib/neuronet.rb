@@ -303,7 +303,11 @@ module Neuronet
       @out      = self.last
       @yin      = self[1]   # first middle layer
       @yang     = self[-2]  # last middle layer
-      @learning = 1.0 / length
+      @learning = 1.0
+    end
+
+    def number(n)
+      @learning = 1.0 / Math.sqrt(n)
     end
 
     def update
