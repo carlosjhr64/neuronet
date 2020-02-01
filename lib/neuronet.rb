@@ -136,6 +136,7 @@ module Neuronet
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
     def backpropagate(error, mu, noise=Neuronet.noise)
+      # mu divides the error among the neuron's contituents!
       @weight += @node.activation * noise[error/mu]
       @node.backpropagate(error)
       self
@@ -186,10 +187,9 @@ module Neuronet
     # While updates flows from input to output,
     # back-propagation of errors flows from output to input.
     def backpropagate(error, noise=Neuronet.noise)
-      # Adjusts bias according to error and...
+      # mu divides the error among the neuron's contituents!
       mu = 1.0 + @connections.length
       @bias += noise[error/mu]
-      # backpropagates the error to the connections.
       @connections.each{|connection| connection.backpropagate(error, mu, noise)}
       self
     end
@@ -282,43 +282,6 @@ module Neuronet
 
   # A Feed Forward Network
   class FeedForward < Array
-    # Whatchamacallits?
-    # The learning constant is given different names...
-    # often some Greek letter.
-    # It's a small number less than one.
-    # Ideally, it divides the errors evenly among all contributors.
-    # Contributors are the neurons' biases and the connections' weights.
-    # Thus if one counts all the contributors as N,
-    # the learning constant should be at most 1/N.
-    # But there are other considerations, such as how noisy the data is.
-    # In any case, I'm calling this N value FeedForward#mu.
-    # 1/mu is used for the initial default value for the learning constant.
-    def mu
-      sum = 1.0
-      1.upto(self.length-1) do |i|
-        n, m = self[i-1].length, self[i].length
-        sum += n + n*m
-      end
-      return sum
-    end
-    # Given that the learning constant is initially set to 1/mu as defined above,
-    # muk gives a way to modify the learning constant by some factor, k.
-    # In theory, when there is no noise in the target data, k can be set to 1.0.
-    # If the data is noisy, k is set to some value less than 1.0.
-    def muk(k=1.0)
-      @learning = k/mu
-    end
-    # Given that the learning constant can be modified by some factor k with #muk,
-    # #num gives an alternate way to express
-    # the k factor in terms of some number n greater than 1, setting k to 1/sqrt(n).
-    # I believe that the optimal value for the learning constant
-    # for a training set of size n is somewhere between #muk(1) and #num(n).
-    # Whereas the learning constant can be too high,
-    # a low learning value just increases the training time.
-    def num(n)
-      muk(1.0/(Math.sqrt(n)))
-    end
-
     attr_reader :in, :out
     attr_reader :yin, :yang
     attr_accessor :learning
@@ -338,7 +301,7 @@ module Neuronet
       @out = self.last
       @yin = self[1] # first middle layer
       @yang = self[-2] # last middle layer
-      @learning = 1.0/mu
+      @learning = 0.5
     end
 
     def update
