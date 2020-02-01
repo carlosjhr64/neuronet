@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200131'
+  VERSION = '7.0.200201'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -135,8 +135,8 @@ module Neuronet
     # Connection#backpropagate modifies the connection's weight
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
-    def backpropagate(error, noise=Neuronet.noise)
-      @weight += @node.activation * noise[error]
+    def backpropagate(error, mu, noise=Neuronet.noise)
+      @weight += @node.activation * noise[error/mu]
       @node.backpropagate(error)
       self
     end
@@ -187,9 +187,10 @@ module Neuronet
     # back-propagation of errors flows from output to input.
     def backpropagate(error, noise=Neuronet.noise)
       # Adjusts bias according to error and...
-      @bias += noise[error]
+      mu = 1.0 + @connections.length
+      @bias += noise[error/mu]
       # backpropagates the error to the connections.
-      @connections.each{|connection| connection.backpropagate(error, noise)}
+      @connections.each{|connection| connection.backpropagate(error, mu, noise)}
       self
     end
 
