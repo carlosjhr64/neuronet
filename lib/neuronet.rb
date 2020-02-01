@@ -138,7 +138,7 @@ module Neuronet
     def backpropagate(error, mu, noise=Neuronet.noise)
       # mu divides the error among the neuron's contituents!
       @weight += @node.activation * noise[error/mu]
-      @node.backpropagate(error)
+      @node.backpropagate(error, noise)
       self
     end
 
