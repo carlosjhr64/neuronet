@@ -8,6 +8,7 @@ class TestInputLayer < Test::Unit::TestCase
     Node.label = 'a'
     yin = InputLayer.new 3
     assert_equal '[(a:0),(b:0),(c:0)]', yin.inspect
+    assert_equal [0.0, 0.0, 0.0], yin.values
 
     yin.set [1,2,3]
     assert_equal '[(a:1),(b:2),(c:3)]', yin.inspect
@@ -20,5 +21,6 @@ class TestInputLayer < Test::Unit::TestCase
     assert_equal '[(d:1),(e:2),(f:3)]', yin.inspect
     yin = InputLayer.new(3, {0=>1.1, 2=>3.3})
     assert_equal '[(g:1.1),(h:0),(i:3.3)]', yin.inspect
+    assert_equal [1.1, 0.0, 3.3], yin.values.map{|f| f.round(14)}
   end
 end

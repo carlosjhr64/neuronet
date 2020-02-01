@@ -227,6 +227,10 @@ module Neuronet
       self
     end
 
+    def values
+      self.map{|node| node.value}
+    end
+
    def inspect
      '['+self.map{|node| node.inspect}.join(',')+']'
    end
