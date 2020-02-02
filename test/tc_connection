@@ -20,9 +20,11 @@ class TestConnection < Test::Unit::TestCase
     assert_equal 0.33*SQUASH[1.25], c.partial
     assert_equal 0.33*SQUASH[1.25], c.update
 
-    c.backpropagate(0.01, 1.0, NO_NOISE)
+    Neuronet.noise = NO_NOISE
+    c.backpropagate(0.01, 1.0)
     assert_equal 0.33+SQUASH[1.25]*0.01, c.weight
     # but the input node remains the same!
     assert_equal '(b:1.25)', n.inspect
+    Neuronet.noise = NOISE # Restore
   end
 end

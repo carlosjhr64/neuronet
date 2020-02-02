@@ -88,7 +88,7 @@ module Neuronet
     end
 
     # Node is a terminal where backpropagation ends.
-    def backpropagate(error, noise=nil)
+    def backpropagate(error)
       # to be over-ridden
       self
     end
@@ -135,10 +135,10 @@ module Neuronet
     # Connection#backpropagate modifies the connection's weight
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
-    def backpropagate(error, mu, noise=Neuronet.noise)
+    def backpropagate(error, mu)
       # mu divides the error among the neuron's contituents!
-      @weight += @node.activation * noise[error/mu]
-      @node.backpropagate(error, noise)
+      @weight += @node.activation * Neuronet.noise[error/mu]
+      @node.backpropagate(error)
       self
     end
 
@@ -185,11 +185,11 @@ module Neuronet
     # passes on this error to each of its connection's backpropagate method.
     # While updates flows from input to output,
     # back-propagation of errors flows from output to input.
-    def backpropagate(error, noise=Neuronet.noise)
+    def backpropagate(error)
       # mu divides the error among the neuron's contituents!
       mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
-      @bias += noise[error/mu]
-      @connections.each{|connection| connection.backpropagate(error, mu, noise)}
+      @bias += Neuronet.noise[error/mu]
+      @connections.each{|connection| connection.backpropagate(error, mu)}
       self
     end
 
@@ -261,10 +261,11 @@ module Neuronet
     # and backpropagates the error to each node.
     # Note that the learning constant is really a value
     # that needs to be determined for each network.
-    def train(targets, learning, noise=Neuronet.noise)
+    def train(targets, learning)
       0.upto(self.length-1) do |index|
         node = self[index]
-        node.backpropagate(learning*(targets[index] - node.value), noise)
+        error = targets[index] - node.value
+        node.backpropagate(learning*error)
       end
       self
     end
@@ -325,13 +326,13 @@ module Neuronet
       update
     end
 
-    def train(targets, learning=@learning, noise: Neuronet.noise)
-      @out.train(targets, learning, noise)
+    def train(targets, learning=@learning)
+      @out.train(targets, learning)
       self
     end
 
-    def train!(targets, learning=@learning, noise: Neuronet.noise)
-      @out.train(targets, learning, noise)
+    def train!(targets, learning=@learning)
+      @out.train(targets, learning)
       update
     end
 
