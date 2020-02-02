@@ -14,7 +14,7 @@ class TestLayer < Test::Unit::TestCase
     assert_equal inspect, layer.partial.inspect
     assert_equal [0.0, 0.0, 0.0], layer.values
     # See README on the learning constant.
-    layer.train([-1,0,1], 16.0/7.0, NO_NOISE)
+    layer.train([-1,0,1], 20.0/14.0, NO_NOISE)
     layer.partial
     assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
     yang = Layer.new 3

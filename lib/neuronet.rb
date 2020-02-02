@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200201'
+  VERSION = '7.0.200202'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -170,7 +170,6 @@ module Neuronet
     def update
       self.value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.update}
     end
-
     # For when connections are already updated,
     # Neuron#partial updates the activation with the current values of bias and connections.
     # It is not always necessary to burrow all the way down to the terminal input node
@@ -188,7 +187,7 @@ module Neuronet
     # back-propagation of errors flows from output to input.
     def backpropagate(error, noise=Neuronet.noise)
       # mu divides the error among the neuron's contituents!
-      mu = 1.0 + @connections.length
+      mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
       @bias += noise[error/mu]
       @connections.each{|connection| connection.backpropagate(error, mu, noise)}
       self
@@ -303,11 +302,12 @@ module Neuronet
       @out      = self.last
       @yin      = self[1]   # first middle layer
       @yang     = self[-2]  # last middle layer
-      @learning = 1.0
+      @learning = 1.0 / (length-1)
     end
 
     def number(n)
-      @learning = 1.0 / Math.sqrt(n)
+      mu = Math.sqrt(n+1)*(self.length-1)
+      @learning = 1.0 / mu
     end
 
     def update
