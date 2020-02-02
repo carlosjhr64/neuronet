@@ -265,14 +265,14 @@ module Neuronet
       self.each{|neuron| neuron.partial}
     end
 
-    # Takes the real world targets for each node in this layer
+    # Takes the real world target for each node in this layer
     # and backpropagates the error to each node.
     # Note that the learning constant is really a value
     # that needs to be determined for each network.
-    def train(targets, learning)
+    def train(target, learning)
       0.upto(self.length-1) do |index|
         node = self[index]
-        error = targets[index] - node.value
+        error = target[index] - node.value
         node.backpropagate(learning*error)
       end
       self
@@ -319,35 +319,8 @@ module Neuronet
       @learning = 1.0 / mu
     end
 
-    def update
-      # update up the layers
-      (1).upto(self.length-1){|index| self[index].partial}
-      self
-    end
-
-    def set(inputs)
-      @in.set(inputs)
-    end
-
-    def set!(inputs)
-      set(inputs)
-      update
-    end
-
-    def train(targets, learning=@learning)
-      @out.train(targets, learning)
-      self
-    end
-
-    def train!(targets, learning=@learning)
-      @out.train(targets, learning)
-      update
-    end
-
-    # trains an input/output pair
-    def exemplar(inputs, targets)
-      set(inputs)
-      train(targets)
+    def set(input)
+      @in.set(input)
       self
     end
 
@@ -355,8 +328,25 @@ module Neuronet
       @in.values
     end
 
+    def update
+      # update up the layers
+      (1).upto(self.length-1){|index| self[index].partial}
+      self
+    end
+
     def output
       @out.values
+    end
+
+    def *(input)
+      set(input)
+      update
+      @out.values
+    end
+
+    def train(target, learning=@learning)
+      @out.train(target, learning)
+      self
     end
 
     def inspect
@@ -500,8 +490,8 @@ module Neuronet
       @distribution = Gaussian.new
     end
 
-    def train(targets)
-      super(@distribution.mapped_output(targets))
+    def train(target)
+      super(@distribution.mapped_output(target))
     end
 
     # @param (List of Float) values
