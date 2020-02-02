@@ -55,6 +55,11 @@ module Neuronet
   self.noise    = NOISE
   self.format   = FORMAT
 
+  class << self; attr_accessor :maxw, :maxb, :maxv; end
+  self.maxw     = 9.0
+  self.maxb     = 18.0
+  self.maxv     = 36.0
+
   # In Neuronet, there are two main types of objects: Nodes and Connections.
   # A Node has a value which the implementation can set.
   # A plain Node instance is used primarily as input neurons, and
@@ -73,6 +78,7 @@ module Neuronet
     # The "real world" value of a node is the value of it's activation unsquashed.
     # So, set the activation to the squashed real world value.
     def value=(value)
+      value = value.positive? ? Neuronet.maxv : -Neuronet.maxv  if value.abs > Neuronet.maxv
       @activation = Neuronet.squash[value]
     end
 
@@ -138,6 +144,7 @@ module Neuronet
     def backpropagate(error, mu)
       # mu divides the error among the neuron's contituents!
       @weight += @node.activation * Neuronet.noise[error/mu]
+      @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw  if @weight.abs > Neuronet.maxw
       @node.backpropagate(error)
       self
     end
@@ -189,6 +196,7 @@ module Neuronet
       # mu divides the error among the neuron's contituents!
       mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
       @bias += Neuronet.noise[error/mu]
+      @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb  if @bias.abs > Neuronet.maxb
       @connections.each{|connection| connection.backpropagate(error, mu)}
       self
     end
