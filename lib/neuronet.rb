@@ -352,7 +352,23 @@ module Neuronet
     end
 
     def inspect
-      self.map{|layer| layer.inspect}.join("\n")
+      "learning: #{(Neuronet.format % learning)}  noise: #{Neuronet.noise != NO_NOISE}\n" +
+      self.map{|layer|
+        line = (layer.is_a?(Layer) ?
+          layer.map{|neuron|
+            neuron.label + ':' + (Neuronet.format % neuron.bias) +
+            '['+
+            neuron.connections.map{|c| "#{Neuronet.format % c.weight}:#{c.node.label}"}.join(' ') +
+            ']'
+          }.join(' ') + "\n" : '') +
+        layer.map{|node| node.label + ':' + (Neuronet.format % node.value)}.join("  ")
+      }.join("\n")
+    end
+
+    def to_s
+      self.map{|layer|
+        line = '[' + layer.map{|node| node.label + ':' + (Neuronet.format % node.value)}.join(' ') + ']'
+      }.join("\n")
     end
   end
 
