@@ -1,0 +1,19 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestScale < Test::Unit::TestCase
+  def test_scale
+    inputs = [10, 11, 12, 13, 14,
+              15,
+              16, 17, 18, 19, 20]
+    scale = Scale.new.set inputs
+    assert_equal 5, scale.spread
+    assert_equal 15, scale.center
+    mapped = scale.mapped(inputs).map{|x|x.round(14)}
+    assert_equal [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6, 0.8, 1.0], mapped
+    outputs = scale.unmapped mapped
+    assert_equal inputs, outputs
+  end
+end

@@ -386,43 +386,20 @@ module Neuronet
   # establishes a mapping to a scaled set of numbers between minus one and one (-1,1).
   class Scale
     attr_accessor :spread, :center
-    attr_writer :init
 
     # If the value of center is provided, then
     # that value will be used instead of
     # calculating it from the values passed to method set.
     # Likewise, if spread is provided, that value of spread will be used.
-    # The attribute @init flags if
-    # there is a initiation phase to the calculation of @spread and @center.
-    # For Scale, @init is true and the initiation phase calculates
-    # the intermediate values @min and @max (the minimum and maximum values in the data set).
-    # It's possible for sub-classes of Scale, such as Gaussian, to not have this initiation phase.
-    def initialize(factor=1.0,center=nil,spread=nil)
-      @factor,@center,@spread = factor,center,spread
-      @centered, @spreaded = center.nil?, spread.nil?
-      @init = true
-    end
-
-    def set_init(inputs)
-      @min, @max = inputs.minmax
-    end
-
-    # In this case, inputs is unused, but
-    # it's there for the general case.
-    def set_spread(inputs)
-      @spread = (@max - @min) / 2.0
-    end
-
-    # In this case, inputs is unused, but
-    # it's there for the general case.
-    def set_center(inputs)
-      @center = (@max + @min) / 2.0
+    def initialize(factor: 1.0, center: nil, spread: nil)
+      @factor, @center, @spread = factor, center, spread
     end
 
     def set(inputs)
-      set_init(inputs)		if @init
-      set_center(inputs)	if @centered
-      set_spread(inputs)	if @spreaded
+      min, max = inputs.minmax
+      @center = (max + min) / 2.0  unless @center
+      @spread = (max - min) / 2.0  unless @spread
+      self
     end
 
     def mapped(inputs)
