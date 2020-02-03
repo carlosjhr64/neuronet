@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200202'
+  VERSION = '7.0.200203'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -315,7 +315,7 @@ module Neuronet
     end
 
     def number(n)
-      mu = Math.sqrt(n+1)*(self.length-1)
+      mu = Math.sqrt(n)*(self.length-1)
       @learning = 1.0 / mu
     end
 
@@ -346,6 +346,42 @@ module Neuronet
 
     def train(target, learning=@learning)
       @out.train(target, learning)
+      self
+    end
+
+    def warmup(pairs)
+      n = pairs.length
+      n.times do |m|
+        number(n-m)
+        pairs.shuffle.each do |input, target|
+          set(input).update.train(target)
+        end
+      end
+    end
+
+    def pairs(pairs, r=0.05)
+      m = @out.length-1
+      loop do
+        Neuronet.noise = NO_NOISE
+        warmup pairs
+        Neuronet.noise = NOISE
+        warmup pairs
+        # As a side-effect to checking if all < r,
+        # calculate the stddev.
+        n,sum = 0,0.0
+        break if pairs.all? do |input, target|
+          output = self*input
+          (0..m).all? do |j|
+            n += 1
+            t,i = target[j],input[j]
+            e = t-i
+            sum += e*e
+            (e/t).abs < r
+          end
+        end
+        stddev = Math.sqrt(sum/n)
+        $stderr.puts stddev
+      end
       self
     end
 
