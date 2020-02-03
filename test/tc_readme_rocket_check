@@ -14,7 +14,7 @@ def yield_script
       when "    #!> TODO\n"
         break
       when /^    +[^$#]/, /^   +#{ROCKET}/, /^   +#{MATCH}/
-        script << line  unless line.match? /^\s*#/
+        script << line[4..-1]  unless line.match? /^\s*#/
         case line
         when /#{ROCKET}/, /#{MATCH}/
           actual = nil

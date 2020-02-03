@@ -8,58 +8,92 @@
 
 Library to create neural networks.
 
-TODO
+This is primarily a math project
+meant to be used to investigate behavior
+of different small neural networks.
 
 ## SYNOPSIS:
 
-Given some set of inputs (of at least length 3) and
-targets that are Array's of Float's.  Then:
+The following quickly skims over about half the library
+to show at what level I'm fidgeting.
+I mean for user to read the code in the library and
+build on top of it.
+
+    require 'neuronet'
+    include Neuronet
+
+    # Turning off noise for this demo
+    Neuronet.noise = NO_NOISE
+
+    # A zero node
+    node = Node.new       #=> (a:0)
+
+    # A zero neuron with 0 bias and no connections
+    neuron = Neuron.new   #=> (b:0)0[]
+
+    # Neuron :b connects to node :a with weight 0
+    neuron.connect node   #=> (b:0)0[0(a:0)]
+
+    # Node are used to set inputs... setting this one to 1.5.
+    node.value = 1.5
+    node                  #=> (a:1.5)
+    neuron                #=> (b:0)0[0(a:1.5)]
+
+    # Although connected, neuron gives no weight.
+    neuron.update         #=> 0.0
+    neuron                #=> (b:0)0[0(a:1.5)]
+
+    # Normally, one does not train(work with) individual neurons, but...
+    neuron.backpropagate -0.25
+    neuron        #=> (b:0)-0.13754594558543[-0.11245405441457(a:1.5)]
+    neuron.update #=> -0.22948551021927382
+    neuron        #=> (b:-0.22948551021927)-0.13754594558543[-0.11245405441457(a:1.5)]
+
+    # Don't need to see all those digits...
+    Neuronet.format = '%.2g'
+    neuron                #=> (b:-0.23)-0.14[-0.11(a:1.5)]
+    '%.2g' % neuron.value #=> -0.23
+
+    # A layer of nodes
+    input = InputLayer.new 2
+    input #=> [(c:0),(d:0)]
+    # One can access individual nodes
+    input[1] #=> (d:0)
+
+    # A layer of neurons
+    layer = Layer.new 2
+    layer #=> [(e:0)0[],(f:0)0[]]
+
+    # Connect layers
+    layer.connect input
+    layer #=> [(e:0)0[0(c:0),0(d:0)],(f:0)0[0(c:0),0(d:0)]]
+
+    # Set the input layer
+    input.set [0.33,-0.1]
+    layer #=> [(e:0)0[0(c:0.33),0(d:-0.1)],(f:0)0[0(c:0.33),0(d:-0.1)]]
+
+    # Train the layer.input network to a target(with some training constant)
+    layer.train [0.1, 0.2], 1.0
+    layer
+    #=> [(e:0)0.049[0.028(c:0.33),0.023(d:-0.1)],(f:0)0.097[0.057(c:0.33),0.046(d:-0.1)]]
+    layer.partial
+    #=> [(e:0.076)0.049[0.028(c:0.33),0.023(d:-0.1)],(f:0.15)0.097[0.057(c:0.33),0.046(d:-0.1)]]
+    layer.values #=> [0.07604549834545293, 0.15209099669090617]
+
+    # A feed forward network
+    ff = FeedForward.new [3,3,3]
+    inspect = <<INSPECT
+    learning: 0.5  noise: false
+    g:0  h:0  i:0
+    j:0[0:g 0:h 0:i] k:0[0:g 0:h 0:i] l:0[0:g 0:h 0:i]
+    j:0  k:0  l:0
+    m:0[0:j 0:k 0:l] n:0[0:j 0:k 0:l] o:0[0:j 0:k 0:l]
+    m:0  n:0  o:0
+    INSPECT
+    ff.inspect == inspect.chomp #=> true
 
     #!> TODO
 
-	# data = [ [input, target],  ... }
-	# n = input.length # > 3
-	# t = target.length
-	# m = n + t
-	# l = data.length
-	# Then:
-	# Create a general purpose neuronet
-
-	neuronet = Neuronet::ScaledNetwork.new([n, m, t])
-
-	# "Bless" it as a TaoYinYang,
-	# a perceptron hybrid with the middle layer
-	# initially mirroring the input layer and
-	# mirrored by the output layer.
-
-	Neuronet::TaoYinYang.bless(neuronet)
-
-	# The following sets the learning constant
-	# to something I think is reasonable.
-
-	neuronet.num(l)
-
-	# Start training
-
-	MANY.times do
-	  data.shuffle.each do |input, target|
-	    neuronet.reset(input)
-	    neuronet.train!(target)
-	  end
-	end # or until some small enough error
-
-	# See how well the training went
-
-	require 'pp'
-	data.each do |input, target|
-	  puts "Input:"
-	  pp input
-	  puts "Output:"
-	  neuronet.reset(input) # sets the input values
-	  pp neuronet.output # gets the output values
-	  puts "Target:"
-	  pp target
-	end
 
 ## INSTALL:
 
@@ -92,8 +126,13 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+# TODO: NEEDS RE-WRITE!
+
+I'm currently reviewing the entire library.
+Everything below needs review.
 
 ## Introduction
+
 
 Neuronet is a pure Ruby 1.9, sigmoid squashed, neural network building library.
 It allows one to build a network by connecting one neuron at a time, or a layer at a time,
