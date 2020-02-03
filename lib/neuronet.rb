@@ -349,38 +349,12 @@ module Neuronet
       self
     end
 
-    def warmup(pairs)
-      n = pairs.length
-      n.times do |m|
-        number(n-m)
-        pairs.shuffle.each do |input, target|
-          set(input).update.train(target)
+    def pairs(pairs)
+      pairs.shuffle.each{|input, target| set(input).update.train(target)}
+      if block_given?
+        while yield
+          pairs.shuffle.each{|input, target| set(input).update.train(target)}
         end
-      end
-    end
-
-    def pairs(pairs, r=0.05)
-      m = @out.length-1
-      loop do
-        Neuronet.noise = NO_NOISE
-        warmup pairs
-        Neuronet.noise = NOISE
-        warmup pairs
-        # As a side-effect to checking if all < r,
-        # calculate the stddev.
-        n,sum = 0,0.0
-        break if pairs.all? do |input, target|
-          output = self*input
-          (0..m).all? do |j|
-            n += 1
-            t,i = target[j],input[j]
-            e = t-i
-            sum += e*e
-            (e/t).abs < r
-          end
-        end
-        stddev = Math.sqrt(sum/n)
-        $stderr.puts stddev
       end
       self
     end

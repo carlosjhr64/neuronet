@@ -1,0 +1,49 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+require 'colorize'
+
+class TestPairs < Test::Unit::TestCase
+  def rng3
+    (rand+rand+rand) - (rand+rand+rand)
+  end
+
+  def v3
+    [rng3, rng3, rng3]
+  end
+
+  def test_pairs
+    # To replicate rand and shuffle calls
+    srand '0c6b6d12ae7ac5a7f39df9426f6a698035c1fe6b3070caf2ec4455bf1bc0c99e'.to_i(16)
+
+    many, failures = 3_000,0
+    12.times do
+      pairs = [[v3, v3], [v3, v3], [v3, v3]]
+      ff = FeedForward.new [3,3]
+      ff.number(3)
+      many.times{ff.pairs pairs}
+      pairs.each do |input, target|
+        # Get 1 significant figure
+        failures += 1  unless  target.map{|x|"%.1g"%x} == (ff*input).map{|x|"%.1g"%x}
+      end
+    end
+    color = (failures < 4)? :green : (failures < 10)? :yellow : (failures > 18)? :red : :black
+    $stderr.puts "many: #{many}  failures: #{failures}".colorize(color)
+    assert failures < 10
+
+    count = 0
+    pairs = [[v3, v3], [v3, v3], [v3, v3]]
+    ff = FeedForward.new [3,3]
+    ff.number(3)
+    ff.pairs(pairs) do
+      count += 1
+      break if count > 3000
+      not pairs.all? do |input,target|
+        target.map{|x|"%.1g"%x} == (ff*input).map{|x|"%.1g"%x}
+      end
+    end
+    $stderr.puts "Success at count: #{count}".colorize(:green)  if count <= 3000
+    assert count <= 3000
+  end
+end
