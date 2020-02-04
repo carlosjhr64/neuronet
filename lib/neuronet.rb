@@ -417,8 +417,6 @@ module Neuronet
       factor = 1.0 / (@factor*@spread)
       inputs.map{|value| factor*(value - @center)}
     end
-    alias mapped_input mapped
-    alias mapped_output mapped
 
     # Note that it could also unmap inputs, but
     # outputs is typically what's being transformed back.
@@ -426,8 +424,6 @@ module Neuronet
       factor = @factor*@spread
       outputs.map{|value| factor*value + @center}
     end
-    alias unmapped_input unmapped
-    alias unmapped_output unmapped
   end
 
   # "Normal Distribution"
@@ -448,25 +444,17 @@ module Neuronet
   # "Log-Normal Distribution"
   # LogNormal sub-classes Gaussian to transform the values to a logarithmic scale. 
   class LogNormal < Gaussian
-    def initialize(factor=1.0,center=nil,spread=nil)
-      super(factor, center, spread)
-    end
-
     def set(inputs)
-      super( inputs.map{|value| Math::log(value)} )
+      super(inputs.map{|value| Math::log(value)})
     end
 
     def mapped(inputs)
-      super( inputs.map{|value| Math::log(value)} )
+      super(inputs.map{|value| Math::log(value)})
     end
-    alias mapped_input mapped
-    alias mapped_output mapped
 
     def unmapped(outputs)
       super(outputs).map{|value| Math::exp(value)}
     end
-    alias unmapped_input unmapped
-    alias unmapped_output unmapped
   end
 
   # ScaledNetwork is a subclass of FeedForwardNetwork.
@@ -483,12 +471,12 @@ module Neuronet
     end
 
     def train(target)
-      super(@distribution.mapped_output(target))
+      super(@distribution.mapped(target))
     end
 
     # @param (List of Float) values
     def set(inputs)
-      super(@distribution.mapped_input(inputs))
+      super(@distribution.mapped(inputs))
     end
 
     # ScaledNetwork#reset works just like FeedForwardNetwork's set method,
@@ -503,11 +491,11 @@ module Neuronet
     end
 
     def output
-      @distribution.unmapped_output(super)
+      @distribution.unmapped(super)
     end
 
     def input
-      @distribution.unmapped_input(super)
+      @distribution.unmapped(super)
     end
   end
 

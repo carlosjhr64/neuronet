@@ -1,0 +1,17 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+
+class TestLogNormal < Test::Unit::TestCase
+  def test_log_normal
+    e = Math::E
+    inputs = [e, e**2, e**3, e**4, e**5]
+    log_normal = LogNormal.new.set inputs
+    assert_equal 3.0, log_normal.center
+    mapped = log_normal.mapped(inputs)
+    assert_equal 0.0, mapped.sum.round(14), "It's centered about zero?"
+    outputs = log_normal.unmapped mapped
+    assert_equal inputs.map{|_|'%.15g' % _}, outputs.map{|_|'%.15g' % _}
+  end
+end

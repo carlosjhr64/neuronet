@@ -12,6 +12,6 @@ class TestGaussian < Test::Unit::TestCase
     mapped = gaussian.mapped(inputs)
     assert_equal 0.0, mapped.sum.round(14), "It's centered about zero?"
     outputs = gaussian.unmapped mapped
-    assert_equal inputs, outputs.map{|x| x.round(14)}
+    assert_equal inputs.map{|_|'%.15g' % _}, outputs.map{|_|'%.15g' % _}
   end
 end
