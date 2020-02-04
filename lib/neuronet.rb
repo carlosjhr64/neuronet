@@ -355,8 +355,8 @@ module Neuronet
       @out.values
     end
 
-    def train(target, learning=@learning)
-      @out.train(target, learning)
+    def train(target)
+      @out.train(target, @learning)
       self
     end
 
