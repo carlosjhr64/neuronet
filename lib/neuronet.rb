@@ -400,7 +400,7 @@ module Neuronet
 
     # If the value of center is provided, then
     # that value will be used instead of
-    # calculating it from the values passed to method set.
+    # calculating it from the values passed to method #set.
     # Likewise, if spread is provided, that value of spread will be used.
     def initialize(factor: 1.0, center: nil, spread: nil)
       @factor, @center, @spread = factor, center, spread
@@ -435,19 +435,13 @@ module Neuronet
   # The only changes are that it calculates the arithmetic mean (average) for center and
   # the standard deviation for spread.
   class Gaussian < Scale
-    def initialize(factor=1.0,center=nil,spread=nil)
-      super(factor, center, spread)
-      self.init = false
-    end
-
-    def set_center(inputs)
-      self.center = inputs.inject(0.0,:+) / inputs.length
-    end
-
-    def set_spread(inputs)
-      self.spread = Math.sqrt(inputs.map{|value|
-        self.center - value}.inject(0.0){|sum,value|
-          value*value + sum} / (inputs.length - 1.0))
+    def set(inputs)
+      @center = inputs.inject(0.0,:+) / inputs.length  unless @center
+      unless @spread
+        sum2 = inputs.map{|v| e = @center - v; e*e}.sum
+        @spread = Math.sqrt(sum2 / (inputs.length - 1.0))
+      end
+      self
     end
   end
 
