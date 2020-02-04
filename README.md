@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 7.0.200203](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.200204](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 
@@ -70,6 +70,7 @@ build on top of it.
 
     # Set the input layer
     input.set [0.33,-0.1]
+    layer.partial # need to make layer aware of changes in its connections
     layer #=> [(e:0)0[0(c:0.33),0(d:-0.1)],(f:0)0[0(c:0.33),0(d:-0.1)]]
 
     # Train the layer.input network to a target(with some training constant)

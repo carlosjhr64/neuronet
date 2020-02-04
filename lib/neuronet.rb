@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200203'
+  VERSION = '7.0.200204'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -165,17 +165,27 @@ module Neuronet
   # A neuron's bias is it's kicker (or deduction) to it's activation value,
   # a sum of its connections values.
   class Neuron < Node
-    attr_reader :connections
+    attr_reader :connections, :mu
     attr_accessor :bias
+
+    def mu!
+      # mu is entirely based on a sum of external activations and
+      # only needs to be reset when these external activations change.
+      mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
+      @mu = mu
+    end
+
     def initialize(value=0.0, bias: 0.0, connections: [])
       super(value)
-      @connections = connections
-      @bias = bias
+      @connections, @bias  =  connections, bias
+      mu!
     end
 
     # Updates the activation with the current value of bias and updated values of connections.
     def update
-      self.value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.update}
+      value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.update}
+      mu!
+      self.value = value
     end
     # For when connections are already updated,
     # Neuron#partial updates the activation with the current values of bias and connections.
@@ -184,7 +194,9 @@ module Neuronet
     # The implementation should set it's algorithm to use partial
     # instead of update as update will most likely needlessly update previously updated neurons.
     def partial
-      self.value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.value}
+      value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.value}
+      mu!
+      self.value = value
     end
 
     # The backpropagate method modifies
@@ -194,10 +206,9 @@ module Neuronet
     # back-propagation of errors flows from output to input.
     def backpropagate(error)
       # mu divides the error among the neuron's contituents!
-      mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
-      @bias += Neuronet.noise[error/mu]
+      @bias += Neuronet.noise[error/@mu]
       @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb  if @bias.abs > Neuronet.maxb
-      @connections.each{|connection| connection.backpropagate(error, mu)}
+      @connections.each{|connection| connection.backpropagate(error, @mu)}
       self
     end
 
