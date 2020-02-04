@@ -417,6 +417,8 @@ module Neuronet
       factor = 1.0 / (@factor*@spread)
       inputs.map{|value| factor*(value - @center)}
     end
+    alias mapped_input mapped
+    alias mapped_output mapped
 
     # Note that it could also unmap inputs, but
     # outputs is typically what's being transformed back.
@@ -424,6 +426,8 @@ module Neuronet
       factor = @factor*@spread
       outputs.map{|value| factor*value + @center}
     end
+    alias unmapped_input unmapped
+    alias unmapped_output unmapped
   end
 
   # "Normal Distribution"
@@ -463,39 +467,37 @@ module Neuronet
   # The attribute, @distribution, is set to Neuronet::Gaussian.new by default,
   # but one can change this to Scale, LogNormal, or one's own custom mapper.
   class ScaledNetwork < FeedForward
-    attr_accessor :distribution
+    attr_accessor :distribution, :reset
 
-    def initialize(layers)
+    def initialize(layers, distribution: Gaussian.new, reset: false)
       super(layers)
-      @distribution = Gaussian.new
+      @distribution, @reset  =  distribution, reset
     end
 
-    def train(target)
-      super(@distribution.mapped(target))
-    end
-
-    # @param (List of Float) values
-    def set(inputs)
-      super(@distribution.mapped(inputs))
-    end
-
-    # ScaledNetwork#reset works just like FeedForwardNetwork's set method,
-    # but calls distribution.set( values ) first.
-    # Sometimes you'll want to set the distribution
-    # with the entire data set and the use set,
-    # and then there will be times you'll want to
-    # set the distribution with each input and use reset.
-    def reset(inputs)
-      @distribution.set(inputs)
-      set(inputs)
-    end
-
-    def output
-      @distribution.unmapped(super)
+    # ScaledNetwork set works just like FeedForwardNetwork's set method,
+    # but calls @distribution.set(values) first if @reset is true.
+    # Sometimes you'll want to set the distribution with the entire data set,
+    # and then there will be times you'll want to reset the distribution
+    # with each input.
+    def set(input)
+      @distribution.set(input)  if @reset
+      super(@distribution.mapped_input(input))
     end
 
     def input
-      @distribution.unmapped(super)
+      @distribution.unmapped_input(super)
+    end
+
+    def output
+      @distribution.unmapped_output(super)
+    end
+
+    def train(target)
+      super(@distribution.mapped_output(target))
+    end
+
+    def inspect
+      @distribution.class.to_s + "  reset: #{@reset}  " + super
     end
   end
 
