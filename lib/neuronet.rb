@@ -519,9 +519,8 @@ module Neuronet
     # This makes @yin initially mirror @in.
     def self.bless(myself)
       yin = myself.yin
-      if yin.length < (in_length = myself.in.length)
-        raise "First hidden layer, yin, needs to have at least the same length as input"
-      end
+      # just mirror as much of myself.in as you can
+      in_length = [myself.in.length, yin.length].min
       # connections from yin[i] to in[i] are WONE... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
@@ -534,58 +533,19 @@ module Neuronet
 
   # Yang is a network which has its @out layer initially mirroring @yang.
   module Yang
-    # Yang.bless increments the bias of each @yang[i] by BZERO, and
-    # the weight of pairing (@out[i], @yang[i]) connections by WONE.
+    # Yang.bless sets the bias of each @out[i] to BZERO, and
+    # the weight of pairing (@out[i], @yang[i]) connections to WONE.
     # This makes @out initially mirror @yang.
-    # The pairing is done starting with (@out[-1], @yang[-1]).
-    # That is, starting with (@out.last, @yang.last).
     def self.bless(myself)
-      offset = myself.yang.length - (out_length = (out = myself.out).length)
-      raise "Last hidden layer, yang, needs to have at least the same length as output" if offset < 0
-      # Although the algorithm here is not as described,
-      # the net effect to is pair @out.last with @yang.last, and so on down.
-      0.upto(out_length-1) do |index|
+      out = myself.out
+      # just mirror as much of myself.yang as you can
+      yang_length = [myself.yang.length, out.length].min
+      # connections from out[i] to yang[i] are WONE... mirroring to start.
+      0.upto(yang_length-1) do |index|
         node = out[index]
-        node.connections[offset+index].weight += WONE # +?
-        node.bias += BZERO # +?
+        node.connections[index].weight = WONE
+        node.bias = BZERO
       end
-      return myself
-    end
-  end
-
-  # A Yin Yang composite provided for convenience.
-  module YinYang
-    def self.bless(myself)
-      Yang.bless(myself)
-      Yin.bless(myself)
-      return myself
-    end
-  end
-
-  # A Tao Yin Yang composite provided for convenience.
-  module TaoYinYang
-    def self.bless(myself)
-      Yang.bless(myself)
-      Yin.bless(myself)
-      Tao.bless(myself)
-      return myself
-    end
-  end
-
-  # A Tao Yin composite provided for convenience.
-  module TaoYin
-    def self.bless(myself)
-      Yin.bless(myself)
-      Tao.bless(myself)
-      return myself
-    end
-  end
-
-  # A Tao Yang composite provided for convenience.
-  module TaoYang
-    def self.bless(myself)
-      Yang.bless(myself)
-      Tao.bless(myself)
       return myself
     end
   end
@@ -619,32 +579,5 @@ module Neuronet
     end
   end
 
-  # A Brahma Yang composite provided for convenience.
-  module BrahmaYang
-    def self.bless(myself)
-      Brahma.bless(myself)
-      Yang.bless(myself)
-      return myself
-    end
-  end
-
-  # A Brahma Yang composite provided for convenience.
-  module TaoBrahma
-    def self.bless(myself)
-      Brahma.bless(myself)
-      Tao.bless(myself)
-      return myself
-    end
-  end
-
-  # A Tao Brahma Yang composite provided for convenience.
-  module TaoBrahmaYang
-    def self.bless(myself)
-      Yang.bless(myself)
-      Brahma.bless(myself)
-      Tao.bless(myself)
-      return myself
-    end
-  end
-
+  # TODO: Combos?
 end
