@@ -550,6 +550,25 @@ module Neuronet
     end
   end
 
+  # Neo is a network which has its @yang layer initially mirroring @yin.
+  module Neo
+    # Neo.bless sets the bias of each @yang[i] to BZERO, and
+    # the weight of pairing (@yang[i], @yin[i]) connections to WONE.
+    # This makes @yang initially mirror @yin.
+    def self.bless(myself)
+      yang = myself.yang
+      # just mirror as much of myself.yang as you can
+      yin_length = [myself.yin.length, yang.length].min
+      # connections from yang[i] to yin[i] are WONE... mirroring to start.
+      0.upto(yin_length-1) do |index|
+        node = yang[index]
+        node.connections[index].weight = WONE
+        node.bias = BZERO
+      end
+      return myself
+    end
+  end
+
   # Brahma is a network which has its @yin layer initially mirror and "shadow" @in.
   module Brahma
     # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @in[i]) connections to WONE,
