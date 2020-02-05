@@ -551,29 +551,26 @@ module Neuronet
   end
 
   # Brahma is a network which has its @yin layer initially mirror and "shadow" @in.
-  # I'm calling it shadow until I can think of a better name.
-  # Note that a Brahma, Yin bless combination overwrite each other and is probably useless.
   module Brahma
-    # Brahma.bless increments the weights of pairing even yin (@yin[2*i], @in[i]) connections by WONE.
-    # and pairing odd yin (@yin[2*i+1], @in[i]) connections by negative WONE.
+    # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @in[i]) connections to WONE,
+    # and pairing odd yin (@yin[2*i+1], @in[i]) connections to negative WONE.
     # Likewise the bias with BZERO.
     # This makes @yin initially mirror and shadow @in.
     # The pairing is done starting with (@yin[0], @in[0]).
     # That is, starting with (@yin.first, @in.first).
     def self.bless(myself)
       yin = myself.yin
-      if yin.length < 2*(in_length = myself.in.length)
-        raise "First hidden layer, yin, needs to be at least twice the length as input"
-      end
+      # just cover as much as you can
+      in_length = [myself.in.length, yin.length/2].min
       # connections from yin[2*i] to in[i] are WONE... mirroring to start.
       # connections from yin[2*i+1] to in[i] are -WONE... shadowing to start.
       0.upto(in_length-1) do |index|
         even = yin[2*index]
         odd = yin[(2*index)+1]
-        even.connections[index].weight += WONE # +?
-        even.bias += BZERO # +?
-        odd.connections[index].weight  -= WONE # +?
-        odd.bias -= BZERO # +?
+        even.connections[index].weight = WONE
+        even.bias = BZERO
+        odd.connections[index].weight  = -WONE
+        odd.bias = -BZERO
       end
       return myself
     end
