@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200204'
+  VERSION = '7.0.200205'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -178,7 +178,7 @@ module Neuronet
     def initialize(value=0.0, bias: 0.0, connections: [])
       super(value)
       @connections, @bias  =  connections, bias
-      mu!
+      @mu = nil # to be set later
     end
 
     # Updates the activation with the current value of bias and updated values of connections.
