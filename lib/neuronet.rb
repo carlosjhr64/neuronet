@@ -504,33 +504,19 @@ module Neuronet
   # A Perceptron Hybrid,
   # Tao directly connects the output layer to the input layer.
   module Tao
-    # Tao's extra connections adds to mu.
-    def mu
-      sum = super
-      sum += self.first.length * self.last.length
-      return sum
-    end
-    # Tao.bless connects the network's output layer to the input layer,
-    # extends it with Tao, and modifies the learning constant if needed.
+    # Tao.bless connects the network's output layer to the input layer.
     def self.bless(myself)
       # @out directly connects to @in
       myself.out.connect(myself.in)
-      myself.extend Tao
-      # Save current learning and set it to muk(1).
-      l, m = myself.learning, myself.muk
-      # If learning was lower b/4, revert.
-      myself.learning = l if l<m
       return myself
     end
   end
 
   # Yin is a network which has its @yin layer initially mirroring @in.
   module Yin
-    # Yin.bless increments the bias of each @yin[i] by BZERO, and
-    # the weight of pairing (@yin[i], @in[i]) connections by WONE.
+    # Yin.bless sets the bias of each @yin[i] to BZERO, and
+    # the weight of pairing (@yin[i], @in[i]) connections to WONE.
     # This makes @yin initially mirror @in.
-    # The pairing is done starting with (@yin[0], @in[0]).
-    # That is, starting with (@yin.first, @in.first).
     def self.bless(myself)
       yin = myself.yin
       if yin.length < (in_length = myself.in.length)
@@ -539,8 +525,8 @@ module Neuronet
       # connections from yin[i] to in[i] are WONE... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
-        node.connections[index].weight += WONE # +?
-        node.bias += BZERO # +?
+        node.connections[index].weight = WONE
+        node.bias = BZERO
       end
       return myself
     end
