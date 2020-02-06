@@ -647,7 +647,8 @@ module Neuronet
     end
   end
 
-  # Summa is a network which has each yin neuron sum two neurons above(entrada).
+  # Summa is a network which has each yin neuron sum two "corresponding" neurons above(entrada).
+  # See code for "corresponding" semantic.
   module Summa
     def self.bless(myself)
       yin = myself.yin
@@ -663,7 +664,8 @@ module Neuronet
     end
   end
 
-  # Sintezo is a network which has each @yang neuron sum two neurons above(ambigous layer).
+  # Sintezo is a network which has each @yang neuron sum two "corresponding" neurons above(ambigous layer).
+  # See code for "corresponding" semantic.
   module Sintezo
     def self.bless(myself)
       yang = myself.yang
@@ -679,7 +681,8 @@ module Neuronet
     end
   end
 
-  # Synthesis is a network which has each @salida neuron sum two neurons above(yang).
+  # Synthesis is a network which has each @salida neuron sum two "corresponding" neurons above(yang).
+  # See code for "corresponding" semantic.
   module Synthesis
     def self.bless(myself)
       salida = myself.salida
@@ -690,6 +693,64 @@ module Neuronet
         neuron.bias = BZERO
         neuron.connections[2*index].weight = WONE/2.0
         neuron.connections[2*index+1].weight = WONE/2.0
+      end
+      return myself
+    end
+  end
+
+  # Promedio is a network which has each yin neuron sum three neurons "directly" above(entrada).
+  # See code for "directly" semantic.
+  module Promedio
+    def self.bless(myself)
+      yin = myself.yin
+      # just cover as much as you can
+      in_length = [myself.entrada.length, yin.length].min
+      0.upto(in_length-1) do |index|
+        neuron = yin[index]
+        neuron.bias = BZERO
+        (-1..1).each do |i|
+          connection = neuron.connections[index+i]
+          connection.weight = WONE/3.0  if connection
+        end
+      end
+      return myself
+    end
+  end
+
+  # Mediocris is a network which has each @yang neuron sum three neurons "directly" above(ambigous layer).
+  # See code for "directly" semantic.
+  module Mediocris
+    def self.bless(myself)
+      yang = myself.yang
+      # just cover as much as you can
+      in_length = [myself[-3].length, yang.length].min
+      0.upto(in_length-1) do |index|
+        neuron = yang[index]
+        neuron.bias = BZERO
+        (-1..1).each do |i|
+          connection = neuron.connections[index+i]
+          connection.weight = WONE/3.0  if connection
+        end
+      end
+      return myself
+    end
+  end
+
+  # Average is a network which has each @salida neuron sum three neurons "directly" above(yang).
+  # See code for "directly" semantic.
+  module Average
+    def self.bless(myself)
+      salida = myself.salida
+      # just cover as much as you can
+      in_length = [myself.yang.length, salida.length].min
+      0.upto(in_length-1) do |index|
+        neuron = salida[index]
+        neuron.bias = BZERO
+        neuron.bias = BZERO
+        (-1..1).each do |i|
+          connection = neuron.connections[index+i]
+          connection.weight = WONE/3.0  if connection
+        end
       end
       return myself
     end
