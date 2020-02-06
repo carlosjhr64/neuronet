@@ -10,18 +10,13 @@ require 'rubbish'
 # BTW, if spell returns no errors, hex is
 #   d41d8cd98f00b204e9800998ecf8427e
 class TestLexicon < Test::Unit::TestCase
-  def test_lexicon
-    hex = Rubbish.fish('cat lib/**.rb | spell | md5sum').split.first
-    assert_equal '1d5a23700a46c8d7f46dc0e3c1e82808', hex, 'Hexdigest All'
-  end
-
   def test_lexicon_code
     hex = Rubbish.fish("cat lib/**.rb | egrep -v '^\\s*#' | spell | md5sum").split.first
-    assert_equal '5b9ee438380a8133c0973cea4c06a094', hex, 'Hexdigest Code'
+    assert_equal 'fb6f3ccaeb9093073f170cd58f113703', hex, 'Hexdigest Code'
   end
 
   def test_lexicon_comments
     hex = Rubbish.fish("cat lib/**.rb | egrep '^\\s*#' | spell | md5sum").split.first
-    assert_equal 'fca042df03f85f0b3103442d2e0500ab', hex, 'Hexdigest Comments'
+    assert_equal '3403958fb3790ab8df6191adfa71a275', hex, 'Hexdigest Comments'
   end
 end

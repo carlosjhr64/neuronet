@@ -9,8 +9,8 @@ class TestFeedForward < Test::Unit::TestCase
     assert_equal 2, ff.length,     'Two layers'
     assert_equal 1.0, ff.learning, 'Default learning for 2 layers'
     # in
-    assert_equal 5, ff[0].length,  'Input layer has 5 nodes'
-    assert_equal ff[0], ff.in,     'Input layer refereced as in'
+    assert_equal 5, ff[0].length,   'Input layer has 5 nodes'
+    assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
     # yin
     assert_equal 3, ff[1].length,  'layer[1] has 3 neurons'
     assert_equal ff.yin, ff[1],    'layer[1] referenced as yin'
@@ -18,15 +18,15 @@ class TestFeedForward < Test::Unit::TestCase
     assert_equal 5, ff[-2].length, 'layer[-2] has 5 neurons'
     assert_equal ff.yang, ff[-2],  'layer[-2] referenced as yang'
     # out
-    assert_equal 3, ff[-1].length, 'layer[-1] has 1 neuron'
-    assert_equal ff.out, ff[-1],   'layer[-2] referenced as out'
+    assert_equal 3, ff[-1].length,  'layer[-1] has 1 neuron'
+    assert_equal ff.salida, ff[-1], 'layer[-2] referenced as out'
 
     ff = FeedForward.new([9,6,3,1])
     assert_equal 4, ff.length, 'Four layers'
     assert_equal 1.0/3.0, ff.learning, 'Default learning for 4 layers'
     # in
-    assert_equal 9, ff[0].length,  'Input layer has 9 nodes'
-    assert_equal ff[0], ff.in,     'Input layer refereced as in'
+    assert_equal 9, ff[0].length,   'Input layer has 9 nodes'
+    assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
     # yin
     assert_equal 6, ff[1].length,  'layer[1] has 6 neurons'
     assert_equal ff.yin, ff[1],    'layer[1] referenced as yin'
@@ -34,8 +34,8 @@ class TestFeedForward < Test::Unit::TestCase
     assert_equal 3, ff[-2].length, 'layer[-2] has 3 neurons'
     assert_equal ff.yang, ff[-2],  'layer[-2] referenced as yang'
     # out
-    assert_equal 1, ff[-1].length, 'layer[-1] has 1 neuron'
-    assert_equal ff.out, ff[-1],   'layer[-2] referenced as out'
+    assert_equal 1, ff[-1].length,  'layer[-1] has 1 neuron'
+    assert_equal ff.salida, ff[-1], 'layer[-2] referenced as out'
   end
 
   def test_feed_forward_setters
