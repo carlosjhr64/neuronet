@@ -12,11 +12,11 @@ require 'rubbish'
 class TestLexicon < Test::Unit::TestCase
   def test_lexicon_code
     hex = Rubbish.fish("cat lib/**.rb | egrep -v '^\\s*#' | spell | md5sum").split.first
-    assert_equal 'fb6f3ccaeb9093073f170cd58f113703', hex, 'Hexdigest Code'
+    assert_equal '390a0775f7105d03e2a442404e8c451b', hex, 'Hexdigest Code'
   end
 
   def test_lexicon_comments
     hex = Rubbish.fish("cat lib/**.rb | egrep '^\\s*#' | spell | md5sum").split.first
-    assert_equal '3403958fb3790ab8df6191adfa71a275', hex, 'Hexdigest Comments'
+    assert_equal '07ec2ecebd94e808fe02b42c6bbd8724', hex, 'Hexdigest Comments'
   end
 end

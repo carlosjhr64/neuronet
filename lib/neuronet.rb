@@ -647,5 +647,52 @@ module Neuronet
     end
   end
 
+  # Summa is a network which has each yin neuron sum two neurons above(entrada).
+  module Summa
+    def self.bless(myself)
+      yin = myself.yin
+      # just cover as much as you can
+      in_length = [myself.entrada.length/2, yin.length].min
+      0.upto(in_length-1) do |index|
+        neuron = yin[index]
+        neuron.bias = BZERO
+        neuron.connections[2*index].weight = WONE/2.0
+        neuron.connections[2*index+1].weight = WONE/2.0
+      end
+      return myself
+    end
+  end
+
+  # Sintezo is a network which has each @yang neuron sum two neurons above(ambigous layer).
+  module Sintezo
+    def self.bless(myself)
+      yang = myself.yang
+      # just cover as much as you can
+      in_length = [myself[-3].length/2, yang.length].min
+      0.upto(in_length-1) do |index|
+        neuron = yang[index]
+        neuron.bias = BZERO
+        neuron.connections[2*index].weight = WONE/2.0
+        neuron.connections[2*index+1].weight = WONE/2.0
+      end
+      return myself
+    end
+  end
+
+  # Synthesis is a network which has each @salida neuron sum two neurons above(yang).
+  module Synthesis
+    def self.bless(myself)
+      salida = myself.salida
+      # just cover as much as you can
+      in_length = [myself.yang.length/2, salida.length].min
+      0.upto(in_length-1) do |index|
+        neuron = salida[index]
+        neuron.bias = BZERO
+        neuron.connections[2*index].weight = WONE/2.0
+        neuron.connections[2*index+1].weight = WONE/2.0
+      end
+      return myself
+    end
+  end
   # TODO: Combos?
 end
