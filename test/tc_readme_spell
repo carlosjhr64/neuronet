@@ -1,15 +1,61 @@
 #!/usr/bin/ruby
 require 'test/unit'
-require 'rubbish'
 
-DICTIONARY = '.dictionary'
+DICTIONARY = '/usr/share/dict/words'
+REGISTRY   = '.dictionary'
 README     = 'README.md'
 
 class TestReadmeSpell < Test::Unit::TestCase
-  def test_readme_rocket_test
+  def test_readme_spell
     return unless File.exist? README
-    system "touch #{DICTIONARY}" unless File.exist? DICTIONARY
-    diff = Rubbish.bash "colordiff #{DICTIONARY} <(egrep '^[[:graph:]]' README.md | spell | sort -u)"
-    flunk "Needed dictionary change:\n"+diff  unless diff.empty?
+    unless File.exist? REGISTRY
+      system "touch #{REGISTRY}" or raise "could not touch #{REGISTRY}"
+    end
+    require 'set'
+
+    registry = Set.new
+    File.open(REGISTRY, 'r') do |_|
+      while word = _.gets
+        word.strip!; next if word.empty?
+        registry.add word
+      end
+    end
+
+    dictionary = Set.new
+    File.open(DICTIONARY, 'r') do |_|
+      while word = _.gets
+        word.strip!; next if word.empty?
+        dictionary.add word
+      end
+    end
+
+    unrecognized = Set.new
+    File.open(README, 'r') do  |readme|
+      toggled = false
+      while line = readme.gets
+        toggled = !toggled if line=~/^```/
+        next if toggled
+        next if line=~/^    /
+        next if line=~/^> /
+        line.split(/[^a-z]/i).each do |word|
+          word.strip!; next if word.empty?
+          next if word=~/^\d+$/
+          next if unrecognized.include? word
+          unrecognized.add word  unless [word, word.downcase].uniq.any?{|_|dictionary.include?_}
+        end
+      end
+    end
+    unless registry == unrecognized
+      require 'colorize'
+      changes = ''
+      (registry-unrecognized|unrecognized-registry).sort.each do |word|
+        if  registry.include? word
+          changes <<  "> #{word}".colorize(:green) + "\n"
+        else
+          changes <<  "< #{word}".colorize(:red) + "\n"
+        end
+      end
+      flunk 'Needed dictionary changes:'.colorize(:blue)+"\n"+changes
+    end
   end
 end
