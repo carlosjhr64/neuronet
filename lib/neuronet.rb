@@ -514,18 +514,18 @@ module Neuronet
 
   # Yin is a network which has its @yin layer initially mirroring @entrada.
   module Yin
-    # Yin.bless sets the bias of each @yin[i] to BZERO, and
-    # the weight of pairing (@yin[i], @entrada[i]) connections to WONE.
+    # Yin.bless sets the bias of each @yin[i] to bzero, and
+    # the weight of pairing (@yin[i], @entrada[i]) connections to wone.
     # This makes @yin initially mirror @entrada.
     def self.bless(myself)
       yin = myself.yin
       # just mirror as much of myself.entrada as you can
       in_length = [myself.entrada.length, yin.length].min
-      # connections from yin[i] to entrada[i] are WONE... mirroring to start.
+      # connections from yin[i] to entrada[i] are wone... mirroring to start.
       0.upto(in_length-1) do |index|
         node = yin[index]
-        node.connections[index].weight = WONE
-        node.bias = BZERO
+        node.connections[index].weight = Neuronet.wone
+        node.bias = Neuronet.bzero
       end
       return myself
     end
@@ -533,18 +533,18 @@ module Neuronet
 
   # Yang is a network which has its @salida layer initially mirroring @yang.
   module Yang
-    # Yang.bless sets the bias of each @salida[i] to BZERO, and
-    # the weight of pairing (@salida[i], @yang[i]) connections to WONE.
+    # Yang.bless sets the bias of each @salida[i] to bzero, and
+    # the weight of pairing (@salida[i], @yang[i]) connections to wone.
     # This makes @salida initially mirror @yang.
     def self.bless(myself)
       salida = myself.salida
       # just mirror as much of myself.yang as you can
       yang_length = [myself.yang.length, salida.length].min
-      # connections from salida[i] to yang[i] are WONE... mirroring to start.
+      # connections from salida[i] to yang[i] are wone... mirroring to start.
       0.upto(yang_length-1) do |index|
         node = salida[index]
-        node.connections[index].weight = WONE
-        node.bias = BZERO
+        node.connections[index].weight = Neuronet.wone
+        node.bias = Neuronet.bzero
       end
       return myself
     end
@@ -552,18 +552,18 @@ module Neuronet
 
   # Neo is a network which has its @yang layer initially mirroring @yin.
   module Neo
-    # Neo.bless sets the bias of each @yang[i] to BZERO, and
-    # the weight of pairing (@yang[i], @yin[i]) connections to WONE.
+    # Neo.bless sets the bias of each @yang[i] to bzero, and
+    # the weight of pairing (@yang[i], @yin[i]) connections to wone.
     # This makes @yang initially mirror @yin.
     def self.bless(myself)
       yang = myself.yang
       # just mirror as much of myself.yang as you can
       yin_length = [myself.yin.length, yang.length].min
-      # connections from yang[i] to yin[i] are WONE... mirroring to start.
+      # connections from yang[i] to yin[i] are wone... mirroring to start.
       0.upto(yin_length-1) do |index|
         node = yang[index]
-        node.connections[index].weight = WONE
-        node.bias = BZERO
+        node.connections[index].weight = Neuronet.wone
+        node.bias = Neuronet.bzero
       end
       return myself
     end
@@ -571,9 +571,9 @@ module Neuronet
 
   # Brahma is a network which has its @yin layer initially mirror and "shadow" @entrada.
   module Brahma
-    # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @entrada[i]) connections to WONE,
-    # and pairing odd yin (@yin[2*i+1], @entrada[i]) connections to negative WONE.
-    # Likewise the bias with BZERO.
+    # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @entrada[i]) connections to wone,
+    # and pairing odd yin (@yin[2*i+1], @entrada[i]) connections to negative wone.
+    # Likewise the bias with bzero.
     # This makes @yin initially mirror and shadow @entrada.
     # The pairing is done starting with (@yin[0], @entrada[0]).
     # That is, starting with (@yin.first, @entrada.first).
@@ -581,15 +581,15 @@ module Neuronet
       yin = myself.yin
       # just cover as much as you can
       in_length = [myself.entrada.length, yin.length/2].min
-      # connections from yin[2*i] to entrada[i] are WONE... mirroring to start.
-      # connections from yin[2*i+1] to entrada[i] are -WONE... shadowing to start.
+      # connections from yin[2*i] to entrada[i] are wone... mirroring to start.
+      # connections from yin[2*i+1] to entrada[i] are -wone... shadowing to start.
       0.upto(in_length-1) do |index|
         even = yin[2*index]
         odd = yin[(2*index)+1]
-        even.connections[index].weight = WONE
-        even.bias = BZERO
-        odd.connections[index].weight  = -WONE
-        odd.bias = -BZERO
+        even.connections[index].weight = Neuronet.wone
+        even.bias = Neuronet.bzero
+        odd.connections[index].weight  = -Neuronet.wone
+        odd.bias = -Neuronet.bzero
       end
       return myself
     end
@@ -597,9 +597,9 @@ module Neuronet
 
   # Vishnu is a network which has its @yang layer initially mirror and "shadow" @yin.
   module Vishnu
-    # Vishnu.bless sets the weights of pairing even yang (@yang[2*i], @yin[i]) connections to WONE,
-    # and pairing odd yang (@yang[2*i+1], @yin[i]) connections to negative WONE.
-    # Likewise the bias with BZERO.
+    # Vishnu.bless sets the weights of pairing even yang (@yang[2*i], @yin[i]) connections to wone,
+    # and pairing odd yang (@yang[2*i+1], @yin[i]) connections to negative wone.
+    # Likewise the bias with bzero.
     # This makes @yang initially mirror and shadow @yin.
     # The pairing is done starting with (@yang[0], @yin[0]).
     # That is, starting with (@yang.first, @yin.first).
@@ -607,15 +607,15 @@ module Neuronet
       yang = myself.yang
       # just cover as much as you can
       yin_length = [myself.yin.length, yang.length/2].min
-      # connections from yang[2*i] to yin[i] are WONE... mirroring to start.
-      # connections from yang[2*i+1] to yin[i] are -WONE... shadowing to start.
+      # connections from yang[2*i] to yin[i] are wone... mirroring to start.
+      # connections from yang[2*i+1] to yin[i] are -wone... shadowing to start.
       0.upto(yin_length-1) do |index|
         even = yang[2*index]
         odd = yang[(2*index)+1]
-        even.connections[index].weight = WONE
-        even.bias = BZERO
-        odd.connections[index].weight  = -WONE
-        odd.bias = -BZERO
+        even.connections[index].weight = Neuronet.wone
+        even.bias = Neuronet.bzero
+        odd.connections[index].weight  = -Neuronet.wone
+        odd.bias = -Neuronet.bzero
       end
       return myself
     end
@@ -623,9 +623,9 @@ module Neuronet
 
   # Shiva is a network which has its @salida layer initially mirror and "shadow" @yang.
   module Shiva
-    # Shiva.bless sets the weights of pairing even salida (@salida[2*i], @yang[i]) connections to WONE,
-    # and pairing odd salida (@salida[2*i+1], @yang[i]) connections to negative WONE.
-    # Likewise the bias with BZERO.
+    # Shiva.bless sets the weights of pairing even salida (@salida[2*i], @yang[i]) connections to wone,
+    # and pairing odd salida (@salida[2*i+1], @yang[i]) connections to negative wone.
+    # Likewise the bias with bzero.
     # This makes @salida initially mirror and shadow @yang.
     # The pairing is done starting with (@salida[0], @yang[0]).
     # That is, starting with (@salida.first, @yang.first).
@@ -633,15 +633,15 @@ module Neuronet
       salida = myself.salida
       # just cover as much as you can
       yang_length = [myself.yang.length, salida.length/2].min
-      # connections from salida[2*i] to yang[i] are WONE... mirroring to start.
-      # connections from salida[2*i+1] to yang[i] are -WONE... shadowing to start.
+      # connections from salida[2*i] to yang[i] are wone... mirroring to start.
+      # connections from salida[2*i+1] to yang[i] are -wone... shadowing to start.
       0.upto(yang_length-1) do |index|
         even = salida[2*index]
         odd = salida[(2*index)+1]
-        even.connections[index].weight = WONE
-        even.bias = BZERO
-        odd.connections[index].weight  = -WONE
-        odd.bias = -BZERO
+        even.connections[index].weight = Neuronet.wone
+        even.bias = Neuronet.bzero
+        odd.connections[index].weight  = -Neuronet.wone
+        odd.bias = -Neuronet.bzero
       end
       return myself
     end
@@ -656,9 +656,9 @@ module Neuronet
       in_length = [myself.entrada.length/2, yin.length].min
       0.upto(in_length-1) do |index|
         neuron = yin[index]
-        neuron.bias = BZERO
-        neuron.connections[2*index].weight = WONE/2.0
-        neuron.connections[2*index+1].weight = WONE/2.0
+        neuron.bias = Neuronet.bzero
+        neuron.connections[2*index].weight = Neuronet.wone/2.0
+        neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       return myself
     end
@@ -673,9 +673,9 @@ module Neuronet
       in_length = [myself[-3].length/2, yang.length].min
       0.upto(in_length-1) do |index|
         neuron = yang[index]
-        neuron.bias = BZERO
-        neuron.connections[2*index].weight = WONE/2.0
-        neuron.connections[2*index+1].weight = WONE/2.0
+        neuron.bias = Neuronet.bzero
+        neuron.connections[2*index].weight = Neuronet.wone/2.0
+        neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       return myself
     end
@@ -690,9 +690,9 @@ module Neuronet
       in_length = [myself.yang.length/2, salida.length].min
       0.upto(in_length-1) do |index|
         neuron = salida[index]
-        neuron.bias = BZERO
-        neuron.connections[2*index].weight = WONE/2.0
-        neuron.connections[2*index+1].weight = WONE/2.0
+        neuron.bias = Neuronet.bzero
+        neuron.connections[2*index].weight = Neuronet.wone/2.0
+        neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       return myself
     end
@@ -707,10 +707,10 @@ module Neuronet
       in_length = [myself.entrada.length, yin.length].min
       0.upto(in_length-1) do |index|
         neuron = yin[index]
-        neuron.bias = BZERO
+        neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = WONE/3.0  if connection
+          connection.weight = Neuronet.wone/3.0  if connection
         end
       end
       return myself
@@ -726,10 +726,10 @@ module Neuronet
       in_length = [myself[-3].length, yang.length].min
       0.upto(in_length-1) do |index|
         neuron = yang[index]
-        neuron.bias = BZERO
+        neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = WONE/3.0  if connection
+          connection.weight = Neuronet.wone/3.0  if connection
         end
       end
       return myself
@@ -745,11 +745,11 @@ module Neuronet
       in_length = [myself.yang.length, salida.length].min
       0.upto(in_length-1) do |index|
         neuron = salida[index]
-        neuron.bias = BZERO
-        neuron.bias = BZERO
+        neuron.bias = Neuronet.bzero
+        neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = WONE/3.0  if connection
+          connection.weight = Neuronet.wone/3.0  if connection
         end
       end
       return myself
