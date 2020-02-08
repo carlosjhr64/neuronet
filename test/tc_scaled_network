@@ -1,0 +1,58 @@
+#! ruby
+require 'test/unit'
+require 'neuronet'
+include Neuronet
+require 'colorize'
+
+class TestScaledNetwork < Test::Unit::TestCase
+  def random
+    100.0*((rand + rand + rand) - (rand + rand + rand))
+  end
+
+  def test_scaled_netword
+    # set up random input target pairs
+    srand '4uzt56815q3vd87b603e5u81x6935gdh6v74vpvi1lyw5cmsag'.to_i(36)
+    input_target = [
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+    ]
+
+    # initialize network
+    ff = ScaledNetwork.new [4, 4, 4, 4]
+    ff.distribution.set input_target.flatten
+
+    # quick center distribution check
+    numbers = input_target.flatten
+    sum = numbers.inject(0.0, :+)
+    average = sum/numbers.length
+    distribution = ff.distribution
+    assert_equal average, distribution.center
+
+    # quick check of input layer set
+    first_input = input_target.first[0]
+    ff.set first_input
+    assert first_input.map{|_|_.abs}.max > 4.0 # very good chance
+    mapped_input = distribution.mapped(first_input)
+    assert mapped_input.map{|_|_.abs}.max < 4.0 # very good chance
+    squashed_input = mapped_input.map{|_|SQUASH[_]}
+    assert_equal squashed_input, ff[0].map{|node|node.activation}
+
+    count = 0
+    ff.pairs input_target do # while...
+      count += 1
+      break if count > 10_000
+      not input_target.all?{|input, target| target.map{|_|'%.1g' % _} == (ff*input).map{|_|'%.1g' % _}}
+    end
+    assert count < 10_000
+
+    puts "Inputs(%.1g):"
+    pp input_target.map{|a|a[0].map{|_|'%.1g' % _}}
+    puts "Targets(%.1g):"
+    pp input_target.map{|a|a[1].map{|_|'%.1g' % _}}
+    puts "Ouputs(%.1g):"
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.1g' % _}}
+    puts ":)"
+  end
+end

@@ -528,6 +528,10 @@ module Neuronet
       @distribution.unmapped_output(super)
     end
 
+    def *(input)
+      @distribution.unmapped_output(super)
+    end
+
     def train(target)
       super(@distribution.mapped_output(target))
     end
