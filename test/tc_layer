@@ -7,9 +7,9 @@ class TestLayer < Test::Unit::TestCase
   def test_layer
     Node.label = 'a'
     layer = Layer.new 3
-    assert_equal '[(a:0)0[],(b:0)0[],(c:0)0[]]', layer.inspect
+    assert_equal 'a:0|0,b:0|0,c:0|0', layer.inspect
     yin = InputLayer.new 3
-    inspect = '[(a:0)0[0(d:0),0(e:0),0(f:0)],(b:0)0[0(d:0),0(e:0),0(f:0)],(c:0)0[0(d:0),0(e:0),0(f:0)]]'
+    inspect = 'a:0|0+0*d:0+0*e:0+0*f:0,b:0|0+0*d:0+0*e:0+0*f:0,c:0|0+0*d:0+0*e:0+0*f:0'
     assert_equal inspect, layer.connect(yin).inspect
     assert_equal inspect, layer.partial.inspect
     assert_equal [0.0, 0.0, 0.0], layer.values
@@ -20,9 +20,7 @@ class TestLayer < Test::Unit::TestCase
     assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
     yang = Layer.new 3
     yang.connect layer
-    assert_equal(
-      '[(g:0)0[0(a:-1),0(b:0),0(c:1)],(h:0)0[0(a:-1),0(b:0),0(c:1)],(i:0)0[0(a:-1),0(b:0),0(c:1)]]',
-      yang.inspect)
+    assert_equal('g:0|0+0*a:-1+0*b:0+0*c:1,h:0|0+0*a:-1+0*b:0+0*c:1,i:0|0+0*a:-1+0*b:0+0*c:1', yang.inspect)
     Neuronet.noise = NOISE # Restore
   end
 end

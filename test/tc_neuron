@@ -7,8 +7,8 @@ class TestNeuron < Test::Unit::TestCase
   def test_neuron
     Node.label = 'a'
     neuron = Neuron.new
-    assert_equal '(a:0)0[]', neuron.inspect
-    assert_equal '(a:0)', neuron.to_s
+    assert_equal 'a:0|0', neuron.inspect
+    assert_equal 'a:0', neuron.to_s
     assert_equal 0.0, neuron.value
     assert_equal 0.5, neuron.activation
 
@@ -20,14 +20,14 @@ class TestNeuron < Test::Unit::TestCase
 
     Neuronet.noise = NO_NOISE
     assert_equal neuron, neuron.backpropagate(1.0)
-    assert_equal '(a:0)1[]', neuron.inspect
+    assert_equal 'a:0|1', neuron.inspect
     assert_equal 1.0, neuron.update
-    assert_equal '(a:1)1[]', neuron.inspect
+    assert_equal 'a:1|1', neuron.inspect
     Neuronet.noise = NOISE # Restore
 
     ###      :b         connect :c
     neuron = Neuron.new.connect Node.new
-    assert_equal '(b:0)0[0(c:0)]', neuron.inspect
-    assert_equal '(b:0)', neuron.to_s
+    assert_equal 'b:0|0+0*c:0', neuron.inspect
+    assert_equal 'b:0', neuron.to_s
   end
 end

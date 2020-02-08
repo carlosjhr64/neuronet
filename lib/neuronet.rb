@@ -100,11 +100,11 @@ module Neuronet
     end
 
     def inspect
-      "(#{@label}:" + (Neuronet.format % self.value) + ')'
+      @label + ':' + (Neuronet.format % self.value)
     end
 
     def to_s
-      "(#{@label}:" + (Neuronet.format % self.value) + ')'
+      @label + ':' + (Neuronet.format % self.value)
     end
   end
 
@@ -150,11 +150,11 @@ module Neuronet
     end
 
     def inspect
-      (Neuronet.format % @weight) + @node.inspect
+      (Neuronet.format % @weight) + '*' + @node.inspect
     end
 
     def to_s
-      (Neuronet.format % @weight) + @node.to_s
+      (Neuronet.format % @weight) + '*' + @node.to_s
     end
   end
 
@@ -228,7 +228,7 @@ module Neuronet
     end
 
     def inspect
-      super + (Neuronet.format % @bias) + '[' + @connections.map{|c| c.to_s}.join(',') + ']'
+      super + '|' + [(Neuronet.format % @bias), *@connections].join('+')
     end
   end
 
@@ -250,9 +250,9 @@ module Neuronet
       self.map{|node| node.value}
     end
 
-   def inspect
-     '['+self.map{|node| node.inspect}.join(',')+']'
-   end
+    def inspect
+     self.join(',')
+    end
   end
 
   # Just a regular Layer.
@@ -295,7 +295,7 @@ module Neuronet
     end
 
     def inspect
-      '['+self.map{|node| node.inspect}.join(',')+']'
+      self.map{|_|_.inspect}.join(',')
     end
   end
 

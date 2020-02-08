@@ -8,12 +8,12 @@ class TestConnection < Test::Unit::TestCase
     Node.label = 'a'
     n = Node.new
     c = Connection.new n
-    assert_equal '0(a:0)', c.inspect
-    assert_equal '0(a:0)', c.to_s
+    assert_equal '0*a:0', c.inspect
+    assert_equal '0*a:0', c.to_s
 
     n = Node.new 1.25
     c = Connection.new n, 0.33
-    assert_equal '0.33(b:1.25)', c.inspect
+    assert_equal '0.33*b:1.25', c.inspect
     assert_equal n, c.node
     assert_equal 0.33, c.weight
     assert_equal 0.33*SQUASH[1.25], c.value
@@ -24,7 +24,7 @@ class TestConnection < Test::Unit::TestCase
     c.backpropagate(0.01, 1.0)
     assert_equal 0.33+SQUASH[1.25]*0.01, c.weight
     # but the input node remains the same!
-    assert_equal '(b:1.25)', n.inspect
+    assert_equal 'b:1.25', n.inspect
     Neuronet.noise = NOISE # Restore
   end
 end

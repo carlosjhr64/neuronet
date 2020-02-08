@@ -21,83 +21,125 @@ but I mean for the user to read neuronet.rb.
 require 'neuronet'
 include Neuronet
 
-FORMAT          #=> "%.14g"
-Neuronet.format #=> "%.14g"
-# Just display 2 significant figures on network inspections
+# Network inpections' format
+FORMAT            #=> "%.14g"
+Neuronet.format   #=> "%.14g"
+# Just display 2 significant figures
 Neuronet.format = '%.2g'
 
-SQUASH[1]          #=> 0.7310585786300049
-Neuronet.squash[1] #=> 0.7310585786300049
+# Squash function
+SQUASH[1]            #=> 0.7310585786300049
+Neuronet.squash[1]   #=> 0.7310585786300049
 Neuronet.squash
 #~> #<Proc:0x\h+ .*/neuronet.rb:\d+ \(lambda\)>
 
-UNSQUASH[0.7310585786300049]          #=> 1.0
-Neuronet.unsquash[0.7310585786300049] #=> 1.0
+# Unsquash function
+UNSQUASH[0.7310585786300049]            #=> 1.0
+Neuronet.unsquash[0.7310585786300049]   #=> 1.0
 Neuronet.unsquash
 #~> #<Proc:0x\h+ .*/neuronet.rb:\d+ \(lambda\)>
 
-BZERO == 1.0/(1.0-2.0*SQUASH[1.0]) #=> true
-Neuronet.bzero == BZERO            #=> true
-Neuronet.bzero                     #=> -2.163953413738653
-
-WONE == -2.0*BZERO    #=> true
-Neuronet.wone == WONE #=> true
-Neuronet.wone         #=> 4.327906827477306
-
-BZERO + 0.5*WONE #=> 0.0
+# BZERO and WONE
+BZERO == 1.0/(1.0-2.0*SQUASH[1.0])   #=> true
+Neuronet.bzero == BZERO              #=> true
+Neuronet.bzero                       #=> -2.163953413738653
+WONE == -2.0*BZERO                   #=> true
+Neuronet.wone == WONE                #=> true
+Neuronet.wone                        #=> 4.327906827477306
+BZERO + 0.5*WONE                     #=> 0.0
 
 # srand seed for this demo
 srand '3lyn2jemrgi2qc4bqm15zsxz6ryhnrwu563gnjqfabhrerimc'.to_i(36)
 
+# NOISE
 # {|e| e*(rand + rand)}
-NOISE[1]          #=> 1.6502880168879437
-Neuronet.noise[1] #=> 1.4267646681026824
-
+NOISE[1]                    #=> 1.6502880168879437
+Neuronet.noise[1]           #=> 1.4267646681026824
 # Turning off noise for this demo
-NO_NOISE == IDENTITY      #=> true
-Neuronet.noise = NO_NOISE # {|e| e}
+NO_NOISE == IDENTITY        #=> true
+Neuronet.noise = NO_NOISE   # {|e| e}
 
 # In the Real numbers the following would not be necessary, but
 # to ensure calculations stay in Float...
 # Maximum absolute connection weight, neuron bias, and node/neuron value:
-Neuronet.maxw #=> 9.0
-Neuronet.maxb #=> 18.0
-Neuronet.maxv #=> 36.0
-
+Neuronet.maxw                         #=> 9.0
+Neuronet.maxb                         #=> 18.0
+Neuronet.maxv                         #=> 36.0
 UNSQUASH[SQUASH[   Neuronet.maxv   ]] #=> 36.04365338911715
 UNSQUASH[SQUASH[ Neuronet.maxv + 1 ]] #=> Infinity
 
-# Default zero valued node
+# Node, default zero valued
 node = Node.new
-node.value      #=> 0.0
-node.value = 37 # Gets capped to 36
-# Note: at 36 we get 3 significant figures.
-node.value      #=> 36.04365338911715
-node            #=> (a:36)
-node.inspect    #=> (a:36)
-node.to_s       #=> (a:36)
+node.value        #=> 0.0
+node.value = 37   # Gets capped to 36
+# At node value 36, we get 3 significant figures.
+node.value        #=> 36.04365338911715
+node              #=> a:36
+node.inspect      #=> a:36
+node.to_s         #=> a:36
 
-# Default zero valued/unbiased neuron with connections
-neuron = Neuron.new     #=> (b:0)0[]
-neuron.connect node     #=> (b:0)0[0(a:36)]
-neuron.connect Node.new #=> (b:0)0[0(a:36),0(c:0)]
+# Neuron, default zero valued/unbiased
+neuron = Neuron.new       #=> b:0|0
+neuron.connect node       #=> b:0|0+0*a:36
+neuron.connect Node.new   #=> b:0|0+0*a:36+0*c:0
+connection = neuron.connections[0]
+connection                #=> 0*a:36
 
 # mu divides the error among the neuron's bias and weights
-1 + SQUASH[36] + SQUASH[0] == 2.5 #=> true
-neuron.mu  #=> nil
-neuron.mu! #=> 2.5
-neuron.mu  #=> 2.5
+1 + SQUASH[36] + SQUASH[0] == 2.5   #=> true
+neuron.mu                           #=> nil
+neuron.mu!                          #=> 2.5
+neuron.mu                           #=> 2.5
 
 # Currently an update leaves neuron unchanged
 # because all of it connnections are zeroed:
 neuron.update  #=> 0.0
-neuron         #=> (b:0)0[0(a:36),0(c:0)]
+neuron         #=> b:0|0+0*a:36+0*c:0
+
 # But change say weight of :b=>:a to 1 and...
-neuron.connections[0].weight = 1.0
-neuron.update  #=> 0.9999999999999998
-neuron         #=> (b:1)0[1(a:36),0(c:0)]
+connection = neuron.connections[0]
+connection         #=> 0*a:36
+connection.value   #=> 0.0
+connection.weight = 1.0
+connection         #=> 1*a:36
+1*SQUASH[36]       #=> 0.9999999999999998
+connection.value   #=> 0.9999999999999998
+neuron.update      #=> 0.9999999999999998
+neuron             #=> b:1|0+1*a:36+0*c:0
+
+# Node.label
+# Next label
+Node.label #=> d
+# Set next label
+Node.label = 'a'
+
+# Neuron#backpropate
+a = Node.new
+a.value = 1
+a                          #=> a:1
+b = Neuron.new.connect a   #=> b:0|0+0*a:1
+b.update                   #=> 0.0
+b.backpropagate(0.5)       #=> b:0|0.29+0.21*a:1
+b.update                   #=> 0.44321049106348426
+b                          #=> b:0.44|0.29+0.21*a:1
+
+# InputLayer
+Node.label = 'x'
+input = InputLayer.new(3)    #=> x:0,y:0,z:0
+input.set [-1,0,1]           #=> x:-1,y:0,z:1
+values = input.values
+values.map{|_|_.round(15)}   #=> [-1.0, 0.0, 1.0]
+
+
+# Layer
+Node.label = 'a'
+output = Layer.new(3)   #=> a:0|0,b:0|0,c:0|0
+output.connect input
 # See the code for the difference between neuron.partial and neuron.update
+
+########
 #!> TODO
+########
 
 # Neuron :b connects to node :a with weight 0
 neuron.connect node   #=> (b:0)0[0(a:0)]
