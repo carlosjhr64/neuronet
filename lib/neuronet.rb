@@ -537,7 +537,8 @@ module Neuronet
     end
 
     def inspect
-      @distribution.class.to_s + "  reset: #{@reset}  " + super
+      distribution = @distribution.class.to_s.split(':').last
+      "#distribution:#{distribution} #reset:#{@reset} " + super
     end
   end
 
@@ -549,6 +550,11 @@ module Neuronet
       # @salida directly connects to @entrada
       myself.salida.connect(myself.entrada)
       return myself
+    end
+
+    # Create the obvious ScaledNetwork Tao
+    def self.[](size)
+      Tao.bless ScaledNetwork.new([size, size, size])
     end
   end
 
