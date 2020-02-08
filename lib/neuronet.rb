@@ -386,6 +386,45 @@ module Neuronet
     def to_s
       self.map{|_|_.to_s}.join("\n")
     end
+
+    class << self; attr_accessor :color, :colorize; end
+    COLOR = lambda do |v|
+      c = :blue
+      if v > 1.0
+        c = :green
+      elsif v < -1.0
+        c = :red
+      elsif v < 0.0
+        c = :black
+      end
+      c
+    end
+    FeedForward.color = COLOR
+    COLORIZE = lambda do |s, c|
+      (s.respond_to?(:colorize))?  s.colorize(c) : s.color(c)
+    end
+    FeedForward.colorize = COLORIZE
+
+    def colorize(verbose=false)
+      parts = self.inspect.split(/\b/)
+      self.each do |layer|
+        layer.each do |node|
+          l, v  =  node.label, node.value
+          0.upto(parts.length-1) do |i|
+            case parts[i]
+            when l
+              parts[i] = FeedForward.colorize[l, FeedForward.color[v]]
+            when '|'
+              parts[i] = FeedForward.colorize['|', FeedForward.color[parts[i+1].to_f]]
+            when '*'
+              parts[i] = FeedForward.colorize['*', FeedForward.color[parts[i-1].to_f]]
+            end
+          end
+        end
+      end
+      parts.delete_if{|_|_=~/^[\d\-\*\.\+:]+$/}  unless verbose
+      parts.join
+    end
   end
 
   # Neuronet::Scale is a class to

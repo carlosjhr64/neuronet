@@ -12,7 +12,7 @@ require 'rubbish'
 class TestLexicon < Test::Unit::TestCase
   def test_lexicon_code
     hex = Rubbish.fish("cat lib/**.rb | egrep -v '^\\s*#' | spell | md5sum").split.first
-    assert_equal 'e0656cc5d0ab66eb1d7ea357044bdff0', hex, 'Hexdigest Code'
+    assert_equal '444e20181cd2c44c2f3a942573ce0818', hex, 'Hexdigest Code'
   end
 
   def test_lexicon_comments
