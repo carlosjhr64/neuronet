@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200207'
+  VERSION = '7.0.200208'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -104,7 +104,7 @@ module Neuronet
     end
 
     def to_s
-      @label + ':' + (Neuronet.format % self.value)
+      @label
     end
   end
 
@@ -251,7 +251,11 @@ module Neuronet
     end
 
     def inspect
-     self.join(',')
+      self.map{|_|_.inspect}.join(',')
+    end
+
+    def to_s
+      self.map{|_|_.to_s}.join(',')
     end
   end
 
@@ -296,6 +300,10 @@ module Neuronet
 
     def inspect
       self.map{|_|_.inspect}.join(',')
+    end
+
+    def to_s
+      self.map{|_|_.to_s}.join(',')
     end
   end
 
@@ -371,23 +379,12 @@ module Neuronet
     end
 
     def inspect
-      "learning: #{(Neuronet.format % learning)}  noise: #{Neuronet.noise != NO_NOISE}\n" +
-      self.map{|layer|
-        line = (layer.is_a?(Layer) ?
-          layer.map{|neuron|
-            neuron.label + ':' + (Neuronet.format % neuron.bias) +
-            '['+
-            neuron.connections.map{|c| "#{Neuronet.format % c.weight}:#{c.node.label}"}.join(' ') +
-            ']'
-          }.join(' ') + "\n" : '') +
-        layer.map{|node| node.label + ':' + (Neuronet.format % node.value)}.join("  ")
-      }.join("\n")
+     "#learning:#{(Neuronet.format % @learning)}\n" +
+     self.map{|_|_.inspect}.join("\n")
     end
 
     def to_s
-      self.map{|layer|
-        line = '[' + layer.map{|node| node.label + ':' + (Neuronet.format % node.value)}.join(' ') + ']'
-      }.join("\n")
+      self.map{|_|_.to_s}.join("\n")
     end
   end
 

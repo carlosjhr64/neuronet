@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 7.0.200207](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.200208](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 
@@ -20,6 +20,8 @@ but I mean for the user to read neuronet.rb.
 ```ruby
 require 'neuronet'
 include Neuronet
+# srand seed for this demo
+srand '3lyn2jemrgi2qc4bqm15zsxz6ryhnrwu563gnjqfabhrerimc'.to_i(36)
 
 # Network inpections' format
 FORMAT            #=> "%.14g"
@@ -48,9 +50,6 @@ Neuronet.wone == WONE                #=> true
 Neuronet.wone                        #=> 4.327906827477306
 BZERO + 0.5*WONE                     #=> 0.0
 
-# srand seed for this demo
-srand '3lyn2jemrgi2qc4bqm15zsxz6ryhnrwu563gnjqfabhrerimc'.to_i(36)
-
 # NOISE
 # {|e| e*(rand + rand)}
 NOISE[1]                    #=> 1.6502880168879437
@@ -76,12 +75,12 @@ node.value = 37   # Gets capped to 36
 node.value        #=> 36.04365338911715
 node              #=> a:36
 node.inspect      #=> a:36
-node.to_s         #=> a:36
+node.to_s         #=> a
 
 # Neuron, default zero valued/unbiased
 neuron = Neuron.new       #=> b:0|0
-neuron.connect node       #=> b:0|0+0*a:36
-neuron.connect Node.new   #=> b:0|0+0*a:36+0*c:0
+neuron.connect node       #=> b:0|0+0*a
+neuron.connect Node.new   #=> b:0|0+0*a+0*c
 connection = neuron.connections[0]
 connection                #=> 0*a:36
 
@@ -94,7 +93,7 @@ neuron.mu                           #=> 2.5
 # Currently an update leaves neuron unchanged
 # because all of it connnections are zeroed:
 neuron.update  #=> 0.0
-neuron         #=> b:0|0+0*a:36+0*c:0
+neuron         #=> b:0|0+0*a+0*c
 
 # But change say weight of :b=>:a to 1 and...
 connection = neuron.connections[0]
@@ -105,7 +104,7 @@ connection         #=> 1*a:36
 1*SQUASH[36]       #=> 0.9999999999999998
 connection.value   #=> 0.9999999999999998
 neuron.update      #=> 0.9999999999999998
-neuron             #=> b:1|0+1*a:36+0*c:0
+neuron             #=> b:1|0+1*a+0*c
 
 # Node.label
 # Next label
@@ -117,11 +116,11 @@ Node.label = 'a'
 a = Node.new
 a.value = 1
 a                          #=> a:1
-b = Neuron.new.connect a   #=> b:0|0+0*a:1
+b = Neuron.new.connect a   #=> b:0|0+0*a
 b.update                   #=> 0.0
-b.backpropagate(0.5)       #=> b:0|0.29+0.21*a:1
+b.backpropagate(0.5)       #=> b:0|0.29+0.21*a
 b.update                   #=> 0.44321049106348426
-b                          #=> b:0.44|0.29+0.21*a:1
+b                          #=> b:0.44|0.29+0.21*a
 
 # InputLayer
 Node.label = 'x'
@@ -130,16 +129,73 @@ input.set [-1,0,1]           #=> x:-1,y:0,z:1
 values = input.values
 values.map{|_|_.round(15)}   #=> [-1.0, 0.0, 1.0]
 
-
 # Layer
 Node.label = 'a'
 output = Layer.new(3)   #=> a:0|0,b:0|0,c:0|0
 output.connect input
-# See the code for the difference between neuron.partial and neuron.update
+#=> a:0|0+0*x+0*y+0*z,b:0|0+0*x+0*y+0*z,c:0|0+0*x+0*y+0*z
+output.partial
+#=> a:0|0+0*x+0*y+0*z,b:0|0+0*x+0*y+0*z,c:0|0+0*x+0*y+0*z
+output.train([1,0,-1], 1)
+#=> a:0|0.4+0.11*x+0.2*y+0.29*z,b:0|0+0*x+0*y+0*z,c:0|-0.4+-0.11*x+-0.2*y+-0.29*z
+output.partial
+#=> a:0.74|0.4+0.11*x+0.2*y+0.29*z,b:0|0+0*x+0*y+0*z,c:-0.74|-0.4+-0.11*x+-0.2*y+-0.29*z
+output.values.map{|_|_.round(15)}
+#=> [0.742710453406814, 0.0, -0.742710453406814]
+
+# FeedForward
+Node.label = 'a'
+ff = FeedForward.new [3,3,3]
+ff.inspect == <<INSPECT.chomp
+\#learning:0.5
+a:0,b:0,c:0
+d:0|0+0*a+0*b+0*c,e:0|0+0*a+0*b+0*c,f:0|0+0*a+0*b+0*c
+g:0|0+0*d+0*e+0*f,h:0|0+0*d+0*e+0*f,i:0|0+0*d+0*e+0*f
+INSPECT
+#=> true
+ff.set [-1,2,-3]
+ff.input.map{|_|_.round(14)}
+#=> [-1.0, 2.0, -3.0]
+ff.number 2
+ff.inspect == <<INSPECT.chomp
+\#learning:0.35
+a:-1,b:2,c:-3
+d:0|0+0*a+0*b+0*c,e:0|0+0*a+0*b+0*c,f:0|0+0*a+0*b+0*c
+g:0|0+0*d+0*e+0*f,h:0|0+0*d+0*e+0*f,i:0|0+0*d+0*e+0*f
+INSPECT
+#=> true
+ff.update
+ff.train [0.5,-0.5,1]
+ff.update
+ff.inspect == <<INSPECT.chomp
+\#learning:0.35
+a:-1,b:2,c:-3
+d:0.3|0.16+0.043*a+0.14*b+0.0076*c,e:0.3|0.16+0.043*a+0.14*b+0.0076*c,f:0.3|0.16+0.043*a+0.14*b+0.0076*c
+g:0.13|0.071+0.035*d+0.035*e+0.035*f,h:-0.13|-0.071+-0.035*d+-0.035*e+-0.035*f,i:0.26|0.14+0.071*d+0.071*e+0.071*f
+INSPECT
+#=> true
+ff.output
+#=> [0.13158119646212066, -0.13158119646212074, 0.2631623929242416]
+ff*[-1, 2, -3]
+#=> [0.13158119646212066, -0.13158119646212074, 0.2631623929242416]
+input_target = [
+ [[-1, 2,-3], [ 0.5,-0.5, 1]],
+ [[ 1,-2, 3], [-0.5, 0.5,-1]],
+]
+ff.pairs(input_target) do # while...
+  not input_target.all?{|input, target| target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}}
+end
+ff*[-1, 2,-3]
+#=> [0.4976669448240152, -0.49766694482401497, 0.9953338896480287]
+ff*[ 1,-2, 3]
+#=> [-0.49879029810280034, 0.4987902981028002, -0.9975805962056005]
 
 ########
-#!> TODO
+#!> TODO: below here needs review
 ########
+
+# See the code for the difference between neuron.partial and neuron.update
+
 
 # Neuron :b connects to node :a with weight 0
 neuron.connect node   #=> (b:0)0[0(a:0)]

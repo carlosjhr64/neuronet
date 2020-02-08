@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 require 'test/unit'
+require 'colorize'
 
 README = 'README.md'
 
@@ -28,7 +29,10 @@ def step_thru_script(fh=$stdin)
     when DECLARATION
       declaration = line.split(DECLARATION, 2).last.chomp
       case declaration
-      when 'TODO' then break
+      when /^TODO/
+        puts "Rocket line number #{line_number}:".colorize(:yellow)
+        puts declaration.colorize(:yellow)
+        break
       end
     when ROCKET, MATCH
       actual = nil

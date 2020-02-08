@@ -8,6 +8,7 @@ class TestInputLayer < Test::Unit::TestCase
     Node.label = 'a'
     yin = InputLayer.new 3
     assert_equal 'a:0,b:0,c:0', yin.inspect
+    assert_equal 'a,b,c', yin.to_s
     assert_equal [0.0, 0.0, 0.0], yin.values
 
     yin.set [1,2,3]
