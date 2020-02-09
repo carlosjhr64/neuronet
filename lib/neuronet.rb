@@ -845,5 +845,16 @@ module Neuronet
       return myself
     end
   end
-  # TODO: Combos?
+
+  # Combos!
+  module YinYang
+    def self.[](size)
+      Yin.bless Yang.bless ScaledNetwork.new [size, size, size]
+    end
+  end
+  module TaoYinYang
+    def self.[](size)
+      Tao.bless Yin.bless Yang.bless ScaledNetwork.new [size, size, size]
+    end
+  end
 end
