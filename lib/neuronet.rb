@@ -403,9 +403,9 @@ module Neuronet
       else
         c = :white
         if v > 1.0
-          c = :darkgreen
+          c = :green
         elsif v < -1.0
-          c = :darkred
+          c = :red
         elsif v < 0.0
           c = :gray
         end
@@ -575,11 +575,6 @@ module Neuronet
     def inspect
       '#Tao '+super
     end
-
-    # Create the obvious Tao ScaledNetwork
-    def self.[](size)
-      Tao.bless ScaledNetwork.new([size, size, size])
-    end
   end
 
   # Yin is a network which has its @yin layer initially mirroring @entrada.
@@ -603,11 +598,6 @@ module Neuronet
 
     def inspect
       '#Yin '+super
-    end
-
-    # Create the obvious Yin ScaledNetwork
-    def self.[](size)
-      Yin.bless ScaledNetwork.new([size, size, size])
     end
   end
 
@@ -633,11 +623,6 @@ module Neuronet
     def inspect
       '#Yang '+super
     end
-
-    # Create the obvious Yang ScaledNetwork
-    def self.[](size)
-      Yang.bless ScaledNetwork.new([size, size, size])
-    end
   end
 
   # Neo is a network which has its @yang layer initially mirroring @yin.
@@ -655,7 +640,12 @@ module Neuronet
         node.connections[index].weight = Neuronet.wone
         node.bias = Neuronet.bzero
       end
+      myself.extend Neo
       return myself
+    end
+
+    def inspect
+      '#Neo '+super
     end
   end
 
@@ -681,7 +671,12 @@ module Neuronet
         odd.connections[index].weight  = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
+      myself.extend Brahma
       return myself
+    end
+
+    def inspect
+      '#Brahma '+super
     end
   end
 
@@ -707,7 +702,12 @@ module Neuronet
         odd.connections[index].weight  = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
+      myself.extend Vishnu
       return myself
+    end
+
+    def inspect
+      '#Vishnu '+super
     end
   end
 
@@ -733,7 +733,12 @@ module Neuronet
         odd.connections[index].weight  = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
+      myself.extend Shiva
       return myself
+    end
+
+    def inspect
+      '#Shiva '+super
     end
   end
 
@@ -750,7 +755,12 @@ module Neuronet
         neuron.connections[2*index].weight = Neuronet.wone/2.0
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
+      myself.extend Summa
       return myself
+    end
+
+    def inspect
+      '#Summa '+super
     end
   end
 
@@ -767,7 +777,12 @@ module Neuronet
         neuron.connections[2*index].weight = Neuronet.wone/2.0
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
+      myself.extend Sintezo
       return myself
+    end
+
+    def inspect
+      '#Sintezo '+super
     end
   end
 
@@ -784,7 +799,12 @@ module Neuronet
         neuron.connections[2*index].weight = Neuronet.wone/2.0
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
+      myself.extend Synthesis
       return myself
+    end
+
+    def inspect
+      '#Synthesis '+super
     end
   end
 
@@ -803,7 +823,12 @@ module Neuronet
           connection.weight = Neuronet.wone/3.0  if connection
         end
       end
+      myself.extend Promedio
       return myself
+    end
+
+    def inspect
+      '#Promedio '+super
     end
   end
 
@@ -822,7 +847,12 @@ module Neuronet
           connection.weight = Neuronet.wone/3.0  if connection
         end
       end
+      myself.extend Mediocris
       return myself
+    end
+
+    def inspect
+      'Mediocris '+super
     end
   end
 
@@ -842,19 +872,38 @@ module Neuronet
           connection.weight = Neuronet.wone/3.0  if connection
         end
       end
+      myself.extend Average
       return myself
+    end
+
+    def inspect
+      'Average '+super
     end
   end
 
-  # Combos!
+  # Contructor Combos!
+  module Tao
+    # The obvious Tao ScaledNetwork
+    def self.[](size)
+      Tao.bless ScaledNetwork.new([size, size, size])
+    end
+  end
   module YinYang
+    # The obvious YinYang ScaledNetwork
     def self.[](size)
       Yin.bless Yang.bless ScaledNetwork.new [size, size, size]
     end
   end
   module TaoYinYang
+    # The obvious TaoYinYang ScaledNetwork
     def self.[](size)
       Tao.bless Yin.bless Yang.bless ScaledNetwork.new [size, size, size]
+    end
+  end
+  module NeoYinYang
+    # The obvious NeoYinYang ScaledNetwork
+    def self.[](size)
+      Neo.bless Yin.bless Yang.bless ScaledNetwork.new [size, size, size, size]
     end
   end
 end
