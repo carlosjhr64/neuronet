@@ -626,7 +626,17 @@ module Neuronet
         node.connections[index].weight = Neuronet.wone
         node.bias = Neuronet.bzero
       end
+      myself.extend Yang
       return myself
+    end
+
+    def inspect
+      '#Yang '+super
+    end
+
+    # Create the obvious Yang ScaledNetwork
+    def self.[](size)
+      Yang.bless ScaledNetwork.new([size, size, size])
     end
   end
 
