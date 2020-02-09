@@ -1,5 +1,6 @@
 #! ruby
 require 'test/unit'
+require 'colorize'
 require 'neuronet'
 include Neuronet
 
@@ -19,10 +20,15 @@ class TestBlessing < Test::Unit::TestCase
     ]
 
     # initialize network
+    Neuronet.format = '%.3g'
+    Node.label = 'a'
     ff = Tao[4]
+    puts ff.colorize
+
     # A 3X4 network
     assert_equal 3, ff.length
     assert ff.all?{|layer| layer.length == 4}
+
     # yin connected normally
     inspected = [ # e,f,g,h X a,b,c,d =>
       'e:0|0+0*a+0*b+0*c+0*d',
@@ -30,6 +36,8 @@ class TestBlessing < Test::Unit::TestCase
       'g:0|0+0*a+0*b+0*c+0*d',
       'h:0|0+0*a+0*b+0*c+0*d',
     ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
     # salida connected to both yin and entrada
     inspected = [ # i,j,k,l X e,f,g,h,a,b,c,d =>
       'i:0|0+0*e+0*f+0*g+0*h+0*a+0*b+0*c+0*d',
@@ -47,6 +55,67 @@ class TestBlessing < Test::Unit::TestCase
       break if count > 10_000
       not input_target.all?{|input, target| target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}}
     end
+    puts ff.colorize
+    assert count < 10_000
+
+    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts "Inputs(%.2g):"
+    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
+    puts "Targets(%.2g):"
+    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
+    puts "Ouputs(%.2g):"
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+    puts ":)"
+  end
+
+  def test_yin
+    # set up random input target pairs
+    srand '62e9mxlph99n4wm4b4gnkynote5ho0k50h2oldwjnj44lmsvoi'.to_i(36)
+    input_target = [
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.3g'
+    Node.label = 'a'
+    ff = Yin[4]
+    puts ff.colorize
+
+    # A 3X4 network
+    assert_equal 3, ff.length
+    assert ff.all?{|layer| layer.length == 4}
+
+    # yin mirroring entrada
+    inspected = [ 
+      # e,f,g,h X a,b,c,d =>
+      'e:0|-2.16+4.33*a+0*b+0*c+0*d',
+      'f:0|-2.16+0*a+4.33*b+0*c+0*d',
+      'g:0|-2.16+0*a+0*b+4.33*c+0*d',
+      'h:0|-2.16+0*a+0*b+0*c+4.33*d',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # salida connected normally to yin
+    inspected = [ # i,j,k,l X e,f,g,h,a,b,c,d =>
+      'i:0|0+0*e+0*f+0*g+0*h',
+      'j:0|0+0*e+0*f+0*g+0*h',
+      'k:0|0+0*e+0*f+0*g+0*h',
+      'l:0|0+0*e+0*f+0*g+0*h',
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+
+    start, count  =  Time.now, 0
+    ff.pairs input_target do # while...
+      count += 1
+      break if count > 10_000
+      not input_target.all?{|input, target| target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}}
+    end
+    puts ff.colorize
     assert count < 10_000
 
     puts "Time: #{Time.now - start}  Count: #{count}"

@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200208'
+  VERSION = '7.0.200209'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -388,24 +388,37 @@ module Neuronet
     end
 
     class << self; attr_accessor :color, :colorize; end
+    COLORIZED = ''.respond_to? :colorize
     COLOR = lambda do |v|
-      c = :blue
-      if v > 1.0
-        c = :green
-      elsif v < -1.0
-        c = :red
-      elsif v < 0.0
-        c = :black
+      c = nil
+      if COLORIZED
+        c = :light_white
+        if v > 1.0
+          c = :green
+        elsif v < -1.0
+          c = :red
+        elsif v < 0.0
+          c = :white
+        end
+      else
+        c = :white
+        if v > 1.0
+          c = :darkgreen
+        elsif v < -1.0
+          c = :darkred
+        elsif v < 0.0
+          c = :gray
+        end
       end
       c
     end
     FeedForward.color = COLOR
     COLORIZE = lambda do |s, c|
-      (s.respond_to?(:colorize))?  s.colorize(c) : s.color(c)
+      (COLORIZED)?  s.colorize(color: c) : s.color(c)
     end
     FeedForward.colorize = COLORIZE
 
-    def colorize(verbose=false)
+    def colorize(verbose: false, nodes: false, biases: true, connections: true)
       parts = self.inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
       self.each do |layer|
         layer.each do |node|
@@ -413,16 +426,22 @@ module Neuronet
           0.upto(parts.length-1) do |i|
             case parts[i]
             when l
-              parts[i] = FeedForward.colorize[l, FeedForward.color[v]]
+              if nodes
+                parts[i] = FeedForward.colorize[l, FeedForward.color[v]]
+              end
             when '|'
-              parts[i] = FeedForward.colorize['|', FeedForward.color[parts[i+1].to_f]]
+              if biases
+                parts[i] = FeedForward.colorize['|', FeedForward.color[parts[i+1].to_f]]
+              end
             when '*'
-              parts[i] = FeedForward.colorize['*', FeedForward.color[parts[i-1].to_f]]
+              if connections
+                parts[i] = FeedForward.colorize['*', FeedForward.color[parts[i-1].to_f]]
+              end
             end
           end
         end
       end
-      parts.delete_if{|_|_=~/^[\+\-\d\.:]+$/}  unless verbose
+      parts.delete_if{|_|_=~/^[\+\-\d\.]+$/}  unless verbose
       parts.join
     end
   end
@@ -549,10 +568,15 @@ module Neuronet
     def self.bless(myself)
       # @salida directly connects to @entrada
       myself.salida.connect(myself.entrada)
+      myself.extend Tao
       return myself
     end
 
-    # Create the obvious ScaledNetwork Tao
+    def inspect
+      '#Tao '+super
+    end
+
+    # Create the obvious Tao ScaledNetwork
     def self.[](size)
       Tao.bless ScaledNetwork.new([size, size, size])
     end
@@ -573,7 +597,17 @@ module Neuronet
         node.connections[index].weight = Neuronet.wone
         node.bias = Neuronet.bzero
       end
+      myself.extend Yin
       return myself
+    end
+
+    def inspect
+      '#Yin '+super
+    end
+
+    # Create the obvious Yin ScaledNetwork
+    def self.[](size)
+      Yin.bless ScaledNetwork.new([size, size, size])
     end
   end
 
