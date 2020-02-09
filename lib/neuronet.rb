@@ -906,4 +906,10 @@ module Neuronet
       Neo.bless Yin.bless Yang.bless ScaledNetwork.new [size, size, size, size]
     end
   end
+  module BrahmaSynthesis
+    # The obvious BrahmaSynthesis ScaledNetwork
+    def self.[](size)
+      Brahma.bless Synthesis.bless ScaledNetwork.new [size, 2*size, size]
+    end
+  end
 end

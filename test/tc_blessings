@@ -143,7 +143,7 @@ class TestBlessing < Test::Unit::TestCase
     Neuronet.format = '%.3g'
     Node.label = 'a'
     ff = NeoYinYang[4]
-    puts ff.colorize(verbose: true)
+    puts ff.colorize
 
     # A 4X4 network
     assert_equal 4, ff.length
@@ -188,7 +188,71 @@ class TestBlessing < Test::Unit::TestCase
       break if count > max
       not input_target.all?{|input, target| target.map{|_|'%.1g' % _} == (ff*input).map{|_|'%.1g' % _}}
     end
-    puts ff.colorize(verbose: true)
+    puts ff.colorize
+
+    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts "Inputs(%.2g):"
+    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
+    puts "Targets(%.2g):"
+    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
+    puts "Ouputs(%.2g):"
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+
+    assert count < max
+    puts ":)"
+  end
+
+  def test_brahmasynthesis
+    # set up random input target pairs
+    srand '3qwqmo1uj7fbzegcbh9efepraekc4m2e30n4urvwbf8o4rrclc'.to_i(36)
+    input_target = [
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.1g'
+    Node.label = 'a'
+    ff = BrahmaSynthesis[3]
+    puts ff.colorize
+
+    # A 3,6,3 network
+    assert_equal 3, ff.entrada.length
+    assert_equal 6, ff.yin.length
+    assert_equal 3, ff.salida.length
+
+    # yin mirrors and shadows entrada
+    inspected = [
+      # d,e,f, g,h,i X a,b,c =>
+      'd:0|-2+4*a+0*b+0*c',
+      'e:0|2+-4*a+0*b+0*c',
+      'f:0|-2+0*a+4*b+0*c',
+      'g:0|2+0*a+-4*b+0*c',
+      'h:0|-2+0*a+0*b+4*c',
+      'i:0|2+0*a+0*b+-4*c',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # salida synthesis
+    inspected = [
+      'j:0|-2+2*d+2*e+0*f+0*g+0*h+0*i',
+      'k:0|-2+0*d+0*e+2*f+2*g+0*h+0*i',
+      'l:0|-2+0*d+0*e+0*f+0*g+2*h+2*i'
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+    ff.number 2
+
+    start, count, max  =  Time.now, 0, 10_000
+    ff.pairs input_target do # while...
+      count += 1
+      break if count > max
+      not input_target.all?{|input, target| target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}}
+    end
+    puts ff.colorize
 
     puts "Time: #{Time.now - start}  Count: #{count}"
     puts "Inputs(%.2g):"
