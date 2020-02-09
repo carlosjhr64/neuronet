@@ -129,6 +129,79 @@ class TestBlessing < Test::Unit::TestCase
     puts ":)"
   end
 
+  def test_neoyinyang
+    # set up random input target pairs
+    srand '5f70525vvv119egnuj2361dwknkw5b1h64rbhz8r2yuunleec9'.to_i(36)
+    input_target = [
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.3g'
+    Node.label = 'a'
+    ff = NeoYinYang[4]
+    puts ff.colorize(verbose: true)
+
+    # A 4X4 network
+    assert_equal 4, ff.length
+    assert ff.all?{|layer| layer.length == 4}
+
+    # yin mirrors entrada
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'e:0|-2.16+4.33*a+0*b+0*c+0*d',
+      'f:0|-2.16+0*a+4.33*b+0*c+0*d',
+      'g:0|-2.16+0*a+0*b+4.33*c+0*d',
+      'h:0|-2.16+0*a+0*b+0*c+4.33*d',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # yang mirrors ying
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'i:0|-2.16+4.33*e+0*f+0*g+0*h',
+      'j:0|-2.16+0*e+4.33*f+0*g+0*h',
+      'k:0|-2.16+0*e+0*f+4.33*g+0*h',
+      'l:0|-2.16+0*e+0*f+0*g+4.33*h',
+    ].join(',')
+    assert_equal inspected, ff.yang.inspect
+
+    # salida mirrors yang
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'm:0|-2.16+4.33*i+0*j+0*k+0*l',
+      'n:0|-2.16+0*i+4.33*j+0*k+0*l',
+      'o:0|-2.16+0*i+0*j+4.33*k+0*l',
+      'p:0|-2.16+0*i+0*j+0*k+4.33*l',
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+    ff.number 32 # TODO: review mu stuff
+
+    start, count, max  =  Time.now, 0, 10_000
+    ff.pairs input_target do # while...
+      count += 1
+      break if count > max
+      not input_target.all?{|input, target| target.map{|_|'%.1g' % _} == (ff*input).map{|_|'%.1g' % _}}
+    end
+    puts ff.colorize(verbose: true)
+
+    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts "Inputs(%.2g):"
+    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
+    puts "Targets(%.2g):"
+    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
+    puts "Ouputs(%.2g):"
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+
+    assert count < max
+    puts ":)"
+  end
+
   def test_combos
     # just some quickies
     Neuronet.format = '%.1g'
