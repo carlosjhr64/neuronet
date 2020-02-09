@@ -406,7 +406,7 @@ module Neuronet
     FeedForward.colorize = COLORIZE
 
     def colorize(verbose=false)
-      parts = self.inspect.split(/\b/)
+      parts = self.inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
       self.each do |layer|
         layer.each do |node|
           l, v  =  node.label, node.value
@@ -422,7 +422,7 @@ module Neuronet
           end
         end
       end
-      parts.delete_if{|_|_=~/^[\d\-\*\.\+:]+$/}  unless verbose
+      parts.delete_if{|_|_=~/^[\+\-\d\.:]+$/}  unless verbose
       parts.join
     end
   end
