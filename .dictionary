@@ -1,12 +1,9 @@
-0x
 14g
-2g
 2s
+3g
 3s
 BZERO
-Backpropagation
 BrahmaSynthesis
-BrahmaYang
 COLORIZED
 Contructor
 FeedForward
@@ -16,7 +13,6 @@ NONINFRINGEMENT
 NeoYinYang
 Neuronet
 Perceptron
-Perceptrons
 Promedio
 README
 ScaledNetwork
@@ -24,7 +20,6 @@ Sintezo
 TODO
 TaoYinYang
 UNSQUASH
-Unsquash
 YinYang
 attr
 backpropagate
@@ -32,7 +27,6 @@ backpropagates
 backpropagation
 bzero
 carlosjhr64
-dfdx
 elsif
 github
 http
@@ -41,14 +35,9 @@ maxb
 maxv
 maxw
 minmax
-muk
-nAx
 neuronet
-neuronets
-perl
-pulserate
+nn
 rb
-rubydoc
 rubygems
 salida
 srand
@@ -57,8 +46,5 @@ sum2
 unmap
 unsquash
 upto
-ve
 wiki
 wikipedia
-www
-yinyang
