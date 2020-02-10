@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200209'
+  VERSION = '7.0.200210'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -142,7 +142,7 @@ module Neuronet
     # in proportion to the error given and passes that error
     # to its connected node via the node's backpropagate method.
     def backpropagate(error, mu)
-      # mu divides the error among the neuron's contituents!
+      # mu divides the error among the neuron's constituents!
       @weight += @node.activation * Neuronet.noise[error/mu]
       @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw  if @weight.abs > Neuronet.maxw
       @node.backpropagate(error)
@@ -205,7 +205,7 @@ module Neuronet
     # While updates flows from input to output,
     # back-propagation of errors flows from output to input.
     def backpropagate(error)
-      # mu divides the error among the neuron's contituents!
+      # mu divides the error among the neuron's constituents!
       @bias += Neuronet.noise[error/@mu]
       @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb  if @bias.abs > Neuronet.maxb
       @connections.each{|connection| connection.backpropagate(error, @mu)}
@@ -764,7 +764,7 @@ module Neuronet
     end
   end
 
-  # Sintezo is a network which has each @yang neuron sum two "corresponding" neurons above(ambigous layer).
+  # Sintezo is a network which has each @yang neuron sum two "corresponding" neurons above(ambiguous layer).
   # See code for "corresponding" semantic.
   module Sintezo
     def self.bless(myself)
@@ -832,7 +832,7 @@ module Neuronet
     end
   end
 
-  # Mediocris is a network which has each @yang neuron sum three neurons "directly" above(ambigous layer).
+  # Mediocris is a network which has each @yang neuron sum three neurons "directly" above(ambiguous layer).
   # See code for "directly" semantic.
   module Mediocris
     def self.bless(myself)

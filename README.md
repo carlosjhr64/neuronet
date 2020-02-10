@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 7.0.200209](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.200210](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 
@@ -23,7 +23,7 @@ include Neuronet
 # srand seed for this demo
 srand '3lyn2jemrgi2qc4bqm15zsxz6ryhnrwu563gnjqfabhrerimc'.to_i(36)
 
-# Network inpections' format
+# Network inspections' format
 FORMAT            #=> "%.14g"
 Neuronet.format   #=> "%.14g"
 # Just display 2 significant figures
@@ -91,7 +91,7 @@ neuron.mu!                          #=> 2.5
 neuron.mu                           #=> 2.5
 
 # Currently an update leaves neuron unchanged
-# because all of it connnections are zeroed:
+# because all of it connections are zeroed:
 neuron.update  #=> 0.0
 neuron         #=> b:0|0+0*a+0*c
 
@@ -112,7 +112,7 @@ Node.label #=> d
 # Set next label
 Node.label = 'a'
 
-# Neuron#backpropate
+# Neuron#backpropagate
 a = Node.new
 a.value = 1
 a                          #=> a:1
@@ -565,7 +565,7 @@ By connecting the input layer to the output layer of a multi-layer FeedForward n
 you'll get the Perceptron solution quicker while the middle layers work on the harder problem.
 You can do that this way:
 
-    neronet.out.connect(neuronet.in)
+    neuronet.out.connect(neuronet.in)
 
 But giving that a name, [Tao](http://rubydoc.info/gems/neuronet/Neuronet/Tao),
 and using a prototype pattern to modify the instance is more fun:
@@ -614,7 +614,7 @@ Bless
 :	Pronounce words in a religious rite, to confer or invoke divine favor upon.
 
 The reason Tao, Yin, and Yang are not classes onto themselves is that
-you can combine these, and a protoptype pattern (bless) works better in this case.
+you can combine these, and a prototype pattern (bless) works better in this case.
 Bless is the keyword used in [Perl](http://www.perl.org/) to create objects,
 so it's not without precedent.
 To combine all three features, Tao, Yin, and Yang, do this:
