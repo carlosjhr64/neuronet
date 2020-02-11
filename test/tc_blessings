@@ -132,6 +132,8 @@ class TestBlessing < Test::Unit::TestCase
   def test_neoyinyang
     # set up random input target pairs
     srand '5f70525vvv119egnuj2361dwknkw5b1h64rbhz8r2yuunleec9'.to_i(36)
+    #srand '5db2avuse31mmorp9hs622wfr0063ll3xkev6zb397xhu0gl9t'.to_i(36)
+    #srand '3kv1opxkgpncte7fp0xr03lh7ohz6cewq5qp5dfeyivmvyv6h8'.to_i(36)
     input_target = [
       [[random, random, random, random], [random, random, random, random]],
       [[random, random, random, random], [random, random, random, random]],
@@ -180,23 +182,24 @@ class TestBlessing < Test::Unit::TestCase
     assert_equal inspected, ff.salida.inspect
 
     ff.distribution.set input_target.flatten
-    ff.number 32 # TODO: review mu stuff
+    ff.number 26 # TODO: review mu stuff
 
-    start, count, max  =  Time.now, 0, 10_000
+    fg = '%.1g'
+    start, count, max  =  Time.now, 0, 100_000
     ff.pairs input_target do # while...
       count += 1
       break if count > max
-      not input_target.all?{|input, target| target.map{|_|'%.1g' % _} == (ff*input).map{|_|'%.1g' % _}}
+      not input_target.all?{|input, target| target.map{|_|fg % _} == (ff*input).map{|_|fg % _}}
     end
     puts ff.colorize
 
-    puts "Time: #{Time.now - start}  Count: #{count}"
-    puts "Inputs(%.2g):"
-    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
-    puts "Targets(%.2g):"
-    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
-    puts "Ouputs(%.2g):"
-    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+    puts "Time: #{Time.now - start}  Count: #{count}".colorize :yellow
+    puts "Inputs:"
+    pp input_target.map{|a|a[0].map{|_|fg % _}}
+    puts "Targets:"
+    pp input_target.map{|a|a[1].map{|_|fg % _}}
+    puts "Ouputs:"
+    pp input_target.map{|a|(ff*a[0]).map{|_|fg % _}}
 
     assert count < max
     puts ":)"

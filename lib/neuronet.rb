@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200210'
+  VERSION = '7.0.200211'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function
@@ -309,8 +309,7 @@ module Neuronet
 
   # A Feed Forward Network
   class FeedForward < Array
-    attr_reader :entrada, :salida
-    attr_reader :yin, :yang
+    attr_reader :entrada, :salida,  :yin, :yang
     attr_accessor :learning
 
     # I find very useful to name certain layers:
@@ -322,14 +321,13 @@ module Neuronet
       length = layers.length
       raise "Need at least 2 layers"  if length < 2
       super(length)
-      @entrada = self[0] = Neuronet::InputLayer.new(layers[0])
+      self[0] = Neuronet::InputLayer.new(layers[0])
       1.upto(length-1) do |index|
         self[index] = Neuronet::Layer.new(layers[index])
         self[index].connect(self[index-1])
       end
-      @salida   = self.last
-      @yin      = self[1]   # first middle layer
-      @yang     = self[-2]  # last middle layer
+      @entrada, @salida  =  self.first, self.last
+      @yin, @yang  =  self[1], self[-2]
       @learning = 1.0 / (length-1)
     end
 
