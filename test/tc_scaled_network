@@ -8,7 +8,7 @@ class TestScaledNetwork < Test::Unit::TestCase
     100.0*((rand + rand + rand) - (rand + rand + rand))
   end
 
-  def test_scaled_netword
+  def test_scaled_network
     # set up random input target pairs
     srand '4uzt56815q3vd87b603e5u81x6935gdh6v74vpvi1lyw5cmsag'.to_i(36)
     input_target = [
@@ -54,5 +54,13 @@ class TestScaledNetwork < Test::Unit::TestCase
     puts "Ouputs(%.1g):"
     pp input_target.map{|a|(ff*a[0]).map{|_|'%.1g' % _}}
     puts ":)"
+  end
+
+  def test_scaled_network_reset
+    ff = ScaledNetwork.new [12, 4, 3], reset: true # just some networks with 12 inputs
+    ff.set [1,2,3,4,5,6,7,8,9,10,11,12]
+    assert_equal [1,2,3,4,5,6,7,8,9,10,11,12], ff.input.map{|_|_.round(14)}
+    entrada = ff.entrada.map{|node| node.value}
+    assert_equal [-1.5, -1.2, -1.0, -0.7, -0.4, -0.1, 0.1, 0.4, 0.7, 1.0, 1.2, 1.5], entrada.map{|_|_.round(1)}
   end
 end

@@ -466,6 +466,11 @@ module Neuronet
       self
     end
 
+    def reset(inputs)
+      @center = @spread = nil
+      set(inputs)
+    end
+
     def mapped(inputs)
       factor = 1.0 / (@factor*@spread)
       inputs.map{|value| factor*(value - @center)}
@@ -489,9 +494,9 @@ module Neuronet
   # the standard deviation for spread.
   class Gaussian < Scale
     def set(inputs)
-      @center = inputs.inject(0.0,:+) / inputs.length  unless @center
+      @center = inputs.sum.to_f / inputs.length  unless @center
       unless @spread
-        sum2 = inputs.map{|v| e = @center - v; e*e}.sum
+        sum2 = inputs.map{|v| e = @center - v; e*e}.sum.to_f
         @spread = Math.sqrt(sum2 / (inputs.length - 1.0))
       end
       self
@@ -533,7 +538,7 @@ module Neuronet
     # and then there will be times you'll want to reset the distribution
     # with each input.
     def set(input)
-      @distribution.set(input)  if @reset
+      @distribution.reset(input)  if @reset
       super(@distribution.mapped_input(input))
     end
 
