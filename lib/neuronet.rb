@@ -183,7 +183,7 @@ module Neuronet
 
     # Updates the activation with the current value of bias and updated values of connections.
     def update
-      value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.update}
+      value = @bias + @connections.sum{|connection| connection.update}
       mu!
       self.value = value
     end
@@ -194,7 +194,7 @@ module Neuronet
     # The implementation should set it's algorithm to use partial
     # instead of update as update will most likely needlessly update previously updated neurons.
     def partial
-      value = @bias + @connections.inject(0.0){|sum, connection| sum + connection.value}
+      value = @bias + @connections.sum{|connection| connection.value}
       mu!
       self.value = value
     end

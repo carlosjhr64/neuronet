@@ -1,5 +1,6 @@
 #! ruby
 require 'test/unit'
+require 'colorize'
 require 'neuronet'
 include Neuronet
 
@@ -10,7 +11,10 @@ class TestScaledNetwork < Test::Unit::TestCase
 
   def test_scaled_network
     # set up random input target pairs
-    srand '4uzt56815q3vd87b603e5u81x6935gdh6v74vpvi1lyw5cmsag'.to_i(36)
+    #srand '4uzt56815q3vd87b603e5u81x6935gdh6v74vpvi1lyw5cmsag'.to_i(36)
+    #srand '3h3zwx3wjanlf0eo42e3woppdg0q31rt7q7gb9pv8mc1ogsmz6'.to_i(36)
+    #srand '607dx5cg2lfh4f447jkwxh2xpw63wyrhdvgmzmvhhfajh5kcl6'.to_i(36)
+    srand '15p18356yc4jb66ej1jfjrqbkdkqboms5bqwup4soeu5llekpr'.to_i(36)
     input_target = [
       [[random, random, random, random], [random, random, random, random]],
       [[random, random, random, random], [random, random, random, random]],
@@ -19,12 +23,12 @@ class TestScaledNetwork < Test::Unit::TestCase
     ]
 
     # initialize network
-    ff = ScaledNetwork.new [4, 4, 4, 4]
+    ff = ScaledNetwork.new [4, 4]
     ff.distribution.set input_target.flatten
 
     # quick center distribution check
     numbers = input_target.flatten
-    sum = numbers.inject(0.0, :+)
+    sum = numbers.sum
     average = sum/numbers.length
     distribution = ff.distribution
     assert_equal average, distribution.center
@@ -38,21 +42,22 @@ class TestScaledNetwork < Test::Unit::TestCase
     squashed_input = mapped_input.map{|_|SQUASH[_]}
     assert_equal squashed_input, ff[0].map{|node|node.activation}
 
-    start, count  =  Time.now, 0
+    fg = '%.2g'
+    start, count, max  =  Time.now, 0, 100_000
     ff.pairs input_target do # while...
       count += 1
-      break if count > 10_000
-      not input_target.all?{|input, target| target.map{|_|'%.1g' % _} == (ff*input).map{|_|'%.1g' % _}}
+      break if count > max
+      not input_target.all?{|input, target| target.map{|_|fg % _} == (ff*input).map{|_|fg % _}}
     end
-    assert count < 10_000
+    assert count < max
 
-    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts "Time: #{Time.now - start}  Count: #{count}".colorize(:yellow)
     puts "Inputs(%.1g):"
-    pp input_target.map{|a|a[0].map{|_|'%.1g' % _}}
+    pp input_target.map{|a|a[0].map{|_|fg % _}}
     puts "Targets(%.1g):"
-    pp input_target.map{|a|a[1].map{|_|'%.1g' % _}}
+    pp input_target.map{|a|a[1].map{|_|fg % _}}
     puts "Ouputs(%.1g):"
-    pp input_target.map{|a|(ff*a[0]).map{|_|'%.1g' % _}}
+    pp input_target.map{|a|(ff*a[0]).map{|_|fg % _}}
     puts ":)"
   end
 
