@@ -171,8 +171,7 @@ module Neuronet
     def mu!
       # mu is entirely based on a sum of external activations and
       # only needs to be reset when these external activations change.
-      mu = 1.0 + @connections.sum{|connection| connection.node.activation}
-      @mu = mu
+      @mu = 1.0 + @connections.sum{|connection| connection.node.activation}
     end
 
     def initialize(value=0.0, bias: 0.0, connections: [])
