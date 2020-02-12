@@ -64,31 +64,31 @@ Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| (B1j+e) + {k| (W1jk+e)*Ik}}  ==
 # Decoupled e in layer 1:
 (B2i+e) + {j| (W2ij+e)*| B1j + e + {k| W1jk*Ik + e*Ik}}  ==
 # Break apart the sum in layer 1:
-(B2i+e) + {j| (W2ij+e)*| B1j + e + {k| W1jk*Ik} + {k|e*Ik}}  ==
+(B2i+e) + {j| (W2ij+e)*| B1j + e + {k| W1jk*Ik} + {k| e*Ik}}  ==
 # Rearrange components in layer 1:
-(B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k|e*Ik}}
+(B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k| e*Ik}}
 
 # Lets define M1 as:
-M1  ==  e + {k|e*Ik}
+M1  ==  e + {k| e*Ik}
 
 # Remember that:
-Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k|e*Ik}}
+Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k| e*Ik}}
 # Substitute in M1:
 Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + M1}
 # I can almost get A1j back, if not for M1.
 # I expect M1 to go to zero as e to goes to zero, so I'll use an approximation trick.
 
 # The derivative of the sigmoid function:
-Dx|x  ==  |(x)*(1-|x)
+Dx |(x) ==  |(x)*(1 - |(x))
 # And remember that as e is small:
 F[x+e]  ~~  F[x] + e*Dx F[x]
 # So:
-| x + e  ~~  |(x) + e*|(x)*(1 - |x)
+| x + e  ~~  |(x) + e*|(x)*(1 - |(x))
 
 # Remember that:
 Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + M1}
 # So, substitute in A1j:
-Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*((A1j=|B1j + {k| W1jk*Ik}) + M1*A1j*(1-A1j))}
+Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*((A1j = | B1j + {k| W1jk*Ik}) + M1*A1j*(1-A1j))}
            ==  (B2i+e) + {j| (W2ij+e)*(A1j + M1*A1j*(1-A1j))}  ==
 # Decoupling layer 2 e:
 B2i + e + {j| (W2ij+e)*(A1j + M1*A1j*(1-A1j))}  ==
