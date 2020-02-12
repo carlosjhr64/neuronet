@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 7.0.200211](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.200212](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 
@@ -62,7 +62,7 @@ rounded(target) #=> ["-157", "75.1", "-108"]
 rounded(output) #=> ["-157", "75.1", "-108"]
 ```
 
-[There's a lot more...](MORE.md)
+[There's a lot more...](https://github.com/carlosjhr64/neuronet/blob/master/MORE.md)
 
 ## LICENSE:
 
