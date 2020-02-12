@@ -81,14 +81,14 @@ Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + M1}
 # The derivative of the sigmoid function:
 Dx |(x) ==  |(x)*(1 - |(x))
 # And remember that as e is small:
-F[x+e]  ~~  F[x] + e*Dx F[x]
+F[x+e]  =~  F[x] + e*Dx F[x]
 # So:
-| x + e  ~~  |(x) + e*|(x)*(1 - |(x))
+| x + e  =~  |(x) + e*|(x)*(1 - |(x))
 
 # Remember that:
 Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + M1}
 # So, substitute in A1j:
-Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*((A1j = | B1j + {k| W1jk*Ik}) + M1*A1j*(1-A1j))}
+Ei + ^ Oi  =~  (B2i+e) + {j| (W2ij+e)*((A1j = | B1j + {k| W1jk*Ik}) + M1*A1j*(1-A1j))}
            ==  (B2i+e) + {j| (W2ij+e)*(A1j + M1*A1j*(1-A1j))}  ==
 # Decoupling layer 2 e:
 B2i + e + {j| (W2ij+e)*(A1j + M1*A1j*(1-A1j))}  ==
@@ -104,7 +104,7 @@ B2i + {j| W2ij*A1j} + e + {j| e*A1j} + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(
 M2  ==  e + {j| e*A1j}
 
 # Remember that:
-Ei + ^ Oi  ==
+Ei + ^ Oi  =~
 B2i + {j| W2ij*A1j} + e + {j| e*A1j} + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
 # And substitute in M2:
 B2i + {j| W2ij*A1j} + M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
@@ -114,13 +114,13 @@ B2i + {j| W2ij*A1j} + M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
 ^(Oi) + M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
 
 #So:
-Ei + ^(Oi)  ==  ^(Oi) + M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
-Ei  ==  M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}
+Ei + ^(Oi)  =~  ^(Oi) + M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}  ==
+Ei  =~  M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}
 # This deserves a box!
 
 ###############################################################
-Ei  ==  M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}
+Ei  =~  M2 + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}
 ###############################################################
 ```
 
-[...AND MUCH MORE TODO:](https://github.com/carlosjhr64/neuronet/blob/master/TODO.md)
+[...AND MUCH MORE TODO:](TODO.md)
