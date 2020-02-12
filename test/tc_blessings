@@ -192,6 +192,7 @@ class TestBlessing < Test::Unit::TestCase
       not input_target.all?{|input, target| target.map{|_|fg % _} == (ff*input).map{|_|fg % _}}
     end
     puts ff.colorize
+    puts ff.inspect
 
     puts "Time: #{Time.now - start}  Count: #{count}".colorize :yellow
     puts "Inputs:"

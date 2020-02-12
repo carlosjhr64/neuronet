@@ -171,7 +171,7 @@ module Neuronet
     def mu!
       # mu is entirely based on a sum of external activations and
       # only needs to be reset when these external activations change.
-      mu = 1.0; @connections.each{|connection| mu += connection.node.activation}
+      mu = 1.0 + @connections.sum{|connection| connection.node.activation}
       @mu = mu
     end
 
