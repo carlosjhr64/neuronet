@@ -123,11 +123,15 @@ B2i + {j, W2ij*A1j} + M2 + {j, W2ij*M1*D1j} + {j, e*M1*D1j}  ==
 
 #So:
 Ei + ^(Oi)  =~  ^(Oi) + M2 + {j, W2ij*M1*D1j} + {j, e*M1*D1j}
-Ei  =~  M2 + {j, W2ij*M1*D1j} + {j, e*M1*D1j}
+Ei  =~  M2 + {j, W2ij*M1*D1j} + {j, e*M1*D1j}  ==
+        M2 + {j, W2ij*D1j*M1} + {j, e*D1j*M1}  ==
+        M2 + {j, W2ij*D1j*M1 + e*D1j*M1}  ==
+        M2 + D1j*M1*{j, W2ij + e}  ==
+        M2 + D1j*{j, W2ij + e}*M1
 # This deserves a box!
 
 ###############################################################
-Ei  =~  M2 + {j, W2ij*M1*D1j} + {j, e*M1*D1j}
+Ei  =~  M2 + D1j*{j, W2ij +  e}*M1
 M2  ==  e + {j, e*A1j}
 M1  ==  e + {k, e*Ik}   # e + {k, e*A0k}
 D1j  ==  A1j*(1 - A1j)
