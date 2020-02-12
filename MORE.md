@@ -18,13 +18,13 @@ network.layer[i].node[j].activation  ==
 # or:
 network.layer[i].node[j].activation  ==
   | network.layer[i].node[j].bias +
-    (0...network.layer[i].node[j].connections.legnth).sum{|k|
+    (0...network.layer[i].node[j].connections.length).sum{|k|
       network.layer[i].node[j].connections[k].weight *
       network.layer[i].node[j].connections[k].node.activation}
 
 # TODO:{i| ...} has my squash symbol, confusing?
 # So, map the above to the following concise notation:
-Aij  ==  | Bij + {k| Wijk*Ack}    # in neuroent.rb, c tipically is i-1
+Aij  ==  | Bij + {k| Wijk*Ack}    # in neuronet.rb, c typically is i-1
 # I considered Einstein notation, but
 # decided to keep things in ASCII and explicit.
 
@@ -39,7 +39,7 @@ A1j  ==  | B1j + {k| W1jk*A0k}  ==
          | B1j + {k| W1jk*Ik}
 
 # Let's just consider a three layer feed forward network, as
-# I'll show that's going to be enough to analize backpropagation:
+# I'll show that's going to be enough to analyze backpropagation:
 Oi  ==
 A2i  ==  | B2i + {j| W2ij*A1j}  ==
          | B2i + {j| W2ij*| B1j + {k| W1jk*Ik}}
@@ -65,7 +65,7 @@ Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| (B1j+e) + {k| (W1jk+e)*Ik}}  ==
 (B2i+e) + {j| (W2ij+e)*| B1j + e + {k| W1jk*Ik + e*Ik}}  ==
 # Break apart the sum in layer 1:
 (B2i+e) + {j| (W2ij+e)*| B1j + e + {k| W1jk*Ik} + {k|e*Ik}}  ==
-# Rearrage components in layer 1:
+# Rearrange components in layer 1:
 (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k|e*Ik}}
 
 # Lets define M1 as:
@@ -73,14 +73,14 @@ M1  ==  e + {k|e*Ik}
 
 # Remember that:
 Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + e + {k|e*Ik}}
-# Subtitute in M1:
+# Substitute in M1:
 Ei + ^ Oi  ==  (B2i+e) + {j| (W2ij+e)*| B1j + {k| W1jk*Ik} + M1}
 # I can almost get A1j back, if not for M1.
-# I expect M1 to go to zero as e to goes to zero, so I'll use an aproximation trick.
+# I expect M1 to go to zero as e to goes to zero, so I'll use an approximation trick.
 
 # The derivative of the sigmoid function:
 Dx|x  ==  |(x)*(1-|x)
-# And rembember that as e is small:
+# And remember that as e is small:
 F[x+e]  ~~  F[x] + e*Dx F[x]
 # So:
 | x + e  ~~  |(x) + e*|(x)*(1 - |x)
@@ -97,7 +97,7 @@ B2i + e + {j| W2ij*(A1j + M1*A1j*(1-A1j)) + e*(A1j + M1*A1j*(1-A1j))}  ==
 B2i + e + {j| W2ij*A1j + W2ij*M1*A1j*(1-A1j) + e*A1j + e*M1*A1j*(1-A1j)}  ==
 # Break apart the sum in layer 2:
 B2i + e + {j| W2ij*A1j} + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*A1j} + {j| e*M1*A1j*(1-A1j)}  ==
-# Rearrage:
+# Rearrange:
 B2i + {j| W2ij*A1j} + e + {j| e*A1j} + {j| W2ij*M1*A1j*(1-A1j)} + {j| e*M1*A1j*(1-A1j)}
 
 # Lets define M2 as:
