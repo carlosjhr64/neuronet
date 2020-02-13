@@ -1,6 +1,6 @@
 # Neuronet module
 module Neuronet
-  VERSION = '7.0.200212'
+  VERSION = '7.0.200213'
   FORMAT  = '%.14g'
 
   # An artificial neural network uses a squash function

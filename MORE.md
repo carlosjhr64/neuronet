@@ -82,11 +82,11 @@ Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*M1}
 # I expect e*M1 to go to zero as e to goes to zero, so I'll use an approximation trick.
 
 # The derivative of the sigmoid function:
-Dx |(x) ==  |(x)*(1 - |(x))
+Dx |[x] ==  |[x]*(1 - |[x])
 # And remember that as e is small:
 F[x+e]  =~  F[x] + e*Dx F[x]
 # So:
-| x + e  =~  |(x) + e*|(x)*(1 - |(x))
+| x + e  =~  |[x] + e*|[x]*(1 - |[x])
 
 # Remember that:
 Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*M1}
@@ -125,13 +125,13 @@ e*M2  == e*(1 + {j, A1j})
 Ei + ^ Oi  =~  B2i + {j, W2ij*A1j} + e*(1 + {j, A1j}) + {j, W2ij*e*M1*D1j}  ==
 # And substitute in e*M2:
 B2i + {j, W2ij*A1j} + e*M2 + {j, W2ij*e*M1*D1j}  ==
-# And substitute in ^(A2i) = B2i + {j, W2ij*A1j}):
-^(A2i) + e*M2 + {j, W2ij*e*M1*D1j} + {j, e*e*M1*D1j}  ==
+# And substitute in ^[A2i] = B2i + {j, W2ij*A1j}):
+^[A2i] + e*M2 + {j, W2ij*e*M1*D1j} + {j, e*e*M1*D1j}  ==
 # Substitute in Oi( = A2i):
-^(Oi) + e*M2 + {j, W2ij*e*M1*D1j} + {j, e*e*M1*D1j}
+^[Oi] + e*M2 + {j, W2ij*e*M1*D1j} + {j, e*e*M1*D1j}
 
 #So:
-Ei + ^(Oi)  =~  ^(Oi) + e*M2 + {j, W2ij*e*M1*D1j}
+Ei + ^[Oi]  =~  ^[Oi] + e*M2 + {j, W2ij*e*M1*D1j}
 Ei  =~  e*M2 + {j, W2ij*e*M1*D1j}
 # Factor out e and rearrange:
 Ei  =~  e*(M2 + {j, W2ij*D1j}*M1)
@@ -155,26 +155,29 @@ e  =~  Ei/(M2 + {j, W2ij*D1j}*M1)      #
 Dij  <  0.25
 
 # So given e, E has an upper bound:
-Ei  <  e*(M2 + 0.25*{j, W2ij}*M1)
+[Ei]  <  [e*(M2 + 0.25*{j, W2ij}*M1)]   # Absolute values
+[e]  >  [Ei/(M2 + 0.25*{j, W2ij}*M1)]
 
 # W can be positive, negative...
 # Maybe I can argue that it averages around zero?
 # If W has some average absolute value, w...
 # random walk of step w?
-Ei  ~  e*(M2 + (w/4)*Sqrt({j, 1})*M1)
-# Define L
-Lj  ==  {j, 1}   # The length j runs
-# Then
-Ei  ~  e*(M2 + (w/4)*Sqrt(Lj)*M1)
-
-# Just try an order of magnitude estimate?
-Ei  ~  e*(M2 + Sqrt(Lj)*M1)
-e  ~  Ei/(M2 + Sqrt(Lj)*M1)
+Ei  ~  e*(M2 + (w/4)*Sqrt[{j, 1}]*M1)
+# Define L, the length of the layer:
+L1  ==  {j, 1}   # The length j runs
+# Then:
+Ei  ~  e*(M2 + (w/4)*Sqrt[L1]*M1)
 
 # So I said I would show that's enough!?
 # Not sure, actually....
 # I think I need to do one more layer to see a pattern.
 #   :P
+# Shorten Sqrt[] to just R[], and w/4 to u.
+# I'm guessing:
+Ei  ~  e*( M3 + u*R[L2]*M2 + u*u*R[L2]*R[L1]*M1 )
+# And I'm guessing deep neural networks keep:
+[u*R[Li]] <= 1
+# because otherwise, this blows up.
 ```
 
 [...AND MUCH MORE TODO:](TODO.md)
