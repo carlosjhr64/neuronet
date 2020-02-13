@@ -134,16 +134,16 @@ B2i + {j, W2ij*A1j} + e*M2 + {j, W2ij*e*M1*D1j}  ==
 Ei + ^(Oi)  =~  ^(Oi) + e*M2 + {j, W2ij*e*M1*D1j}
 Ei  =~  e*M2 + {j, W2ij*e*M1*D1j}
 # Factor out e and rearrange:
-Ei  =~  e*(M2 + {j, W2ij*D1j*M1})
+Ei  =~  e*(M2 + {j, W2ij*D1j}*M1)
 # This deserves a box!
 
 ########################################
-Ei  =~  e*(M2 + {j, W2ij*D1j*M1})      #
+Ei  =~  e*(M2 + {j, W2ij*D1j}*M1)      #
 M2  ==  1 + {j, A1j}                   #
 M1  ==  1 + {k, Ik}   # 1 + {k, A0k}   #
 D1j  ==  A1j*(1 - A1j)                 #
 ########################################
-e  =~  Ei/(M2 + {j, W2ij*D1j*M1})      #
+e  =~  Ei/(M2 + {j, W2ij*D1j}*M1)      #
 ########################################
 
 # All the components to compute e are available at each iteration.
