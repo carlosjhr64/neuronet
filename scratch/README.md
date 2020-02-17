@@ -108,6 +108,8 @@ Mi  ==  layers[i].first.mue
 Li  ==  layers[i].length
 a^b  ==  a**b
 ```
+And it's always a good idea to double check the code in the file.
+:smile:
 
 ## learning
 
@@ -159,6 +161,11 @@ with 190K cycles and no failures.
 
 ## muk
 
+Muk uses recursion to add up all the weighted error contributions.
+```ruby
+MUK  ==  1 + {A + A*(1-A)*MUK}
+mue  ==  R[number] * MUK
+```
 The best "standard run" was with `number` 32(~5.66^2)
 with 175K cycles and 1 failure.
 
