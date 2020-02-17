@@ -131,9 +131,14 @@ class TestBlessing < Test::Unit::TestCase
 
   def test_neoyinyang
     # set up random input target pairs
-    srand '5f70525vvv119egnuj2361dwknkw5b1h64rbhz8r2yuunleec9'.to_i(36)
-    #srand '5db2avuse31mmorp9hs622wfr0063ll3xkev6zb397xhu0gl9t'.to_i(36)
-    #srand '3kv1opxkgpncte7fp0xr03lh7ohz6cewq5qp5dfeyivmvyv6h8'.to_i(36)
+    srand '5f70525vvv119egnuj2361dwknkw5b1h64rbhz8r2yuunleec9'.to_i(36) # 1
+   #srand '5db2avuse31mmorp9hs622wfr0063ll3xkev6zb397xhu0gl9t'.to_i(36) # 2
+   #srand '3kv1opxkgpncte7fp0xr03lh7ohz6cewq5qp5dfeyivmvyv6h8'.to_i(36) # 3
+   #srand '2cuofi5du3f7jkbnsh2zm5ezsx8orcqkaf6o356bvws982mwd6'.to_i(36) # 4
+   #srand '15ggtc8s461an2mkdeezg8p15it0i0xrt5wsg2pqigohpf10yw'.to_i(36) # 5
+   #srand '3cqsdp03o8h08thvnlmt5u8nf9lh7j8mdicbd3g8assj95bvt7'.to_i(36) # 6
+   #srand '4k5dugldjo8iexsg7noe8yvq9e19zm3zm83ef33xvgfg5ymler'.to_i(36) # 7
+   #srand '17m5g5dbm984pcogspx6olii3xr63kupoozrclnr8we8peu9ch'.to_i(36) # 8
     input_target = [
       [[random, random, random, random], [random, random, random, random]],
       [[random, random, random, random], [random, random, random, random]],
@@ -145,7 +150,6 @@ class TestBlessing < Test::Unit::TestCase
     Neuronet.format = '%.3g'
     Node.label = 'a'
     ff = NeoYinYang[4]
-    puts ff.colorize
 
     # A 4X4 network
     assert_equal 4, ff.length
@@ -182,10 +186,10 @@ class TestBlessing < Test::Unit::TestCase
     assert_equal inspected, ff.salida.inspect
 
     ff.distribution.set input_target.flatten
-    ff.number 26 # TODO: review mu stuff
 
-    fg = '%.1g'
-    start, count, max  =  Time.now, 0, 100_000
+    ff.number 26.0 # TODO: review mu stuff
+    puts ff.colorize
+    start, count, max, fg  =  Time.now, 0, 100_000, '%.1g'
     ff.pairs input_target do # while...
       count += 1
       break if count > max
