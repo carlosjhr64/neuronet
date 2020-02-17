@@ -4,6 +4,8 @@ Test area for "learning factor".
 
 # Test runs
 
+[Tabulated results](RUNS.md)
+
 ## Help
 
 ```console
