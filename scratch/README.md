@@ -21,7 +21,7 @@ Types:
 ## Sample run
 
 ```console
-./scratch/test_runs --max=100000 f6eee6 27
+$ ./scratch/test_runs --max=100000 f6eee6 27
 ........
 Hits: 4  Time: 13.1  Count: 16536
 ...
