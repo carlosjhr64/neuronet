@@ -183,13 +183,13 @@ e  =~  Ei/(M2 + K2*M1)               #
 Dij  <=  0.25
 
 # So given e, E has an upper bound:
-[Ei]  <  [e*(M2 + 0.25*{j, W2ij}*M1)]   # Absolute values
-[e]  >  [Ei/(M2 + 0.25*{j, W2ij}*M1)]
+[Ei]  <=  [e*(M2 + 0.25*{j, W2ij}*M1)]   # Absolute values
+[e]  >=  [Ei/(M2 + 0.25*{j, W2ij}*M1)]
 
 # If we add a constraint on the weights of the nodes to:
-{j, W2ij}/4 <= 1
+[{j, W2ij}/4]  <=  1
 # Then
-[e]  >  [Ei/(M2 + M1)]
+[e]  >=  [Ei/(M2 + M1)]
 ```
 
 [...AND MUCH MORE TODO:](TODO.md)
