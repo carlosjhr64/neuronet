@@ -192,4 +192,79 @@ Dij  <=  0.25
 [e]  >=  [Ei/(M2 + M1)]
 ```
 
+Next, I to get rid of the index baggage except for the level and
+go for an extra layer:
+
+```ruby
+# Given:
+A3 + D3*E  ==  | (B3+e) + {(W3+e)*A2}
+# decouple e
+  ==  | B3 + e + {W3*A2 + e*A2}
+# rearrange
+  ==  | B3 + {W3*A2} + e + {A2*e}
+# factor out e
+  ==  | B3 + {W3*A2} + e*(1 + {A2})
+# substitute in M3
+  ==  | B3 + {W3*A2} + e*M3
+# take e out of squash, takes on a factor of D3
+  ==  e*D3*M3 + | B3 + {W3*A2}
+# substitute A2 with its expansion in A1
+  ==  e*D3*M3 + | B3 + {W3*(| (B2+e) + {(W2+e)*A1})}
+# repeat the above steps
+  ==  e*D3*M3 + | B3 + {W3*(| B2 + e + {W2*A1 + e*A1})}
+  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e + e*A1})}
+  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e*(1 + A1)})}
+  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e*M2})}
+  ==  e*D3*M3 + | B3 + {W3*(e*D2*M2 + | B2 + {W2*A1}})}
+# break up the sums
+  ==  e*D3*M3 + | B3 + {W3*e*D2*M2} + {W3*| B2 + {W2*A1}}
+# factor out e and M2(for FeedForward but not in general)
+  ==  e*D3*M3 + | B3 + e*{W3*D2}*M2 + {W3*| B2 + {W2*A1}}
+  ==  e*D3*M3 + | B3 + e*{W3*D2}*M2 + {W3*| B2 + {W2*A1}}
+# substitute in K3
+  ==  e*D3*M3 + | B3 + e*K3*M2 + {W3*| B2 + {W2*A1}}
+# take out e out of squash
+  ==  e*D3*M3 + e*D3*K3*M2 | B3 + {W3*| B2 + {W2*A1}}
+# factor out e*D3
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*A1}}
+# subtitute A1 with its expansion in A0
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| (B1+e) + {(W1+e)*A0})}}
+# deja vu...
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + e + {W1*A0 + e*A0})}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + {W1*A0} + e*(1 + {A0})}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + {W1*A0} + e*M1}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(e*D1*M1 + | B1 + {W1*A0})}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*e*D1*M1} + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + e*K2*M1 + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2) + | B3 + e*K3*K2*M1 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2 + K3*K2*M1) + | B3 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2 + K3*K2*M1) + A3
+# So...
+D3*E  ==  e*D3*(M3 + K3*M2 + K3*K2*M1)
+E  ==  e*(M3 + K3*M2 + K3*K2*M1)
+
+# Making the pattern obvious, adding one more layer gives:
+E  ==  e*(M4 + K4*M3 + K4*K3*M2 + K4*K3*K2*M1)
+
+# Again if K<=1, or K=~1...
+[K]  <=  1   ==>   [E]  <=  [e*{M}]
+[K]  =~  1   ==>   [E]  =~  [e*{M}]
+
+# Remember that:
+K  ==  {W*D}
+# If instead of [K] =~ 1:
+[W*D]  =~  1   and   RANDOM{W}
+# Then K goes as the number of connections:
+[K]  ~~  Lc
+# Argue random walk, it goes as the square root of the nuber of connections:
+[K]  =~  R[Lc]
+# So...  maybe...  :-??
+[E]  =~  [e]*(M3 + R[L2]*M2 + R[L2]*R[L1]*M1)
+```
+
+It's easy to forget that `W` can be either positive or negative.
+I've had to double check my use of absolute values(`[]`) and
+I think I caught them all.
+
+
 [...AND MUCH MORE TODO:](TODO.md)
