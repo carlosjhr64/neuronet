@@ -19,6 +19,7 @@ alias :^ :unsquash
 n  ==  N - 1   # index of last layer, salida
 m  ==  N - 2   # index of second last layer, yang
 c  ==  i - 1   # refers to a connection typically found on the next layer, i-1
+# And the index of entrada and yin are 0 and 1 respectively.
 
 L0   # first layer, entrada
 L1   # second layer, yin
@@ -27,6 +28,8 @@ Ln   # last layer, salida
 
 Li   # i-th layer
 [Li]   # length of i-th layer
+Lc   # the connected layer(likely to be i-1)
+[Lc]   # length of the connected layer
 
 # General activation formula
 network.layer[i].node[j].activation  ==
@@ -57,7 +60,7 @@ Oj  ==  Anj
 A1j  ==  | B1j + {k, W1jk*A0k}  ==
          | B1j + {k, W1jk*Ik}
 
-# Consider a three layer feed forward network:
+# Consider a three layer FeedForward network:
 Oi  ==
 A2i  ==  | B2i + {j, W2ij*A1j}  ==
          | B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
@@ -110,7 +113,7 @@ F[x+e]  =~  F[x] + e*Dx F[x]
 # Remember that:
 Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*M1}
 # So, substitute in A1j:
-Ei + ^ Oi  =~  (B2i+e) + {j, (W2ij+e)*((A1j = | B1j + {k, W1jk*Ik}) + e*M1*A1j*(1 - A1j))}
+Ei + ^ Oi  =~  (B2i+e) + {j, (W2ij+e)*((A1j == | B1j + {k, W1jk*Ik}) + e*M1*A1j*(1 - A1j))}
            ==  (B2i+e) + {j, (W2ij+e)*(A1j + e*M1*A1j*(1 - A1j))}
 
 # Terseness will really help in the coming steps.
@@ -146,32 +149,32 @@ Ei + ^ Oi  =~  B2i + {j, W2ij*A1j} + e*(1 + {j, A1j} + M1*{j, W2ij*D1j})  ==
 B2i + {j, W2ij*A1j} + e*(M2 + M1*{j, W2ij*D1j})
 
 # Define K as
-K2  ==  {j, W2ij*D1j}
+K2i  ==  {j, W2ij*D1j}
 
 # Remember that:
 Ei + ^ Oi  =~  B2i + {j, W2ij*A1j} + e*(M2 + M1*{j, W2ij*D1j})  ==
 # Substitute in K
-B2i + {j, W2ij*A1j} + e*(M2 + K2*M1)  ==
+B2i + {j, W2ij*A1j} + e*(M2 + K2i*M1)  ==
 # Substitute in A2i(=B2i + {j, W2ij*A1j}):
-A2i + e*(M2 + K2*M1)  ==
+A2i + e*(M2 + K2i*M1)  ==
 # And since ^Oi == A2i:
-^[Oi] + e*(M2 + K2*M1)
+^[Oi] + e*(M2 + K2i*M1)
 
 # So...
-Ei + ^ Oi  =~  ^[Oi] + e*(M2 + K2*M1)
+Ei + ^ Oi  =~  ^[Oi] + e*(M2 + K2i*M1)
 # Then...
-Ei  =~  e*(M2 + K2*M1)
-e  =~  Ei / (M2 + K2*M1)
+Ei  =~  e*(M2 + K2i*M1)
+e  =~  Ei / (M2 + K2i*M1)
 
 # This deserves a box!
 ######################################
-Ei  =~  e*(M2 + K2*M1)               #
+Ei  =~  e*(M2 + K2i*M1)              #
 M2  ==  1 + {j, A1j}                 #
-K2  ==  {j, W2ij*D1j}                #
+K2i  ==  {j, W2ij*D1j}               #
 D1j  ==  A1j*(1 - A1j)               #
 M1  ==  1 + {k, Ik}   # 1 + {k, A0k} #
 ######################################
-e  =~  Ei/(M2 + K2*M1)               #
+e  =~  Ei/(M2 + K2i*M1)              #
 ######################################
 
 # All the components to compute e are available at each iteration.
@@ -191,6 +194,12 @@ Dij  <=  0.25
 # Then
 [e]  >=  [Ei/(M2 + M1)]
 ```
+
+For a FeedForward network,
+M can be thought of as a property of the layer
+(it is a property of the neuron all neurons in a layer see the same).
+But K remains an individual property of a neuron.
+For FeedForward, that's Mip==Miq but Kip!=Kiq in general.
 
 Next, I to get rid of the index baggage except for the level and
 go for an extra layer:
@@ -236,15 +245,18 @@ A3 + D3*E  ==  | (B3+e) + {(W3+e)*A2}
   ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(e*D1*M1 + | B1 + {W1*A0})}}
   ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*e*D1*M1} + {W2*| B1 + {W1*A0}}}
   ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + e*K2*M1 + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + e*K3*K2*M1 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2 + K3*K2*M1) + | B3 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2 + K3*K2*M1) + A3
+# TODO: I can't just take out K2 as I did... I have to look at this closer
+  ==  e*D3*(M3 + K3*M2) + | B3 + e*K3*{K2}*M1 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1) + | B3 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
+  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1) + A3
 # So...
-D3*E  ==  e*D3*(M3 + K3*M2 + K3*K2*M1)
-E  ==  e*(M3 + K3*M2 + K3*K2*M1)
+D3*E  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1)
+E  ==  e*(M3 + K3*M2 + K3*{K2}*M1)
 
 # Making the pattern obvious, adding one more layer gives:
-E  ==  e*(M4 + K4*M3 + K4*K3*M2 + K4*K3*K2*M1)
+E  ==  e*(M4 + K4*M3 + K4*{K3}*M2 + K4*{K3*{K2}}*M1)
+
+# TODO: So whatever {K} means, is the following still true?
 
 # Again if K<=1, or K=~1...
 [K]  <=  1   ==>   [E]  <=  [e*{M}]
