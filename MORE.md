@@ -61,9 +61,9 @@ A1j  ==  | B1j + {k, W1jk*A0k}  ==
          | B1j + {k, W1jk*Ik}
 
 # Consider a three layer FeedForward network:
-Oi  ==
-A2i  ==  | B2i + {j, W2ij*A1j}  ==
-         | B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
+Oi  ==  Anj  ==  A2i   # n==2 for a 3 layer FF
+    ==  | B2i + {j, W2ij*A1j}
+    ==  | B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
 
 # A target for the unsquashed output, and
 # an output with a deficit(error) E:
@@ -201,62 +201,84 @@ M can be thought of as a property of the layer
 But K remains an individual property of a neuron.
 For FeedForward, that's Mip==Miq but Kip!=Kiq in general.
 
-Next, I to get rid of the index baggage except for the level and
-go for an extra layer:
+Let's get rid of the index baggage,
+except where I need to make a distinction
+I'll mark with `c` when referring to a connected neuron
+(as opposed to self):
 
 ```ruby
-# Given:
-A3 + D3*E  ==  | (B3+e) + {(W3+e)*A2}
-# decouple e
-  ==  | B3 + e + {W3*A2 + e*A2}
-# rearrange
-  ==  | B3 + {W3*A2} + e + {A2*e}
-# factor out e
-  ==  | B3 + {W3*A2} + e*(1 + {A2})
-# substitute in M3
-  ==  | B3 + {W3*A2} + e*M3
-# take e out of squash, takes on a factor of D3
-  ==  e*D3*M3 + | B3 + {W3*A2}
-# substitute A2 with its expansion in A1
-  ==  e*D3*M3 + | B3 + {W3*(| (B2+e) + {(W2+e)*A1})}
-# repeat the above steps
-  ==  e*D3*M3 + | B3 + {W3*(| B2 + e + {W2*A1 + e*A1})}
-  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e + e*A1})}
-  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e*(1 + A1)})}
-  ==  e*D3*M3 + | B3 + {W3*(| B2 + {W2*A1} + e*M2})}
-  ==  e*D3*M3 + | B3 + {W3*(e*D2*M2 + | B2 + {W2*A1}})}
-# break up the sums
-  ==  e*D3*M3 + | B3 + {W3*e*D2*M2} + {W3*| B2 + {W2*A1}}
-# factor out e and M2(for FeedForward but not in general)
-  ==  e*D3*M3 + | B3 + e*{W3*D2}*M2 + {W3*| B2 + {W2*A1}}
-  ==  e*D3*M3 + | B3 + e*{W3*D2}*M2 + {W3*| B2 + {W2*A1}}
-# substitute in K3
-  ==  e*D3*M3 + | B3 + e*K3*M2 + {W3*| B2 + {W2*A1}}
-# take out e out of squash
-  ==  e*D3*M3 + e*D3*K3*M2 | B3 + {W3*| B2 + {W2*A1}}
-# factor out e*D3
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*A1}}
-# subtitute A1 with its expansion in A0
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| (B1+e) + {(W1+e)*A0})}}
-# deja vu...
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + e + {W1*A0 + e*A0})}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + {W1*A0} + e*(1 + {A0})}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(| B1 + {W1*A0} + e*M1}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*(e*D1*M1 + | B1 + {W1*A0})}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + {W2*e*D1*M1} + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2) + | B3 + {W3*| B2 + e*K2*M1 + {W2*| B1 + {W1*A0}}}
-# TODO: I can't just take out K2 as I did... I have to look at this closer
-  ==  e*D3*(M3 + K3*M2) + | B3 + e*K3*{K2}*M1 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1) + | B3 + {W3*| B2 + {W2*| B1 + {W1*A0}}}
-  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1) + A3
-# So...
-D3*E  ==  e*D3*(M3 + K3*M2 + K3*{K2}*M1)
-E  ==  e*(M3 + K3*M2 + K3*{K2}*M1)
+# In general:
+A  ==  | B + {W*Ac}
+M  ==  1 + {Ac}
+D  ==  A*(1 - A)
+K  ==  {W*Dc}
+A + D*E  =~  | ^[A] + E
+# Equipartion of E to e:
+^[A] + E  =~  (B+e) + {(W+e)*(Ac+Dc*Ec)}
+# For FeedForward only:
+{M*x}  ==  M*{x}   # M is just a constant of the next layer
+```
 
-# Making the pattern obvious, adding one more layer gives:
-E  ==  e*(M4 + K4*M3 + K4*{K3}*M2 + K4*{K3*{K2}}*M1)
+Now let's get the box for many layers:
 
-# TODO: So whatever {K} means, is the following still true?
+```ruby
+^[A] + E
+(B+e) + {(W+e)*(Ac+Dc*Ec)}
+B + e + {(W + e)*(Ac + Dc*Ec)}
+B + e + {W*Ac + W*Dc*Ec + e*Ac + e*Dc*EC}
+B + e + {W*Ac} + {W*Dc*Ec} + {e*Ac} + {e*Dc*EC}
+B + e + {W*Ac} + {W*Dc*Ec} + {e*Ac}   # e*D*E vanishinly small
+B + {W*Ac} + e + {e*Ac} + {W*Dc*Ec}
+B + {W*Ac} + e*(1 + {Ac}) + {W*Dc*Ec}
+B + {W*Ac} + e*M + {W*Dc*Ec}
+^[A] + e*M + {W*Dc*Ec}
+
+# In general(not just FeedForward):
+##########################
+E  =~  e*M + {W*Dc*Ec}   #
+##########################
+
+# For FeedForward:
+Ea  =~ e*Ma + {Wa*Db*Eb}   # And goes on...
+Eb  =~ e*Mb + {Wb*Dc*Ec}
+Ec  =~ e*Mc + {Wc*Dd*Ed}
+# ...                      # how ever many...
+Ex  =~ e*Mx + {Wx*Dy*Ey}
+Ey  =~ e*My + {Wy*Dz*Ez}
+Ez  =~ e*Mz + {Wz*D0*E0}   # until done.
+# But we specify that the input is error free:
+E0  ==  0
+Ez  == e*Mz
+
+# Ez(Perceptron):
+Ez  ==  e*Mz
+e  ==  Ez/Mz
+
+# Ey(3 layer FF):
+Ey  =~  e*My + {Wy*Dz*Ez}
+==  e*My + {Wy*Dz*(e*Mz)}
+==  e*My + e*Mz*{Wy*Dz}   # for FF, Mz is constant
+Ey  =~ e*My + e*Mz*Ky
+e  =~  Ey/(My + Ky*Mz)
+
+# Ex(4 layer FF):
+Ex  =~ e*Mx + {Wx*Dy*Ey}
+==  e*Mx + {Wx*Dy*(e*My + e*Mz*Ky)}
+==  e*Mx + {Wx*Dy*e*(My + Mz*Ky)}
+==  e*Mx + e*{Wx*Dy*(My + Mz*Ky)}
+==  e*(Mx + {Wx*Dy*(My + Mz*Ky)})
+==  e*(Mx + {Wx*Dy*My + Wx*Dy*Mz*Ky})
+==  e*(Mx + {Wx*Dy*My} + {Wx*Dy*Mz*Ky})
+==  e*(Mx + {Wx*Dy}*My + {Wx*Dy*Ky}*Mz)
+==  e*(Mx + Kx*My + {Wx*Dy*Ky}*Mz)
+
+# have to expand:
+{Wx*Dy*Ky}   # :-??
+```
+
+TODO: So whatever {K...} means, is the following still true?
+
+```ruby
 
 # Again if K<=1, or K=~1...
 [K]  <=  1   ==>   [E]  <=  [e*{M}]
