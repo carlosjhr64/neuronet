@@ -272,13 +272,47 @@ Ex  =~ e*Mx + {Wx*Dy*Ey}
 ==  e*(Mx + {Wx*Dy}*My + {Wx*Dy*Ky}*Mz)
 ==  e*(Mx + Kx*My + {Wx*Dy*Ky}*Mz)
 
-# have to expand:
-{Wx*Dy*Ky}   # :-??
-```
+# Have to expand:
+{Wx*Dy*Ky}
+{j, Wxij*Dyj*Kyj}
+# Old definition of K:
+Kxi  ==  {j, Wxij*Dyj}
+# New definition of K:
+Kxi  ==  {j, Wxij*Dyj}
+Kxi[Ky]  ==  {j, Wxij*Dyj*Kyj}
+# Let:
+Kx[Ky]  =  {Wx*Dy*Ky}
+# So:
+Kx  ==  Kx[1]  ==  {Wx*Dy}
+Kx[Ky]  ==  {Wx*Dy*Ky}
 
-TODO: So whatever {K...} means, is the following still true?
+# Remember where we left off above:
+e*(Mx + Kx*My + {Wx*Dy*Ky}*Mz)
+e*(Mx + Kx*My + Kx[Ky]*Mz)
 
-```ruby
+# Ex(4 layer FF):
+Ex  =~ e*(Mx + Kx*My + Kx[Ky]*Mz)
+e  =~  Ex/(Mx + Kx*My + Kx[Ky]*Mz)
+
+# Ew(5 layer FF):
+Ew  =~  e*Mw + {Ww*Dx*Ex}
+==  e*Mw + {Ww*Dx*e*(Mx + Kx*My + Kx[Ky]*Mz)}
+==  e*Mw + e*{Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)}
+==  e*(Mw + {Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)})
+
+# Consider just:
+Mw + {Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)}
+Mw + Kw[Mx + Kx*My + Kx[Ky]*Mz]
+Mw + Kw[Mx] + Kw[Kx*My] + Kw[Kx[Ky]*Mz]
+Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz
+
+# Ew(5 layer FF):
+Ew  =~  e*(Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz)
+e  =~  Ex/(Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz)
+# And I think we finally got a pattern.
+
+# TODO: Need to investigate the behavior of `K[K]`
+# Is what follows below still correct?
 
 # Again if K<=1, or K=~1...
 [K]  <=  1   ==>   [E]  <=  [e*{M}]
