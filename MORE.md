@@ -1,10 +1,6 @@
 # MORE:
 
 Here I go over my math for neuronet.rb.
-Although I'm doing this from scratch,
-no doubt that by now all I'm doing is re-discovering what's known
-or just getting things horribly wrong.
-:laughing:
 
 # Mathematics of backpropagation
 
@@ -26,9 +22,9 @@ L1   # second layer, yin
 Lm   # second last layer, yang
 Ln   # last layer, salida
 
-Li   # i-th layer
+Li     # i-th layer
 [Li]   # length of i-th layer
-Lc   # the connected layer(likely to be i-1)
+Lc     # the connected layer(likely to be i-1)
 [Lc]   # length of the connected layer
 
 # General activation formula
@@ -47,8 +43,6 @@ network.layer[i].node[j].activation  ==
 
 # So, map the above to the following concise notation:
 Aij  ==  | Bij + {k, Wijk*Ack}
-# I considered Einstein notation, but
-# decided to keep things in ASCII and explicit.
 
 # The input layer:
 Ij  ==  A0j
@@ -61,47 +55,49 @@ A1j  ==  | B1j + {k, W1jk*A0k}  ==
          | B1j + {k, W1jk*Ik}
 
 # Consider a three layer FeedForward network:
-Oi  ==  Anj  ==  A2i   # n==2 for a 3 layer FF
-    ==  | B2i + {j, W2ij*A1j}
-    ==  | B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
+Oj  ==  Anj  ==  A2j   # n==2 for a 3 layer FF
+    ==  | B2j + {k, W2jk*A1k}
+# Substitute in the expansion of A1j:
+    ==  | B2j + {k, W2jk*| B1k + {l, W1kl*Il}}
 
 # A target for the unsquashed output, and
 # an output with a deficit(error) E:
-Ti  ==  Ei + ^ Oi   # adding E corrects ^O
+Tj  ==  Ej + ^ Oj   # adding E corrects ^O
 
 # Remember that:
-Oi  ==  | B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
+Oj  ==  | B2j + {k, W2jk*| B1k + {l, W1kl*Il}}
 # So...
-Ti  ==  Ei + ^| B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
+Tj  ==  Ej + ^| B2j + {k, W2jk*| B1k + {l, W1kl*Il}}
 # and ^| goes away...
-Ti  ==  Ei + B2i + {j, W2ij*| B1j + {k, W1jk*Ik}}
+Tj  ==  Ej + B2j + {k, W2jk*| B1k + {l, W1kl*Il}}
 
 # Assume that the error E comes from errors in B and W equally:
-Ti  ==  (B2i+e) + {j, (W2ij+e)*| (B1j+e) + {k, (W1jk+e)*Ik}}
-    ==  Ei + ^ Oi
+Tj  ==  (B2j+e) + {k, (W2jk+e)*| (B1k+e) + {l, (W1kl+e)*Il}}
+    ==  Ej + ^ Oj
 
 # OK, where does this go?
-Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| (B1j+e) + {k, (W1jk+e)*Ik}}  ==
+Ej + ^ Oj  ==  (B2j+e) + {k, (W2jk+e)*| (B1k+e) + {l, (W1kl+e)*Il}}  ==
 # Decouple e in layer 1:
-(B2i+e) + {j, (W2ij+e)*| B1j + e + {k, W1jk*Ik + e*Ik}}  ==
+(B2j+e) + {k, (W2jk+e)*| B1k + e + {l, W1kl*Il + e*Il}}  ==
 # Break apart the sum in layer 1:
-(B2i+e) + {j, (W2ij+e)*| B1j + e + {k, W1jk*Ik} + {k, e*Ik}}  ==
+(B2j+e) + {k, (W2jk+e)*| B1k + e + {l, W1kl*Il} + {l, e*Il}}  ==
 # Rearrange components in layer 1:
-(B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e + {k, e*Ik}}
-(B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e + e*{k, Ik}}
-(B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*(1 + {k, Ik}}
+(B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e + {l, e*Il}}
+(B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e + e*{l, Il}}
+(B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e*(1 + {l, Il}}
 
 # Lets define M1 as:
-M1  ==  1 + {k, Ik}
+M1  ==  1 + {k, Il}  ==  1 + {l, A0l}
 # Then:
-e*M1  ==  e*(1 + {k, Ik})
+e*M1  ==  e*(1 + {l, Il})
 
 # Remember that:
-(B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*(1 + {k, Ik}}
+(B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e*(1 + {l, Il}}
 # Substitute in e*M1:
-Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*M1}
+Ej + ^ Oj  ==  (B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e*M1}
 # I can almost get A1j back, if not for e*M1.
-# I expect e*M1 to go to zero as e to goes to zero, so I'll use an approximation trick.
+# I expect e*M1 to go to zero as e to goes to zero,
+# so I'll use an approximation trick.
 
 # The derivative of the sigmoid function:
 Dx |[x] ==  |[x]*(1 - |[x])
@@ -111,70 +107,71 @@ F[x+e]  =~  F[x] + e*Dx F[x]
 | x + e  =~  |[x] + e*|[x]*(1 - |[x])
 
 # Remember that:
-Ei + ^ Oi  ==  (B2i+e) + {j, (W2ij+e)*| B1j + {k, W1jk*Ik} + e*M1}
+Ej + ^ Oj  ==  (B2j+e) + {k, (W2jk+e)*| B1k + {l, W1kl*Il} + e*M1}
 # So, substitute in A1j:
-Ei + ^ Oi  =~  (B2i+e) + {j, (W2ij+e)*((A1j == | B1j + {k, W1jk*Ik}) + e*M1*A1j*(1 - A1j))}
-           ==  (B2i+e) + {j, (W2ij+e)*(A1j + e*M1*A1j*(1 - A1j))}
+Ej + ^ Oj
+=~  (B2j+e) + {k, (W2jk+e)*((A1k== | B1k + {l, W1kl*Il}) + e*M1*A1k*(1 - A1k))}
+==  (B2j+e) + {k, (W2jk+e)*(A1k + e*M1*A1k*(1 - A1k))}
 
 # Terseness will really help in the coming steps.
 # Define D as:
-D1j  ==  A1j*(1 - A1j)
+D1k  ==  A1k*(1 - A1k)
 
 # Remember that:
-Ei + ^ Oi  =~  (B2i+e) + {j, (W2ij+e)*(A1j + e*M1*A1j*(1 - A1j))}  ==
+Ej + ^ Oj  =~  (B2j+e) + {k, (W2jk+e)*(A1k + e*M1*A1k*(1 - A1k))}  ==
 # Substitute in D:
-(B2i+e) + {j, (W2ij+e)*(A1j + e*M1*D1j)}  ==
+(B2j+e) + {k, (W2jk+e)*(A1k + e*M1*D1k)}  ==
 # Decoupling e in layer 2:
-B2i + e + {j, (W2ij+e)*(A1j + e*M1*D1j)}  ==
-B2i + e + {j, W2ij*(A1j + e*M1*D1j) + e*(A1j + e*M1*D1j)}  ==
+B2j + e + {k, (W2jk+e)*(A1k + e*M1*D1k)}  ==
+B2j + e + {k, W2jk*(A1k + e*M1*D1j) + e*(A1k + e*M1*D1k)}  ==
 # Expansion:
-B2i + e + {j, W2ij*A1j + W2ij*e*M1*D1j + e*A1j + e*e*M1*D1j}  ==
+B2j + e + {k, W2jk*A1k + W2jk*e*M1*D1k + e*A1k + e*e*M1*D1k}  ==
 # Break apart the sum in layer 2:
-B2i + e + {j, W2ij*A1j} + {j, W2ij*e*M1*D1j} + {j, e*A1j} + {j, e*e*M1*D1j}  ==
+B2j + e + {k, W2jk*A1k} + {k, W2jk*e*M1*D1j} + {k, e*A1k} + {k, e*e*M1*D1k}  ==
 # As e goes small, e*e vanishes:
-B2i + e + {j, W2ij*A1j} + {j, W2ij*e*M1*D1j} + {j, e*A1j}  ==
+B2j + e + {k, W2jk*A1k} + {k, W2jk*e*M1*D1k} + {k, e*A1k}  ==
 # Rearrange:
-B2i + {j, W2ij*A1j} + e + {j, e*A1j} + {j, W2ij*e*M1*D1j}
+B2j + {k, W2jk*A1k} + e + {k, e*A1k} + {k, W2jk*e*M1*D1k}
 # Factor out e:
-B2i + {j, W2ij*A1j} + e*(1 + {j, A1j} + {j, W2ij*M1*D1j})
+B2j + {k, W2jk*A1k} + e*(1 + {j, A1k} + {k, W2jk*M1*D1k})
 # Factor out M1:
-B2i + {j, W2ij*A1j} + e*(1 + {j, A1j} + M1*{j, W2ij*D1j})
+B2j + {k, W2jk*A1k} + e*(1 + {j, A1k} + M1*{k, W2jk*D1k})
 
 # Define M2 as:
-M2  ==  1 + {j, A1j}
+M2  ==  1 + {k, A1k}
 
 # Remember that:
-Ei + ^ Oi  =~  B2i + {j, W2ij*A1j} + e*(1 + {j, A1j} + M1*{j, W2ij*D1j})  ==
+Ej + ^ Oj  =~  B2j + {k, W2jk*A1k} + e*(1 + {k, A1k} + M1*{k, W2jk*D1k})  ==
 # Substitute in M2:
-B2i + {j, W2ij*A1j} + e*(M2 + M1*{j, W2ij*D1j})
+B2j + {k, W2jk*A1k} + e*(M2 + M1*{k, W2jk*D1k})
 
 # Define K as
-K2i  ==  {j, W2ij*D1j}
+K2j  ==  {k, W2jk*D1k}
 
 # Remember that:
-Ei + ^ Oi  =~  B2i + {j, W2ij*A1j} + e*(M2 + M1*{j, W2ij*D1j})  ==
+Ej + ^ Oj  =~  B2j + {k, W2jk*A1k} + e*(M2 + M1*{k, W2jk*D1k})  ==
 # Substitute in K
-B2i + {j, W2ij*A1j} + e*(M2 + K2i*M1)  ==
-# Substitute in A2i(=B2i + {j, W2ij*A1j}):
-A2i + e*(M2 + K2i*M1)  ==
-# And since ^Oi == A2i:
-^[Oi] + e*(M2 + K2i*M1)
+B2j + {k, W2jk*A1k} + e*(M2 + K2j*M1)  ==
+# Substitute in A2j(=B2j + {k, W2jk*A1k}):
+A2j + e*(M2 + K2j*M1)  ==
+# And since ^Oj == A2j:
+^[Oj] + e*(M2 + K2j*M1)
 
 # So...
-Ei + ^ Oi  =~  ^[Oi] + e*(M2 + K2i*M1)
+Ej + ^ Oj  =~  ^[Oj] + e*(M2 + K2j*M1)
 # Then...
-Ei  =~  e*(M2 + K2i*M1)
-e  =~  Ei / (M2 + K2i*M1)
+Ej  =~  e*(M2 + K2j*M1)
+e  =~  Ej / (M2 + K2j*M1)
 
 # This deserves a box!
 ######################################
-Ei  =~  e*(M2 + K2i*M1)              #
-M2  ==  1 + {j, A1j}                 #
-K2i  ==  {j, W2ij*D1j}               #
-D1j  ==  A1j*(1 - A1j)               #
-M1  ==  1 + {k, Ik}   # 1 + {k, A0k} #
+Ej  =~  e*(M2 + K2j*M1)              #
+M2  ==  1 + {k, A1k}                 #
+K2j  ==  {k, W2jk*D1k}               #
+D1k  ==  A1k*(1 - A1k)               #
+M1  ==  1 + {l, Il}   # 1 + {l, A0l} #
 ######################################
-e  =~  Ei/(M2 + K2i*M1)              #
+e  =~  Ej/(M2 + K2j*M1)              #
 ######################################
 
 # All the components to compute e are available at each iteration.
@@ -186,27 +183,25 @@ e  =~  Ei/(M2 + K2i*M1)              #
 Dij  <=  0.25
 
 # So given e, E has an upper bound:
-[Ei]  <=  [e*(M2 + 0.25*{j, W2ij}*M1)]   # Absolute values
-[e]  >=  [Ei/(M2 + 0.25*{j, W2ij}*M1)]
+[Ej]  <=  [e*(M2 + 0.25*{k, W2jk}*M1)]   # Absolute values
+[e]  >=  [Ej/(M2 + 0.25*{k, W2jk}*M1)]
 
 # If we add a constraint on the weights of the nodes to:
-[{j, W2ij}/4]  <=  1
+[{k, W2jk}/4]  <=  1
 # Then
-[e]  >=  [Ei/(M2 + M1)]
-```
+[e]  >=  [Ej/(M2 + M1)]
 
-For a FeedForward network,
-M can be thought of as a property of the layer
-(it is a property of the neuron all neurons in a layer see the same).
-But K remains an individual property of a neuron.
-For FeedForward, that's Mip==Miq but Kip!=Kiq in general.
+# For a FeedForward network,
+# M can be thought of as a property of the layer
+# (it is a property of the neuron all neurons in a layer see the same).
+# But K remains an individual property of a neuron.
+# For FeedForward, that's Mip==Miq but Kip!=Kiq in general.
 
-Let's get rid of the index baggage,
-except where I need to make a distinction
-I'll mark with `c` when referring to a connected neuron
-(as opposed to self):
+# Let's get rid of the index baggage,
+# except where I need to make a distinction
+# I'll mark with c when referring to a connected neuron
+# (as opposed to self):
 
-```ruby
 # In general:
 A  ==  | B + {W*Ac}
 M  ==  1 + {Ac}
@@ -217,17 +212,14 @@ A + D*E  =~  | ^[A] + E
 ^[A] + E  =~  (B+e) + {(W+e)*(Ac+Dc*Ec)}
 # For FeedForward only:
 {M*x}  ==  M*{x}   # M is just a constant of the next layer
-```
 
-Now let's get the box for many layers:
-
-```ruby
+# Now let's get the box for many layers:
 ^[A] + E
 (B+e) + {(W+e)*(Ac+Dc*Ec)}
 B + e + {(W + e)*(Ac + Dc*Ec)}
 B + e + {W*Ac + W*Dc*Ec + e*Ac + e*Dc*EC}
 B + e + {W*Ac} + {W*Dc*Ec} + {e*Ac} + {e*Dc*EC}
-B + e + {W*Ac} + {W*Dc*Ec} + {e*Ac}   # e*D*E vanishinly small
+B + e + {W*Ac} + {W*Dc*Ec} + {e*Ac}   # e*D*E vanishingly small
 B + {W*Ac} + e + {e*Ac} + {W*Dc*Ec}
 B + {W*Ac} + e*(1 + {Ac}) + {W*Dc*Ec}
 B + {W*Ac} + e*M + {W*Dc*Ec}
@@ -239,76 +231,80 @@ E  =~  e*M + {W*Dc*Ec}   #
 ##########################
 
 # For FeedForward:
-Ea  =~ e*Ma + {Wa*Db*Eb}   # And goes on...
-Eb  =~ e*Mb + {Wb*Dc*Ec}
-Ec  =~ e*Mc + {Wc*Dd*Ed}
+En  =~ e*Mn + {Wn*Dm*Em}   # And goes on...
 # ...                      # how ever many...
-Ex  =~ e*Mx + {Wx*Dy*Ey}
-Ey  =~ e*My + {Wy*Dz*Ez}
-Ez  =~ e*Mz + {Wz*D0*E0}   # until done.
+E3  =~ e*M3 + {W3*D2*E2}
+E2  =~ e*M2 + {W2*D1*E1}
+E1  =~ e*M1 + {W1*D0*E0}   # until done.
 # But we specify that the input is error free:
 E0  ==  0
-Ez  == e*Mz
+E1  =~ e*M1
 
-# Ez(Perceptron):
-Ez  ==  e*Mz
-e  ==  Ez/Mz
+### E1(Perceptron) ###
+E1  =~  e*M1         #
+ e  =~  E1/M1        #
+######################
 
-# Ey(3 layer FF):
-Ey  =~  e*My + {Wy*Dz*Ez}
-==  e*My + {Wy*Dz*(e*Mz)}
-==  e*My + e*Mz*{Wy*Dz}   # for FF, Mz is constant
-Ey  =~ e*My + e*Mz*Ky
-e  =~  Ey/(My + Ky*Mz)
+# E2:
+E2  =~  e*M2 + {W2*D1*E1}
+==  e*M2 + {W2*D1*(e*M1)}
+==  e*M2 + e*M1*{W2*D1}   # for FF, M1 is constant
 
-# Ex(4 layer FF):
-Ex  =~ e*Mx + {Wx*Dy*Ey}
-==  e*Mx + {Wx*Dy*(e*My + e*Mz*Ky)}
-==  e*Mx + {Wx*Dy*e*(My + Mz*Ky)}
-==  e*Mx + e*{Wx*Dy*(My + Mz*Ky)}
-==  e*(Mx + {Wx*Dy*(My + Mz*Ky)})
-==  e*(Mx + {Wx*Dy*My + Wx*Dy*Mz*Ky})
-==  e*(Mx + {Wx*Dy*My} + {Wx*Dy*Mz*Ky})
-==  e*(Mx + {Wx*Dy}*My + {Wx*Dy*Ky}*Mz)
-==  e*(Mx + Kx*My + {Wx*Dy*Ky}*Mz)
+### E2 ####################
+E2  =~  e*M2 + e*M1*K2    #
+ e  =~  E2/(M2 + K2*M1)   #
+###########################
+
+# E3:
+E3  =~ e*M3 + {W3*D2*E2}
+==  e*M3 + {W3*D2*(e*M2 + e*M1*K2)}
+==  e*M3 + {W3*D2*e*(M2 + M1*K2)}
+==  e*M3 + e*{W3*D2*(M2 + M1*K2)}
+==  e*(M3 + {W3*D2*(M2 + M1*K2)})
+==  e*(M3 + {W3*D2*M2 + W3*D2*M1*K2})
+==  e*(M3 + {W3*D2*M2} + {W3*D2*M1*K2})
+==  e*(M3 + {W3*D2}*M2 + {W3*D2*K2}*M1)
+==  e*(M3 + K3*M2 + {W3*D2*K2}*M1)
 
 # Have to expand:
-{Wx*Dy*Ky}
-{j, Wxij*Dyj*Kyj}
+{W3*D2*K2}
+{k, W3jk*D2k*K2k}
 # Old definition of K:
-Kxi  ==  {j, Wxij*Dyj}
+K3j  ==  {k, W3jk*D2k}
 # New definition of K:
-Kxi  ==  {j, Wxij*Dyj}
-Kxi[Ky]  ==  {j, Wxij*Dyj*Kyj}
+K3j  ==  K3j[1]  ==  {k, W3jk*D2k*1}
+K3j[K2]  ==  {k, W3jk*D2k*K2k}
 # Let:
-Kx[Ky]  =  {Wx*Dy*Ky}
+K3[K2]  =  {W3*D2*K2}
 # So:
-Kx  ==  Kx[1]  ==  {Wx*Dy}
-Kx[Ky]  ==  {Wx*Dy*Ky}
+K3  ==  K3[1]  ==  {W3*D2}
+K3[K2]  ==  {W3*D2*K2}
 
 # Remember where we left off above:
-e*(Mx + Kx*My + {Wx*Dy*Ky}*Mz)
-e*(Mx + Kx*My + Kx[Ky]*Mz)
+e*(M3 + K3*M2 + {W3*D2*K2}*M1)
+e*(M3 + K3*M2 + K3[K2]*M1)
 
-# Ex(4 layer FF):
-Ex  =~ e*(Mx + Kx*My + Kx[Ky]*Mz)
-e  =~  Ex/(Mx + Kx*My + Kx[Ky]*Mz)
+### E3 ################################
+E3  =~ e*(M3 + K3*M2 + K3[K2]*M1)     #
+ e  =~  E3/(M3 + K3*M2 + K3[K2]*M1)   #
+#######################################
 
-# Ew(5 layer FF):
-Ew  =~  e*Mw + {Ww*Dx*Ex}
-==  e*Mw + {Ww*Dx*e*(Mx + Kx*My + Kx[Ky]*Mz)}
-==  e*Mw + e*{Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)}
-==  e*(Mw + {Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)})
+# E4:
+E4  =~  e*M4 + {W4*D3*E3}
+==  e*M4 + {W4*D3*e*(M3 + K3*M2 + K3[K2]*M1)}
+==  e*M4 + e*{W4*D3*(M3 + K3*M2 + K3[K2]*M1)}
+==  e*(M4 + {W4*D3*(M3 + K3*M2 + K3[K2]*M1)})
 
 # Consider just:
-Mw + {Ww*Dx*(Mx + Kx*My + Kx[Ky]*Mz)}
-Mw + Kw[Mx + Kx*My + Kx[Ky]*Mz]
-Mw + Kw[Mx] + Kw[Kx*My] + Kw[Kx[Ky]*Mz]
-Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz
+M4 + {W4*D3*(M3 + K3*M2 + K3[K2]*M1)}
+M4 + K4[M3 + K3*M2 + K3[K2]*M1]
+M4 + K4[M3] + K4[K3*M2] + K4[K3[K2]*M1]
+M4 + K4*M3 + K4[K3]*M2 + K4[K3[K2]]*M1
 
-# Ew(5 layer FF):
-Ew  =~  e*(Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz)
-e  =~  Ex/(Mw + Kw*Mx + Kw[Kx]*My + Kw[Kx[Ky]]*Mz)
+### E4 ################################################
+E4  =~  e*(M4 + K4*M3 + K4[K3]*M2 + K4[K3[K2]]*M1)    #
+ e  =~  E3/(M4 + K4*M3 + K4[K3]*M2 + K4[K3[K2]]*M1)   #
+#######################################################
 # And I think we finally got a pattern.
 
 # TODO: Need to investigate the behavior of `K[K]`
