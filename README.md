@@ -62,7 +62,7 @@ rounded(target) #=> ["-157", "75.1", "-108"]
 rounded(output) #=> ["-157", "75.1", "-108"]
 ```
 
-[There's a lot more...](https://github.com/carlosjhr64/neuronet/blob/master/MORE.md)
+[There's a lot more...](https://github.com/carlosjhr64/neuronet/blob/master/doc/MORE.md)
 
 ## LICENSE:
 
