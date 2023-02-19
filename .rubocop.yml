@@ -48,6 +48,8 @@ Lint/AmbiguousOperatorPrecedence:
   Enabled: false
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
+Lint/BinaryOperatorWithIdenticalOperands:
+  Enabled: false
 Lint/Debugger:
   Enabled: false
 Lint/FloatComparison:
@@ -99,6 +101,8 @@ Style/CaseEquality:
 Style/ClassVars:
   Enabled: false
 Style/Documentation:
+  Enabled: false
+Style/FormatString:
   Enabled: false
 Style/FrozenStringLiteralComment:
   Enabled: false
