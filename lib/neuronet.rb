@@ -243,7 +243,8 @@ module Neuronet
   # Neuronet::InputLayer is an Array of Neuronet::Node's.
   # It can be used for the input layer of a feed forward network.
   class InputLayer < Array
-    def initialize(length, inputs=[]) # number of nodes
+    # number of nodes
+    def initialize(length, inputs=[])
       super(length)
       0.upto(length-1){self[_1] = Neuronet::Node.new inputs[_1].to_f}
     end
@@ -330,7 +331,7 @@ module Neuronet
     #  [-1]   @salida    Output Layer
     def initialize(layers)
       length = layers.length
-      raise "Need at least 2 layers" if length < 2
+      raise 'Need at least 2 layers' if length < 2
       super(length)
       self[0] = Neuronet::InputLayer.new(layers[0])
       1.upto(length-1) do |index|
@@ -358,7 +359,7 @@ module Neuronet
 
     def update
       # update up the layers
-      (1).upto(length-1){|index| self[index].partial}
+      1.upto(length-1){|index| self[index].partial}
       self
     end
 
@@ -388,7 +389,7 @@ module Neuronet
     end
 
     def inspect
-     "#learning:#{(Neuronet.format % @learning)}\n" +
+     "#learning:#{Neuronet.format % @learning}\n" +
      map(&:inspect).join("\n")
     end
 
@@ -425,7 +426,7 @@ module Neuronet
       c
     end
     FeedForward.color = COLOR
-    COLORIZE = ->(s, c){(COLORIZED)? s.colorize(color: c) : s.color(c)}
+    COLORIZE = ->(s, c){COLORIZED ? s.colorize(color: c) : s.color(c)}
     FeedForward.colorize = COLORIZE
 
     def colorize(verbose: false, nodes: false, biases: true, connections: true)
