@@ -587,7 +587,7 @@ module Neuronet
       # @salida directly connects to @entrada
       myself.salida.connect(myself.entrada)
       myself.extend Tao
-      return myself
+      myself
     end
 
     def inspect
@@ -611,7 +611,7 @@ module Neuronet
         node.bias = Neuronet.bzero
       end
       myself.extend Yin
-      return myself
+      myself
     end
 
     def inspect
@@ -635,7 +635,7 @@ module Neuronet
         node.bias = Neuronet.bzero
       end
       myself.extend Yang
-      return myself
+      myself
     end
 
     def inspect
@@ -659,7 +659,7 @@ module Neuronet
         node.bias = Neuronet.bzero
       end
       myself.extend Neo
-      return myself
+      myself
     end
 
     def inspect
@@ -691,7 +691,7 @@ module Neuronet
         odd.bias = -Neuronet.bzero
       end
       myself.extend Brahma
-      return myself
+      myself
     end
 
     def inspect
@@ -723,7 +723,7 @@ module Neuronet
         odd.bias = -Neuronet.bzero
       end
       myself.extend Vishnu
-      return myself
+      myself
     end
 
     def inspect
@@ -778,7 +778,7 @@ module Neuronet
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       myself.extend Summa
-      return myself
+      myself
     end
 
     def inspect
@@ -800,7 +800,7 @@ module Neuronet
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       myself.extend Sintezo
-      return myself
+      myself
     end
 
     def inspect
@@ -822,7 +822,7 @@ module Neuronet
         neuron.connections[2*index+1].weight = Neuronet.wone/2.0
       end
       myself.extend Synthesis
-      return myself
+      myself
     end
 
     def inspect
@@ -846,7 +846,7 @@ module Neuronet
         end
       end
       myself.extend Promedio
-      return myself
+      myself
     end
 
     def inspect
@@ -870,7 +870,7 @@ module Neuronet
         end
       end
       myself.extend Mediocris
-      return myself
+      myself
     end
 
     def inspect
@@ -895,7 +895,7 @@ module Neuronet
         end
       end
       myself.extend Average
-      return myself
+      myself
     end
 
     def inspect
