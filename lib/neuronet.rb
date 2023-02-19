@@ -71,8 +71,8 @@ module Neuronet
 
     attr_reader :activation, :label
     # A Node is constant (Input)
-    alias :update  :activation
-    alias :partial :activation
+    alias update activation
+    alias partial activation
 
     # The "real world" value of a node is the value of it's activation
     # unsquashed. So, set the activation to the squashed real world value.
