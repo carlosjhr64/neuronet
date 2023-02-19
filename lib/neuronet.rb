@@ -3,22 +3,20 @@ module Neuronet
   VERSION = '7.0.230219'
   FORMAT  = '%.14g'
 
-  # An artificial neural network uses a squash function
-  # to determine the activation value of a neuron.
-  # The squash function for Neuronet is the
+  # An artificial neural network uses a squash function to determine the
+  # activation value of a neuron. The squash function for Neuronet is the
   # [Sigmoid function](http://en.wikipedia.org/wiki/Sigmoid_function)
-  # which sets the neuron's activation value between 1.0 and 0.0.
-  # This activation value is often thought of on/off or true/false.
-  # For classification problems, activation values near one are considered true
-  # while activation values near 0.0 are considered false.
-  # In Neuronet I make a distinction between the neuron's activation value and
-  # it's representation to the problem.
-  # This attribute, activation, need never appear in an implementation of Neuronet, but
-  # it is mapped back to it's unsquashed value every time
-  # the implementation asks for the neuron's value.
-  # One should scale the problem with most data points between -1 and 1,
-  # extremes under 2s, and no outbounds above 3s.
-  # Standard deviations from the mean is probably a good way to figure the scale of the problem.
+  # which sets the neuron's activation value between 1.0 and 0.0. This
+  # activation value is often thought of on/off or true/false. For
+  # classification problems, activation values near one are considered true
+  # while activation values near 0.0 are considered false. In Neuronet I make a
+  # distinction between the neuron's activation value and it's representation to
+  # the problem. This attribute, activation, need never appear in an
+  # implementation of Neuronet, but it is mapped back to it's unsquashed value
+  # every time the implementation asks for the neuron's value. One should scale
+  # the problem with most data points between -1 and 1, extremes under 2s, and
+  # no outbounds above 3s. Standard deviations from the mean is probably a good
+  # way to figure the scale of the problem.
   SQUASH = lambda do |unsquashed|
     1.0 / (1.0 + Math.exp(-unsquashed))
   end
@@ -36,18 +34,19 @@ module Neuronet
   WONE  = -2.0*BZERO
 
   # Although the implementation is free to set all parameters for each neuron,
-  # Neuronet by default creates zeroed neurons.
-  # Association between inputs and outputs are trained, and
-  # neurons differentiate from each other randomly.
-  # Differentiation among neurons is achieved by noise in the back-propagation of errors.
-  # This noise is provided by rand + rand.
-  # I chose rand + rand to give the noise an average value of one and a bell shape distribution.
+  # Neuronet by default creates zeroed neurons. Association between inputs and
+  # outputs are trained, and neurons differentiate from each other randomly.
+  # Differentiation among neurons is achieved by noise in the back-propagation
+  # of errors. This noise is provided by rand + rand. I chose rand + rand to
+  # give the noise an average value of one and a bell shape distribution.
   NOISE = lambda{|error| error*(rand + rand)}
 
   # One may choose not to have noise.
   NO_NOISE = IDENTITY = lambda{|error| error}
 
-  class << self; attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format; end
+  class << self
+    attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format
+  end
   self.squash   = SQUASH
   self.unsquash = UNSQUASH
   self.bzero    = BZERO
@@ -75,10 +74,12 @@ module Neuronet
     alias :update  :activation
     alias :partial :activation
 
-    # The "real world" value of a node is the value of it's activation unsquashed.
-    # So, set the activation to the squashed real world value.
+    # The "real world" value of a node is the value of it's activation
+    # unsquashed. So, set the activation to the squashed real world value.
     def value=(value)
-      value = value.positive? ? Neuronet.maxv : -Neuronet.maxv  if value.abs > Neuronet.maxv
+      if value.abs > Neuronet.maxv
+        value = value.positive? ? Neuronet.maxv : -Neuronet.maxv
+      end
       @activation = Neuronet.squash[value]
     end
 
@@ -117,7 +118,8 @@ module Neuronet
       @node, @weight = node, weight
     end
 
-    # The value of a connection is the weighted activation of the connected node.
+    # The value of a connection is
+    # the weighted activation of the connected node.
     def value
       @node.activation * @weight
     end
@@ -144,7 +146,9 @@ module Neuronet
     def backpropagate(error, mu)
       # mu divides the error among the neuron's constituents!
       @weight += @node.activation * Neuronet.noise[error/mu]
-      @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw  if @weight.abs > Neuronet.maxw
+      if @weight.abs > Neuronet.maxw
+        @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw
+      end
       @node.backpropagate(error)
       self
     end
@@ -180,18 +184,20 @@ module Neuronet
       @mu = nil # to be set later
     end
 
-    # Updates the activation with the current value of bias and updated values of connections.
+    # Updates the activation with the current value of bias and updated values
+    # of connections.
     def update
       value = @bias + @connections.sum{|connection| connection.update}
       mu!
       self.value = value
     end
-    # For when connections are already updated,
-    # Neuron#partial updates the activation with the current values of bias and connections.
-    # It is not always necessary to burrow all the way down to the terminal input node
-    # to update the current neuron if it's connected neurons have all been updated.
-    # The implementation should set it's algorithm to use partial
-    # instead of update as update will most likely needlessly update previously updated neurons.
+    # For when connections are already updated, Neuron#partial updates the
+    # activation with the current values of bias and connections. It is not
+    # always necessary to burrow all the way down to the terminal input node to
+    # update the current neuron if it's connected neurons have all been updated.
+    # The implementation should set it's algorithm to use partial instead of
+    # update as update will most likely needlessly update previously updated
+    # neurons.
     def partial
       value = @bias + @connections.sum{|connection| connection.value}
       mu!
@@ -206,7 +212,9 @@ module Neuronet
     def backpropagate(error)
       # mu divides the error among the neuron's constituents!
       @bias += Neuronet.noise[error/@mu]
-      @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb  if @bias.abs > Neuronet.maxb
+      if @bias.abs > Neuronet.maxb
+        @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb
+      end
       @connections.each{|connection| connection.backpropagate(error, @mu)}
       self
     end
@@ -236,7 +244,7 @@ module Neuronet
   class InputLayer < Array
     def initialize(length, inputs=[]) # number of nodes
       super(length)
-      0.upto(length-1){|index| self[index] = Neuronet::Node.new inputs[index].to_f}
+      0.upto(length-1){self[_1] = Neuronet::Node.new inputs[_1].to_f}
     end
 
     # This is where one enters the "real world" inputs.
@@ -269,9 +277,12 @@ module Neuronet
 
     # Allows one to fully connect layers.
     def connect(layer, weight=[])
-      # creates the neuron matrix... note that node can be either Neuron or Node class.
+      # creates the neuron matrix...
+      # note that node can be either Neuron or Node class.
       i = -1
-      self.each{|neuron| layer.each{|node| neuron.connect(node, weight[i+=1].to_f) }}
+      self.each do |neuron|
+        layer.each{|node| neuron.connect(node, weight[i+=1].to_f)}
+      end
     end
 
     # updates layer with current values of the previous layer
@@ -428,11 +439,13 @@ module Neuronet
               end
             when '|'
               if biases
-                parts[i] = FeedForward.colorize['|', FeedForward.color[parts[i+1].to_f]]
+                parts[i] = FeedForward.colorize['|',
+                           FeedForward.color[parts[i+1].to_f]]
               end
             when '*'
               if connections
-                parts[i] = FeedForward.colorize['*', FeedForward.color[parts[i-1].to_f]]
+                parts[i] = FeedForward.colorize['*',
+                           FeedForward.color[parts[i-1].to_f]]
               end
             end
           end
@@ -443,10 +456,10 @@ module Neuronet
     end
   end
 
-  # Neuronet::Scale is a class to
-  # help scale problems to fit within a network's "field of view".
-  # Given a list of values, it finds the minimum and maximum values and
-  # establishes a mapping to a scaled set of numbers between minus one and one (-1,1).
+  # Neuronet::Scale is a class to help scale problems to fit within a network's
+  # "field of view". Given a list of values, it finds the minimum and maximum
+  # values and establishes a mapping to a scaled set of numbers between minus
+  # one and one (-1,1).
   class Scale
     attr_accessor :spread, :center
 
@@ -488,8 +501,8 @@ module Neuronet
   end
 
   # "Normal Distribution"
-  # Gaussian sub-classes Scale and is used exactly the same way.
-  # The only changes are that it calculates the arithmetic mean (average) for center and
+  # Gaussian sub-classes Scale and is used exactly the same way. The only
+  # changes are that it calculates the arithmetic mean (average) for center and
   # the standard deviation for spread.
   class Gaussian < Scale
     def set(inputs)
@@ -503,7 +516,8 @@ module Neuronet
   end
 
   # "Log-Normal Distribution"
-  # LogNormal sub-classes Gaussian to transform the values to a logarithmic scale. 
+  # LogNormal sub-classes Gaussian to transform the values to a logarithmic
+  # scale. 
   class LogNormal < Gaussian
     def set(inputs)
       super(inputs.map{|value| Math::log(value)})
@@ -651,20 +665,21 @@ module Neuronet
     end
   end
 
-  # Brahma is a network which has its @yin layer initially mirror and "shadow" @entrada.
+  # Brahma is a network which has its @yin layer initially mirror and
+  # "shadow" @entrada.
   module Brahma
-    # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @entrada[i]) connections to wone,
-    # and pairing odd yin (@yin[2*i+1], @entrada[i]) connections to negative wone.
-    # Likewise the bias with bzero.
-    # This makes @yin initially mirror and shadow @entrada.
-    # The pairing is done starting with (@yin[0], @entrada[0]).
+    # Brahma.bless sets the weights of pairing even yin (@yin[2*i], @entrada[i])
+    # connections to wone, and pairing odd yin (@yin[2*i+1], @entrada[i])
+    # connections to negative wone. Likewise the bias with bzero.
+    # This makes @yin initially mirror and shadow @entrada. The pairing is done
+    # starting with (@yin[0], @entrada[0]).
     # That is, starting with (@yin.first, @entrada.first).
     def self.bless(myself)
       yin = myself.yin
       # just cover as much as you can
       in_length = [myself.entrada.length, yin.length/2].min
-      # connections from yin[2*i] to entrada[i] are wone... mirroring to start.
-      # connections from yin[2*i+1] to entrada[i] are -wone... shadowing to start.
+      # connections from yin[2*i] to entrada[i] are wone, mirroring to start.
+      # connections from yin[2*i+1] to entrada[i] are -wone, shadowing to start.
       0.upto(in_length-1) do |index|
         even = yin[2*index]
         odd = yin[(2*index)+1]
@@ -682,11 +697,12 @@ module Neuronet
     end
   end
 
-  # Vishnu is a network which has its @yang layer initially mirror and "shadow" @yin.
+  # Vishnu is a network which has its @yang layer initially mirror
+  # and "shadow" @yin.
   module Vishnu
-    # Vishnu.bless sets the weights of pairing even yang (@yang[2*i], @yin[i]) connections to wone,
-    # and pairing odd yang (@yang[2*i+1], @yin[i]) connections to negative wone.
-    # Likewise the bias with bzero.
+    # Vishnu.bless sets the weights of pairing even yang (@yang[2*i], @yin[i])
+    # connections to wone, and pairing odd yang (@yang[2*i+1], @yin[i])
+    # connections to negative wone. Likewise the bias with bzero.
     # This makes @yang initially mirror and shadow @yin.
     # The pairing is done starting with (@yang[0], @yin[0]).
     # That is, starting with (@yang.first, @yin.first).
@@ -713,10 +729,12 @@ module Neuronet
     end
   end
 
-  # Shiva is a network which has its @salida layer initially mirror and "shadow" @yang.
+  # Shiva is a network which has its @salida layer initially mirror
+  # and "shadow" @yang.
   module Shiva
-    # Shiva.bless sets the weights of pairing even salida (@salida[2*i], @yang[i]) connections to wone,
-    # and pairing odd salida (@salida[2*i+1], @yang[i]) connections to negative wone.
+    # Shiva.bless sets the weights of pairing even salida
+    # (@salida[2*i], @yang[i]) connections to wone, and pairing odd
+    # salida (@salida[2*i+1], @yang[i]) connections to negative wone.
     # Likewise the bias with bzero.
     # This makes @salida initially mirror and shadow @yang.
     # The pairing is done starting with (@salida[0], @yang[0]).
@@ -725,8 +743,8 @@ module Neuronet
       salida = myself.salida
       # just cover as much as you can
       yang_length = [myself.yang.length, salida.length/2].min
-      # connections from salida[2*i] to yang[i] are wone... mirroring to start.
-      # connections from salida[2*i+1] to yang[i] are -wone... shadowing to start.
+      # connections from salida[2*i] to yang[i] are wone, mirroring to start.
+      # connections from salida[2*i+1] to yang[i] are -wone, shadowing to start.
       0.upto(yang_length-1) do |index|
         even = salida[2*index]
         odd = salida[(2*index)+1]
@@ -744,8 +762,8 @@ module Neuronet
     end
   end
 
-  # Summa is a network which has each yin neuron sum two "corresponding" neurons above(entrada).
-  # See code for "corresponding" semantic.
+  # Summa is a network which has each yin neuron sum two "corresponding" neurons
+  # above(entrada). See code for "corresponding" semantic.
   module Summa
     def self.bless(myself)
       yin = myself.yin
@@ -766,8 +784,8 @@ module Neuronet
     end
   end
 
-  # Sintezo is a network which has each @yang neuron sum two "corresponding" neurons above(ambiguous layer).
-  # See code for "corresponding" semantic.
+  # Sintezo is a network which has each @yang neuron sum two "corresponding"
+  # neurons above(ambiguous layer). See code for "corresponding" semantic.
   module Sintezo
     def self.bless(myself)
       yang = myself.yang
@@ -788,8 +806,8 @@ module Neuronet
     end
   end
 
-  # Synthesis is a network which has each @salida neuron sum two "corresponding" neurons above(yang).
-  # See code for "corresponding" semantic.
+  # Synthesis is a network which has each @salida neuron sum two "corresponding"
+  # neurons above(yang). See code for "corresponding" semantic.
   module Synthesis
     def self.bless(myself)
       salida = myself.salida
@@ -810,8 +828,8 @@ module Neuronet
     end
   end
 
-  # Promedio is a network which has each yin neuron sum three neurons "directly" above(entrada).
-  # See code for "directly" semantic.
+  # Promedio is a network which has each yin neuron sum three neurons "directly"
+  # above(entrada). See code for "directly" semantic.
   module Promedio
     def self.bless(myself)
       yin = myself.yin
@@ -834,8 +852,8 @@ module Neuronet
     end
   end
 
-  # Mediocris is a network which has each @yang neuron sum three neurons "directly" above(ambiguous layer).
-  # See code for "directly" semantic.
+  # Mediocris is a network which has each @yang neuron sum three neurons
+  # "directly" above(ambiguous layer). See code for "directly" semantic.
   module Mediocris
     def self.bless(myself)
       yang = myself.yang
@@ -858,8 +876,8 @@ module Neuronet
     end
   end
 
-  # Average is a network which has each @salida neuron sum three neurons "directly" above(yang).
-  # See code for "directly" semantic.
+  # Average is a network which has each @salida neuron sum three neurons
+  # "directly" above(yang). See code for "directly" semantic.
   module Average
     def self.bless(myself)
       salida = myself.salida
