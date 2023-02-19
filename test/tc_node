@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'neuronet'
-include Neuronet
 
 class TestNode < Test::Unit::TestCase
+  include Neuronet
+
   def test_node
     Node.label = 'a'
     node = Node.new
