@@ -1,19 +1,19 @@
+#!/usr/bin/env ruby
 require 'neuronet'
-include Neuronet
 
 def random
   rand - rand
 end
 
 # create the input nodes
-a = Node.new
-b = Node.new
+a = Neuronet::Node.new
+b = Neuronet::Node.new
 
 # create the output neuron
-sum = Neuron.new
+sum = Neuronet::Neuron.new
 
 # and a neuron on the side
-adjuster = Neuron.new
+adjuster = Neuronet::Neuron.new
 
 # connect the adjuster to a and b
 adjuster.connect(a)
@@ -44,5 +44,6 @@ end
   target = x+y
   output = sum.update
   puts "#{x.round(3)} + #{y.round(3)} = #{target.round(3)}"
-  puts "  Neuron says #{output.round(3)}, #{(100.0*(target-output)/target).round(2)}% error."
+  puts "  Neuron says #{output.round(3)}, " \
+       "#{(100.0*(target-output)/target).round(2)}% error."
 end
