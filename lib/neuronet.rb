@@ -95,13 +95,13 @@ module Neuronet
     end
 
     # Node is a terminal where backpropagation ends.
-    def backpropagate(error)
+    def backpropagate(_error)
       # to be over-ridden
       self
     end
 
     def inspect
-      @label + ':' + (Neuronet.format % self.value)
+      @label + ':' + (Neuronet.format % value)
     end
 
     def to_s
@@ -249,20 +249,20 @@ module Neuronet
 
     # This is where one enters the "real world" inputs.
     def set(inputs)
-      0.upto(self.length-1){|index| self[index].value = inputs[index].to_f}
+      0.upto(length-1){|index| self[index].value = inputs[index].to_f}
       self
     end
 
     def values
-      self.map{|node| node.value}
+      map{|node| node.value}
     end
 
     def inspect
-      self.map{|_|_.inspect}.join(',')
+      map{|_|_.inspect}.join(',')
     end
 
     def to_s
-      self.map{|_|_.to_s}.join(',')
+      map{|_|_.to_s}.join(',')
     end
   end
 
@@ -280,14 +280,14 @@ module Neuronet
       # creates the neuron matrix...
       # note that node can be either Neuron or Node class.
       i = -1
-      self.each do |neuron|
+      each do |neuron|
         layer.each{|node| neuron.connect(node, weight[i+=1].to_f)}
       end
     end
 
     # updates layer with current values of the previous layer
     def partial
-      self.each{|neuron| neuron.partial}
+      each{|neuron| neuron.partial}
     end
 
     # Takes the real world target for each node in this layer
@@ -295,7 +295,7 @@ module Neuronet
     # Note that the learning constant is really a value
     # that needs to be determined for each network.
     def train(target, learning)
-      0.upto(self.length-1) do |index|
+      0.upto(length-1) do |index|
         node = self[index]
         error = target[index] - node.value
         node.backpropagate(learning*error)
@@ -305,15 +305,15 @@ module Neuronet
 
     # Returns the real world values of this layer.
     def values
-      self.map{|node| node.value}
+      map{|node| node.value}
     end
 
     def inspect
-      self.map{|_|_.inspect}.join(',')
+      map{|_|_.inspect}.join(',')
     end
 
     def to_s
-      self.map{|_|_.to_s}.join(',')
+      map{|_|_.to_s}.join(',')
     end
   end
 
@@ -336,13 +336,13 @@ module Neuronet
         self[index] = Neuronet::Layer.new(layers[index])
         self[index].connect(self[index-1])
       end
-      @entrada, @salida  =  self.first, self.last
+      @entrada, @salida  =  first, last
       @yin, @yang  =  self[1], self[-2]
       @learning = 1.0 / (length-1)
     end
 
     def number(n)
-      mu = Math.sqrt(n)*(self.length-1)
+      mu = Math.sqrt(n)*(length-1)
       @learning = 1.0 / mu
     end
 
@@ -357,7 +357,7 @@ module Neuronet
 
     def update
       # update up the layers
-      (1).upto(self.length-1){|index| self[index].partial}
+      (1).upto(length-1){|index| self[index].partial}
       self
     end
 
@@ -388,14 +388,17 @@ module Neuronet
 
     def inspect
      "#learning:#{(Neuronet.format % @learning)}\n" +
-     self.map{|_|_.inspect}.join("\n")
+     map{|_|_.inspect}.join("\n")
     end
 
     def to_s
-      self.map{|_|_.to_s}.join("\n")
+      map{|_|_.to_s}.join("\n")
     end
 
-    class << self; attr_accessor :color, :colorize; end
+    class << self
+      attr_accessor :color, :colorize
+    end
+
     COLORIZED = ''.respond_to? :colorize
     COLOR = lambda do |v|
       c = nil
@@ -427,8 +430,8 @@ module Neuronet
     FeedForward.colorize = COLORIZE
 
     def colorize(verbose: false, nodes: false, biases: true, connections: true)
-      parts = self.inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
-      self.each do |layer|
+      parts = inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
+      each do |layer|
         layer.each do |node|
           l, v  =  node.label, node.value
           0.upto(parts.length-1) do |i|
