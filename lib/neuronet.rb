@@ -475,8 +475,8 @@ module Neuronet
 
     def set(inputs)
       min, max = inputs.minmax
-      @center = (max + min) / 2.0  unless @center
-      @spread = (max - min) / 2.0  unless @spread
+      @center ||= (max + min) / 2.0
+      @spread ||= (max - min) / 2.0
       self
     end
 
@@ -508,7 +508,7 @@ module Neuronet
   # the standard deviation for spread.
   class Gaussian < Scale
     def set(inputs)
-      @center = inputs.sum.to_f/inputs.length unless @center
+      @center ||= inputs.sum.to_f/inputs.length
       unless @spread
         sum2 = inputs.map{|v| e = @center - v; e*e}.sum.to_f
         @spread = Math.sqrt(sum2/(inputs.length - 1.0))
