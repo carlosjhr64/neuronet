@@ -367,8 +367,8 @@ module Neuronet
       @salida.values
     end
 
-    def *(input)
-      set(input)
+    def *(other)
+      set(other)
       update
       @salida.values
     end
@@ -389,8 +389,7 @@ module Neuronet
     end
 
     def inspect
-     "#learning:#{Neuronet.format % @learning}\n" +
-     map(&:inspect).join("\n")
+     "#learning:#{Neuronet.format % @learning}\n" + map(&:inspect).join("\n")
     end
 
     def to_s
@@ -454,7 +453,7 @@ module Neuronet
           end
         end
       end
-      parts.delete_if{_1=~/^[\+\-\d\.]+$/} unless verbose
+      parts.delete_if{_1=~/^[\d.+-]+$/} unless verbose
       parts.join
     end
   end
@@ -566,7 +565,7 @@ module Neuronet
       @distribution.unmapped_output(super)
     end
 
-    def *(input)
+    def *(_other)
       @distribution.unmapped_output(super)
     end
 
