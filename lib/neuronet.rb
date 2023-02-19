@@ -188,7 +188,7 @@ module Neuronet
     # Updates the activation with the current value of bias and updated values
     # of connections.
     def update
-      value = @bias + @connections.sum{|connection| connection.update}
+      value = @bias + @connections.sum(&:update)
       mu!
       self.value = value
     end
@@ -200,7 +200,7 @@ module Neuronet
     # update as update will most likely needlessly update previously updated
     # neurons.
     def partial
-      value = @bias + @connections.sum{|connection| connection.value}
+      value = @bias + @connections.sum(&:value)
       mu!
       self.value = value
     end
@@ -255,15 +255,15 @@ module Neuronet
     end
 
     def values
-      map{|node| node.value}
+      map(&:value)
     end
 
     def inspect
-      map{|_|_.inspect}.join(',')
+      map(&:inspect).join(',')
     end
 
     def to_s
-      map{|_|_.to_s}.join(',')
+      map(&:to_s).join(',')
     end
   end
 
@@ -288,7 +288,7 @@ module Neuronet
 
     # updates layer with current values of the previous layer
     def partial
-      each{|neuron| neuron.partial}
+      each(&:partial)
     end
 
     # Takes the real world target for each node in this layer
@@ -306,15 +306,15 @@ module Neuronet
 
     # Returns the real world values of this layer.
     def values
-      map{|node| node.value}
+      map(&:value)
     end
 
     def inspect
-      map{|_|_.inspect}.join(',')
+      map(&:inspect).join(',')
     end
 
     def to_s
-      map{|_|_.to_s}.join(',')
+      map(&:to_s).join(',')
     end
   end
 
@@ -389,11 +389,11 @@ module Neuronet
 
     def inspect
      "#learning:#{(Neuronet.format % @learning)}\n" +
-     map{|_|_.inspect}.join("\n")
+     map(&:inspect).join("\n")
     end
 
     def to_s
-      map{|_|_.to_s}.join("\n")
+      map(&:to_s).join("\n")
     end
 
     class << self
