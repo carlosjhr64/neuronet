@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'neuronet'
-include Neuronet
 
 class TestInputLayer < Test::Unit::TestCase
+  include Neuronet
+
   def test_input_layer
     Node.label = 'a'
     yin = InputLayer.new 3
