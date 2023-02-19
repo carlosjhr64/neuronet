@@ -39,10 +39,10 @@ module Neuronet
   # Differentiation among neurons is achieved by noise in the back-propagation
   # of errors. This noise is provided by rand + rand. I chose rand + rand to
   # give the noise an average value of one and a bell shape distribution.
-  NOISE = lambda{|error| error*(rand + rand)}
+  NOISE = ->(error){error*(rand + rand)}
 
   # One may choose not to have noise.
-  NO_NOISE = IDENTITY = lambda{|error| error}
+  NO_NOISE = IDENTITY = ->(error){error}
 
   class << self
     attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format
