@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name     = 'neuronet'
-  s.version  = '7.0.200213'
+  s.version  = '7.0.230219'
 
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
 

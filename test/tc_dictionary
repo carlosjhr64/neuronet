@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+require 'zlib'
+
+class TestDictionary < Test::Unit::TestCase
+  GLOB  = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
+  WORDS = "egrep -i -o '[a-z]+' | tr '[:upper:]' '[:lower:]' | sort -u"
+  VALID = Zlib::GzipReader.open('test/cons.gz').readlines.map(&:strip).to_set
+
+  def test_dictionary
+    unrecognized = `cat README.md #{GLOB}| #{WORDS}`.lines.map(&:strip)
+                   .select{_unrecognized?(_1)}
+    File.open('tmp/dictionary','w'){_1.puts unrecognized}
+    diff = `colordiff .dictionary tmp/dictionary`.strip
+    flunk 'Dictionary changed:'.colorize(:blue)+"\n"+diff unless diff.empty?
+  end
+
+  private
+
+  def _unrecognized?(word)
+    !word.chars.each_cons(3).all?{VALID.include?_1.join}
+  end
+end

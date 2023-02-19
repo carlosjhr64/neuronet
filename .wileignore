@@ -1,0 +1,7 @@
+^(
+  bin/         |
+  cucumber.yml |
+  examples/    |
+  features/    |
+  test/tc_cucumber
+)

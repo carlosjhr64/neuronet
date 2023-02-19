@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+# Also:
+# require 'rubocop'
+
+class TestRuboCop < Test::Unit::TestCase
+  RUBOCOP = 'rubocop --format quiet --config .rubocop.yml'
+  def test_rubycop
+    files = `git ls-files`.lines.map(&:chomp)
+            .select{/\.rb$/.match?_1 or (!/\.\w*$/.match?_1 and _bang_ruby?_1)}
+            .join(' ')
+    flunk 'Busted by Rubocop!'.red unless system("#{RUBOCOP} #{files}")
+  end
+  private
+  def _bang_ruby?(fn)
+    return false if File.directory?(fn) || !File.executable?(fn)
+    /^#!.*\bruby$/.match? File.read(fn,80).lines[0].rstrip
+  end
+end

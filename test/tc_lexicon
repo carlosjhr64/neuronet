@@ -1,45 +1,17 @@
-#!/usr/bin/ruby
-require 'set'
+#!/usr/bin/env ruby
 require 'test/unit'
 require 'colorize'
-require 'rubbish'
-
-def dictionary(file)
-  Set[*File.readlines(file).map{|_|_.strip}]
-end
-
-def lexicon(glob)
-  Set[*Rubbish.fish("grep -oh -E '[a-zA-Z0-9]+' #{glob} | sort | uniq").lines.map{|_|_.strip}]
-end
-
-WORDS      = dictionary '/usr/share/dict/words'
-LEXICON    = lexicon    'README.md lib/**.rb'
-DICTIONARY = dictionary '.dictionary'
+=begin
+The gem 'parser' provides `ruby-parse`
+require 'parser'
+=end
 
 class TestLexicon < Test::Unit::TestCase
-  def test_lexicon_dictionary
-    suspects = Set.new
-    LEXICON.each do |word|
-      next  if word =~ /^\d+$/  or  word.length > 18
-      suspects.add word  unless [word, word.downcase].any?{|_|WORDS.include?_}
-    end
-    unless suspects == DICTIONARY
-      File.open('tmp/dictionary', 'w'){|_|_.puts suspects.to_a.sort}
-      changes = ''
-      ((suspects-DICTIONARY)|(DICTIONARY-suspects)).sort.each do |word|
-        if DICTIONARY.include? word
-          changes <<  "> #{word}".colorize(:green) + "\n"
-        else
-          changes <<  "< #{word}".colorize(:red) + "\n"
-        end
-      end
-      flunk 'Needed dictionary changes:'.colorize(:blue)+"\n"+changes
-    end
-  end
-
-  def test_lexicon_code
-    hex = Rubbish.fish("cat lib/**.rb | egrep -v '^\\s*#' | spell | md5sum").split.first
-    # If spell returns no errors, the hexadecimal will be d41d8cd98f00b204e9800998ecf8427e
-    assert_equal '543f7ab00be4deadae61dc3c67f2b9f9', hex, 'Hexdigest Code'
+  GLOB = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
+  ADD_TO_LEXI = %q(egrep -o ':\w+' | sort -u | egrep -o '\w+' > tmp/lexicon)
+  def test_lexicon
+    system %(ruby-parse #{GLOB} | #{ADD_TO_LEXI})
+    diff = `colordiff .lexicon tmp/lexicon`.strip
+    flunk 'Code lexicon changed:'.colorize(:blue)+"\n"+diff unless diff.empty?
   end
 end

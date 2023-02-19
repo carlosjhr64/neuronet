@@ -1,6 +1,6 @@
 # Neuronet
 
-* [VERSION 7.0.200213](https://github.com/carlosjhr64/neuronet/releases)
+* [VERSION 7.0.230219](https://github.com/carlosjhr64/neuronet/releases)
 * [github](https://github.com/carlosjhr64/neuronet)
 * [rubygems](https://rubygems.org/gems/neuronet)
 
@@ -66,7 +66,7 @@ rounded(output) #=> ["-157", "75.1", "-108"]
 
 ## LICENSE:
 
-Copyright 2020 carlosjhr64
+Copyright 2023 CarlosJHR64
 
 Permission is hereby granted, free of charge,
 to any person obtaining a copy of this software and

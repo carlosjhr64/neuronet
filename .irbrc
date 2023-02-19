@@ -1,18 +1,12 @@
-require 'colorize'
-require 'neuronet'
-include Neuronet
-
-# IRB Tools
+begin
+  project = File.basename __dir__
+  require project
+  klass = project.split('_').map{_1.capitalize}.join
+  version = eval "#{klass}::VERSION"
+  message = "### #{klass}:#{version} Ruby:#{RUBY_VERSION} ###"
+rescue Exception
+  message = $!.message
+end
 require 'irbtools/configure'
-_ = Neuronet::VERSION.split('.')[0..1].join('.')
-Irbtools.welcome_message = "### Neuronet(#{_}) ###"
-require 'irbtools'
-IRB.conf[:PROMPT][:Neuronet] = {
-  PROMPT_I:    '> ',
-  PROMPT_N:    '| ',
-  PROMPT_C:    '| ',
-  PROMPT_S:    '| ',
-  RETURN:      "=> %s \n",
-  AUTO_INDENT: true,
-}
-IRB.conf[:PROMPT_MODE] = :Neuronet
+Irbtools.welcome_message = message
+Irbtools.start
