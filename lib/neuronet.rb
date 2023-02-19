@@ -114,6 +114,7 @@ module Neuronet
   # Each connection contains it's weight (strength) and connected node.
   class Connection
     attr_accessor :node, :weight
+
     def initialize(node, weight=0.0)
       @node, @weight = node, weight
     end
@@ -180,7 +181,7 @@ module Neuronet
 
     def initialize(value=0.0, bias: 0.0, connections: [])
       super(value)
-      @connections, @bias  =  connections, bias
+      @connections, @bias = connections, bias
       @mu = nil # to be set later
     end
 
@@ -319,7 +320,7 @@ module Neuronet
 
   # A Feed Forward Network
   class FeedForward < Array
-    attr_reader :entrada, :salida,  :yin, :yang
+    attr_reader :entrada, :salida, :yin, :yang
     attr_accessor :learning
 
     # I find very useful to name certain layers:
@@ -329,15 +330,15 @@ module Neuronet
     #  [-1]   @salida    Output Layer
     def initialize(layers)
       length = layers.length
-      raise "Need at least 2 layers"  if length < 2
+      raise "Need at least 2 layers" if length < 2
       super(length)
       self[0] = Neuronet::InputLayer.new(layers[0])
       1.upto(length-1) do |index|
         self[index] = Neuronet::Layer.new(layers[index])
         self[index].connect(self[index-1])
       end
-      @entrada, @salida  =  first, last
-      @yin, @yang  =  self[1], self[-2]
+      @entrada, @salida = first, last
+      @yin, @yang = self[1], self[-2]
       @learning = 1.0 / (length-1)
     end
 
@@ -424,16 +425,14 @@ module Neuronet
       c
     end
     FeedForward.color = COLOR
-    COLORIZE = lambda do |s, c|
-      (COLORIZED)?  s.colorize(color: c) : s.color(c)
-    end
+    COLORIZE = ->(s, c){(COLORIZED)? s.colorize(color: c) : s.color(c)}
     FeedForward.colorize = COLORIZE
 
     def colorize(verbose: false, nodes: false, biases: true, connections: true)
       parts = inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
       each do |layer|
         layer.each do |node|
-          l, v  =  node.label, node.value
+          l, v = node.label, node.value
           0.upto(parts.length-1) do |i|
             case parts[i]
             when l
@@ -454,7 +453,7 @@ module Neuronet
           end
         end
       end
-      parts.delete_if{|_|_=~/^[\+\-\d\.]+$/}  unless verbose
+      parts.delete_if{_1=~/^[\+\-\d\.]+$/} unless verbose
       parts.join
     end
   end
@@ -509,10 +508,10 @@ module Neuronet
   # the standard deviation for spread.
   class Gaussian < Scale
     def set(inputs)
-      @center = inputs.sum.to_f / inputs.length  unless @center
+      @center = inputs.sum.to_f/inputs.length unless @center
       unless @spread
         sum2 = inputs.map{|v| e = @center - v; e*e}.sum.to_f
-        @spread = Math.sqrt(sum2 / (inputs.length - 1.0))
+        @spread = Math.sqrt(sum2/(inputs.length - 1.0))
       end
       self
     end
@@ -545,7 +544,7 @@ module Neuronet
 
     def initialize(layers, distribution: Gaussian.new, reset: false)
       super(layers)
-      @distribution, @reset  =  distribution, reset
+      @distribution, @reset = distribution, reset
     end
 
     # ScaledNetwork set works just like FeedForwardNetwork's set method,
@@ -554,7 +553,7 @@ module Neuronet
     # and then there will be times you'll want to reset the distribution
     # with each input.
     def set(input)
-      @distribution.reset(input)  if @reset
+      @distribution.reset(input) if @reset
       super(@distribution.mapped_input(input))
     end
 
@@ -688,7 +687,7 @@ module Neuronet
         odd = yin[(2*index)+1]
         even.connections[index].weight = Neuronet.wone
         even.bias = Neuronet.bzero
-        odd.connections[index].weight  = -Neuronet.wone
+        odd.connections[index].weight = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
       myself.extend Brahma
@@ -720,7 +719,7 @@ module Neuronet
         odd = yang[(2*index)+1]
         even.connections[index].weight = Neuronet.wone
         even.bias = Neuronet.bzero
-        odd.connections[index].weight  = -Neuronet.wone
+        odd.connections[index].weight = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
       myself.extend Vishnu
@@ -753,11 +752,11 @@ module Neuronet
         odd = salida[(2*index)+1]
         even.connections[index].weight = Neuronet.wone
         even.bias = Neuronet.bzero
-        odd.connections[index].weight  = -Neuronet.wone
+        odd.connections[index].weight = -Neuronet.wone
         odd.bias = -Neuronet.bzero
       end
       myself.extend Shiva
-      return myself
+      myself
     end
 
     def inspect
@@ -843,7 +842,7 @@ module Neuronet
         neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = Neuronet.wone/3.0  if connection
+          connection.weight = Neuronet.wone/3.0 if connection
         end
       end
       myself.extend Promedio
@@ -867,7 +866,7 @@ module Neuronet
         neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = Neuronet.wone/3.0  if connection
+          connection.weight = Neuronet.wone/3.0 if connection
         end
       end
       myself.extend Mediocris
@@ -892,7 +891,7 @@ module Neuronet
         neuron.bias = Neuronet.bzero
         (-1..1).each do |i|
           connection = neuron.connections[index+i]
-          connection.weight = Neuronet.wone/3.0  if connection
+          connection.weight = Neuronet.wone/3.0 if connection
         end
       end
       myself.extend Average
