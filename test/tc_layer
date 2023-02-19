@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'neuronet'
-include Neuronet
 
 class TestLayer < Test::Unit::TestCase
+  include Neuronet
+
   def test_layer
     Node.label = 'a'
     layer = Layer.new 3
@@ -20,7 +21,8 @@ class TestLayer < Test::Unit::TestCase
     assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
     yang = Layer.new 3
     yang.connect layer
-    assert_equal('g:0|0+0*a+0*b+0*c,h:0|0+0*a+0*b+0*c,i:0|0+0*a+0*b+0*c', yang.inspect)
+    assert_equal('g:0|0+0*a+0*b+0*c,h:0|0+0*a+0*b+0*c,i:0|0+0*a+0*b+0*c',
+                 yang.inspect)
     Neuronet.noise = NOISE # Restore
   end
 end
