@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'neuronet'
-include Neuronet
 
 class TestLogNormal < Test::Unit::TestCase
+  include Neuronet
+
   def test_log_normal
     e = Math::E
     inputs = [e, e**2, e**3, e**4, e**5]
