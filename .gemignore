@@ -2,6 +2,7 @@
   (\.)           |
   (\w+\.gemspec) |
   (cucumber\.)   |
+  (doc/)         |
   (examples/)    |
   (features/)    |
   (Gemfile)      |
