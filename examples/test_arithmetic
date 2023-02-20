@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'neuronet'
 MANY = 100_000
 
@@ -26,13 +27,13 @@ def network(i)
     ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
     name = '[2,4,1] TaoBrahma'
   end
-  return ffn, name
+  [ffn, name]
 end
 
 [
-  ['Add',Proc.new{|a,b|a+b}],
-  ['Subtract',Proc.new{|a,b|a-b}],
-  ['Multiply',Proc.new{|a,b|a*b}],
+  ['Add',proc{|a,b|a+b}],
+  ['Subtract',proc{|a,b|a-b}],
+  ['Multiply',proc{|a,b|a*b}],
 ].each do |name, f|
   1.upto(7) do |i|
     ffn, type = network(i)
@@ -48,7 +49,8 @@ end
       input = [rand-rand, rand-rand].map{|x| x.round(3)}
       target = [f.call(input[0], input[1])].map{|x| x.round(3)}
       ffn.set(input)
-      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
+      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t" \
+           "#{ffn.output.map{|x| x.round(3)}.join(', ')}"
       t,o = target.first, ffn.output.first
       n,d = [t.abs,o.abs].minmax
       e = n/d
@@ -56,12 +58,12 @@ end
       good &&= (s && (e>0.90))
       ok &&= (s && (e>0.75))
     end
-    puts "Close Enough!" if good
-    puts "Failed!" unless ok
+    puts 'Close Enough!' if good
+    puts 'Failed!' unless ok
   end
 end
-  puts <<EOT
-I've yet to observe any of the provided architectures do multiplication.
-If you figure out an network architecture that can do multiplication,
-email me a description of it at carlosjhr64@gmail.com.
-EOT
+puts <<~MSG
+  I've yet to observe any of the provided architectures do multiplication.
+  If you figure out an network architecture that can do multiplication,
+  email me a description of it at carlosjhr64@gmail.com.
+MSG
