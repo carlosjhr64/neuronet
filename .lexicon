@@ -4,6 +4,7 @@ activation
 Array
 attr_accessor
 attr_reader
+autoload
 Average
 backpropagate
 bias
@@ -28,7 +29,6 @@ Connection
 connections
 delete_if
 distribution
-e
 each
 entrada
 _error
@@ -78,9 +78,9 @@ maxw
 Mediocris
 min
 minmax
+mju
 mu
 myself
-n
 Neo
 NeoYinYang
 neuron
@@ -93,6 +93,7 @@ nodes
 noise
 NOISE
 NO_NOISE
+num
 number
 odd
 _other
@@ -108,8 +109,10 @@ push
 raise
 rand
 red
+require_relative
 reset
 respond_to
+Ruby32
 s
 salida
 Scale
