@@ -13,9 +13,9 @@ meant to be used to investigate the behavior
 of different small neural networks.
 
 ## INSTALL:
-
-    gem install neuronet
-
+```console
+gem install neuronet
+```
 ## SYNOPSIS:
 
 Note that the user really needs to read the library, neuronet.rb.
