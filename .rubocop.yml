@@ -42,6 +42,8 @@ Layout/SpaceInsideBlockBraces:
   Enabled: false
 Layout/SpaceInsideHashLiteralBraces:
   Enabled: false
+Layout/SpaceInsideArrayLiteralBrackets:
+  Enabled: false
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 Lint/AmbiguousOperatorPrecedence:

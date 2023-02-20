@@ -1,4 +1,6 @@
+#!/usr/bin/env ruby
 require 'neuronet'
+
 MANY = 10_000
 
 def network(i)
@@ -23,7 +25,7 @@ def network(i)
     ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
     name = '[2,4,1] TaoBrahma'
   end
-  return ffn, name
+  [ffn, name]
 end
 
 # Because our problem space is the Real numbers,
@@ -35,7 +37,7 @@ data_or = [
   [[ 1, -1], [ 1]],	# T or F is T
   [[-1,  1], [ 1]],	# F or T is T
   [[ 1,  1], [ 1]],	# T or T is T
-			# Extra for balance
+  # Extra for balance
   [[-1, -1], [-1]],	# F or F is F
 ]
 
@@ -44,7 +46,7 @@ data_and = [
   [[ 1, -1], [-1]],	# T and F is F
   [[-1,  1], [-1]],	# F and T is F
   [[ 1,  1], [ 1]],	# T and T is T
-			# Extra for balance
+  # Extra for balance
   [[ 1,  1], [ 1]],	# T and T is T
 ]
 
@@ -67,12 +69,13 @@ data_xor = [
     ok = true
     data.each do |input, target|
       ffn.set(input)
-      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t#{ffn.output.map{|x| x.round(3)}.join(', ')}"
+      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t" \
+           "#{ffn.output.map{|x| x.round(3)}.join(', ')}"
       ok &&= (ffn.output.first<=>0.0)==target.first
     end
-    puts "Failed!" unless ok
+    puts 'Failed!' unless ok
     puts
   end
-  puts "###"
+  puts '###'
   puts
 end
