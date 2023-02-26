@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Neuronet module
+# Neuronet module / Connection class
 module Neuronet
   # Connections between neurons (and nodes) are there own separate objects.
   # In Neuronet, a neuron contains it's bias, and a list of it's connections.
@@ -8,31 +8,30 @@ module Neuronet
   class Connection
     attr_accessor :node, :weight
 
+    # Connection#initialize takes a node and a weight with a default of 0.0.
     def initialize(node, weight = 0.0)
       @node   = node
       @weight = weight
     end
 
-    # The value of a connection is
-    # the weighted activation of the connected node.
+    # The value of a connection is the weighted activation of the connected
+    # node.
     def value
       @node.activation * @weight
     end
 
-    # Connection#update returns the updated value of a connection,
-    # which is the weighted updated activation of
-    # the node it's connected to ( weight * node.update ).
-    # This method is the one to use
-    # whenever the value of the inputs are changed (right after training).
-    # Otherwise, both update and value should give the same result.
-    # Use Connection#value when back calculations are not needed instead.
+    # Consistent with Neuron#partial
+    alias partial value
+
+    # Connection#update returns the updated value of a connection, which is the
+    # weighted updated activation of the node it's connected to:
+    #   weight * node.update
+    # This method is the one to use whenever the value of the inputs are changed
+    # (or right after training).  Otherwise, both update and value should give
+    # the same result.  When back calculation are not needed, use
+    # Connection#value instead.
     def update
       @node.update * @weight
-    end
-
-    # TODO: added purely on symmetry, but what's the use case?
-    def partial
-      @node.partial * @weight
     end
 
     # Connection#backpropagate modifies the connection's weight
@@ -48,10 +47,12 @@ module Neuronet
       self
     end
 
+    # A connection inspects itself as "weight*label:...".
     def inspect
       "#{Neuronet.format % @weight}*#{@node.inspect}"
     end
 
+    # A connection puts itself as "weight*label".
     def to_s
       "#{Neuronet.format % @weight}*#{@node}"
     end

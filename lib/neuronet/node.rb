@@ -14,7 +14,7 @@ module Neuronet
 
     attr_reader :activation, :label
 
-    # A (input)Node is constant.  The methods upate and partial asks the node
+    # A (input)Node is constant.  The methods update and partial asks the node
     # to reevaluate and return its activation value.  Since the input node does
     # not change, it simply returns its current activation value.  But these
     # will be over-ridden by the Neuron class.

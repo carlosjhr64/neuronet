@@ -73,8 +73,11 @@ mapped_output
 Math
 max
 maxb
+MAXB
 maxv
+MAXV
 maxw
+MAXW
 Mediocris
 min
 minmax
@@ -154,6 +157,8 @@ values
 verbose
 VERSION
 Vishnu
+vzero
+VZERO
 weight
 white
 wone

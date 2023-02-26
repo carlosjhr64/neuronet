@@ -61,9 +61,8 @@ module Neuronet
   # accessable module attributes.  The user may change these to suit their
   # needs.
   class << self
-    attr_accessor :format, :squash, :unsquash,
-                  :bzero,  :wone,   :noise,
-                  :maxw,   :maxb,   :maxv
+    attr_accessor :format, :squash, :unsquash, :vzero, :bzero, :wone, :noise,
+                  :maxw, :maxb, :maxv
   end
   self.squash   = SQUASH
   self.unsquash = UNSQUASH
