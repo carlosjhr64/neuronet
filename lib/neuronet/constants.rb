@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Neuronet module
+# Neuronet module / Constants
 module Neuronet
   # Neuronet allows one to set the format to use for displaying float values,
   # mostly used in the inspect methods.
@@ -28,6 +28,10 @@ module Neuronet
     Math.log(squashed / (1.0 - squashed))
   end
 
+  # The above squash function maps R->(0,1), sending the "center" 0 to 0.5.
+  # This will be the default "ZERO" value.
+  VZERO = 0.0
+
   # I'll want to have a neuron mirror a node later.  I derive BZERO and WONE in
   # README.md, but the point here is that values -1, 0, and 1 map back to
   # themselves:
@@ -48,18 +52,27 @@ module Neuronet
   # One may choose not to have noise.
   NO_NOISE = IDENTITY = ->(error) { error }
 
+  # To keep components bounded, Neuronet limits the weights, biases, and values.
+  MAXW = 9.0  # Maximum weight
+  MAXB = 18.0 # Maximum bias
+  MAXV = 36.0 # Maximum value
+
+  # The above constants are the defaults for Neuronet.  They are set below in
+  # accessable module attributes.  The user may change these to suit their
+  # needs.
   class << self
-    attr_accessor :squash, :unsquash, :bzero, :wone, :noise, :format
+    attr_accessor :format, :squash, :unsquash,
+                  :bzero,  :wone,   :noise,
+                  :maxw,   :maxb,   :maxv
   end
   self.squash   = SQUASH
   self.unsquash = UNSQUASH
+  self.vzero    = VZERO
   self.bzero    = BZERO
   self.wone     = WONE
   self.noise    = NOISE
   self.format   = FORMAT
-
-  class << self; attr_accessor :maxw, :maxb, :maxv; end
-  self.maxw     = 9.0
-  self.maxb     = 18.0
-  self.maxv     = 36.0
+  self.maxw     = MAXW
+  self.maxb     = MAXB
+  self.maxv     = MAXV
 end
