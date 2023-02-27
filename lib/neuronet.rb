@@ -2,7 +2,7 @@
 
 # Neuronet is a neural network library for Ruby.
 module Neuronet
-  VERSION = '7.0.230226'
+  VERSION = '7.0.230227'
   require_relative           'neuronet/constants'
   autoload :Node,            'neuronet/node'
   autoload :Connection,      'neuronet/connection'
