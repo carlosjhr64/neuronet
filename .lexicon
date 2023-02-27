@@ -30,6 +30,7 @@ connections
 delete_if
 distribution
 each
+each_with_index
 entrada
 _error
 error
@@ -170,3 +171,4 @@ yin
 Yin
 yin_length
 YinYang
+zero

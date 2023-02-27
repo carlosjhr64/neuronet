@@ -2,22 +2,18 @@
 
 # Neuronet module
 module Neuronet
-  # Just a regular Layer.
-  # InputLayer is to Layer what Node is to Neuron.
-  # But Layer does not sub-class InputLayer(it's different enough).
-  class Layer < Array
-    def initialize(length)
-      super(length)
-      0.upto(length - 1) { |index| self[index] = Neuronet::Neuron.new }
+  # Just a regular Layer. InputLayer is to Layer what Node is to Neuron.
+  class Layer < InputLayer
+    def initialize(length, zero: Neuronet.vzero, node: Neuronet::Neuron)
+      super
     end
 
     # Allows one to fully connect layers.
     def connect(layer, weight = [])
       # creates the neuron matrix...
       # note that node can be either Neuron or Node class.
-      i = -1
-      each do |neuron|
-        layer.each { |node| neuron.connect(node, weight[i += 1].to_f) }
+      each_with_index do |neuron, i|
+        layer.each { |node| neuron.connect(node, weight[i].to_f) }
       end
     end
 
@@ -37,19 +33,6 @@ module Neuronet
         node.backpropagate(learning * error)
       end
       self
-    end
-
-    # Returns the real world values of this layer.
-    def values
-      map(&:value)
-    end
-
-    def inspect
-      map(&:inspect).join(',')
-    end
-
-    def to_s
-      map(&:to_s).join(',')
     end
   end
 end
