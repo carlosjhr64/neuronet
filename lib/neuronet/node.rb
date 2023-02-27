@@ -34,7 +34,8 @@ module Neuronet
     # By default, a Node's value is initialized to zero.
     def initialize(value = Neuronet.vzero)
       self.value = value
-      @label = Node.label and Node.label = Node.label.succ
+      @label = Node.label
+      Node.label = Node.label.next
     end
 
     # The "real world" value is stored as a squashed activation.
