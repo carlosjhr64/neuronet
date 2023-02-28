@@ -4,7 +4,7 @@
 module Neuronet
   # Just a regular Layer. InputLayer is to Layer what Node is to Neuron.
   class Layer < InputLayer
-    def initialize(length, zero: Neuronet.vzero, node: Neuronet::Neuron)
+    def initialize(length, vzero: Neuronet.vzero, node: Neuronet::Neuron)
       super
     end
 

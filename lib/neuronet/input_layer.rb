@@ -6,14 +6,14 @@ module Neuronet
   # It can be used for the input layer of a feed forward network.
   class InputLayer < Array
     # length is number of nodes
-    def initialize(length, zero: Neuronet.vzero, node: Neuronet::Node)
+    def initialize(length, vzero: Neuronet.vzero, node: Neuronet::Node)
       super(length)
-      0.upto(length - 1) { self[_1] = node.new(zero) }
+      0.upto(length - 1) { self[_1] = node.new(vzero) }
     end
 
     # This is where one enters the "real world" inputs.
-    def set(inputs, zero: Neuronet.vzero)
-      0.upto(length - 1) { self[_1].value = inputs[_1] || zero }
+    def set(inputs, vzero: Neuronet.vzero)
+      0.upto(length - 1) { self[_1].value = inputs[_1] || vzero }
       self
     end
 

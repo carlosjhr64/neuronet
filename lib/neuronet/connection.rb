@@ -9,7 +9,7 @@ module Neuronet
     attr_accessor :node, :weight
 
     # Connection#initialize takes a node and a weight with a default of 0.0.
-    def initialize(node, weight = 0.0)
+    def initialize(node, weight = Neuronet.zero)
       @node   = node
       @weight = weight
     end

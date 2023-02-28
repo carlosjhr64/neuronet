@@ -32,6 +32,10 @@ module Neuronet
   # This will be the default "ZERO" value.
   VZERO = 0.0
 
+  # By default, Neuronet assumes we're working with floats.
+  # But that could change.
+  ZERO = 0.0
+
   # I'll want to have a neuron mirror a node later.  I derive BZERO and WONE in
   # README.md, but the point here is that values -1, 0, and 1 map back to
   # themselves:
@@ -61,12 +65,13 @@ module Neuronet
   # accessable module attributes.  The user may change these to suit their
   # needs.
   class << self
-    attr_accessor :format, :squash, :unsquash, :vzero, :bzero, :wone, :noise,
-                  :maxw, :maxb, :maxv
+    attr_accessor :format, :squash, :unsquash, :vzero, :zero, :bzero, :wone,
+                  :noise, :maxw, :maxb, :maxv
   end
   self.squash   = SQUASH
   self.unsquash = UNSQUASH
   self.vzero    = VZERO
+  self.zero     = ZERO
   self.bzero    = BZERO
   self.wone     = WONE
   self.noise    = NOISE

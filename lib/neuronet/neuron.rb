@@ -17,7 +17,7 @@ module Neuronet
     end
 
     # The initialize method sets the neuron's value, bias and connections.
-    def initialize(value = Neuronet.vzero, bias: 0.0, connections: [])
+    def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
       super(value)
       @connections = connections
       @bias        = bias
@@ -68,7 +68,7 @@ module Neuronet
     #	  salida = Neuronet::Neuron.new
     #	  salida.connect(entrada)
     # Think output(salida) connects to input(entrada).
-    def connect(node, weight = 0.0)
+    def connect(node, weight = Neuronet.zero)
       @connections.push(Connection.new(node, weight))
       self
     end
