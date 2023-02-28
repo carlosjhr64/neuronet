@@ -9,11 +9,11 @@ module Neuronet
     end
 
     # Allows one to fully connect layers.
-    def connect(layer, weight = [])
+    def connect(layer, weight = [], zero: Neuronet.zero)
       # creates the neuron matrix...
       # note that node can be either Neuron or Node class.
       each_with_index do |neuron, i|
-        layer.each { |node| neuron.connect(node, weight[i].to_f) }
+        layer.each { |node| neuron.connect(node, weight[i] || zero) }
       end
     end
 

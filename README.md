@@ -18,9 +18,8 @@ gem install neuronet
 ```
 ## SYNOPSIS:
 
-Note that the user really needs to read the library, neuronet.rb.
-But here is a very quick usage example:
-
+Note that the user really needs to read the library,
+but here is a very quick usage example:
 ```ruby
 require 'neuronet'
 include Neuronet
@@ -61,8 +60,7 @@ rounded(input)  #=> ["-11", "-27.8", "-97.3"]
 rounded(target) #=> ["-157", "75.1", "-108"]
 rounded(output) #=> ["-157", "75.1", "-108"]
 ```
-
-[There's a lot more...](https://github.com/carlosjhr64/neuronet/blob/master/doc/MORE.md)
+[There's a lot more...](doc/MORE.md)
 
 ## LICENSE:
 

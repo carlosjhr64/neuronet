@@ -10,7 +10,7 @@ module Neuronet
   # An artificial neural network uses a squash function to determine the
   # activation value of a neuron.  The squash function for Neuronet is the
   # [Sigmoid function](http://en.wikipedia.org/wiki/Sigmoid_function) which sets
-  # the neuron's activation value between 1.0 and 0.0.  This activation value is
+  # the neuron's activation value between 0.0 and 1.0.  This activation value is
   # often thought of on/off or true/false.  For classification problems,
   # activation values near one are considered true while activation values near
   # 0.0 are considered false.  In Neuronet I make a distinction between the
@@ -32,10 +32,11 @@ module Neuronet
   # This will be the default "ZERO" value.
   VZERO = 0.0
 
-  # By default, Neuronet assumes we're working with floats.
-  # But that could change.
+  # By default, Neuronet assumes we're working with floats, but that could
+  # change.  Our default ZERO weight/bias value is 0.0.
   ZERO = 0.0
 
+  # TODO: Write the derivation of BZERO and WONE in README.md
   # I'll want to have a neuron mirror a node later.  I derive BZERO and WONE in
   # README.md, but the point here is that values -1, 0, and 1 map back to
   # themselves:
