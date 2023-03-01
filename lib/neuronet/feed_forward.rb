@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Neuronet module
+# Neuronet module / FeedForward class
 module Neuronet
   # A Feed Forward Network
   class FeedForward < Array
@@ -34,6 +34,7 @@ module Neuronet
       @learning = 1.0 / mju
     end
 
+    # Set the input layer.
     def set(input)
       @entrada.set(input)
       self
@@ -43,6 +44,7 @@ module Neuronet
       @entrada.values
     end
 
+    # Update the network.
     def update
       # update up the layers
       1.upto(length - 1) { |index| self[index].partial }
@@ -53,6 +55,10 @@ module Neuronet
       @salida.values
     end
 
+    # Consider:
+    #   m = Neuronet::FeedForward.new(layers)
+    # Want:
+    #   output = m * input
     def *(other)
       set(other)
       update
