@@ -7,28 +7,20 @@ module Neuronet
   # connections to other neurons (or nodes).  A neuron's bias is it's kicker
   # (or deduction) to it's activation value, a sum of its connections values.
   class Neuron < Node
-    attr_reader :connections, :mu
+    attr_reader :connections
     attr_accessor :bias
-
-    def mu!
-      # mu is entirely based on a sum of external activations and only needs to
-      # be reset when these external activations change.
-      @mu = 1.0 + @connections.sum { |connection| connection.node.activation }
-    end
 
     # The initialize method sets the neuron's value, bias and connections.
     def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
       super(value)
       @connections = connections
       @bias        = bias
-      @mu          = nil # to be set later
     end
 
     # Updates the activation with the current value of bias and updated values
     # of connections.
     def update
       value = @bias + @connections.sum(&:update)
-      mu!
       self.value = value
     end
 
@@ -41,7 +33,6 @@ module Neuronet
     # neurons.
     def partial
       value = @bias + @connections.sum(&:value)
-      mu!
       self.value = value
     end
 
@@ -50,12 +41,11 @@ module Neuronet
     # backpropagate method.  While updates flows from input to output, back-
     # propagation of errors flows from output to input.
     def backpropagate(error)
-      # mu divides the error among the neuron's constituents!
-      @bias += Neuronet.noise[error / @mu]
+      @bias += Neuronet.noise[error]
       if @bias.abs > Neuronet.maxb
         @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb
       end
-      @connections.each { |connection| connection.backpropagate(error, @mu) }
+      @connections.each { |connection| connection.backpropagate(error) }
       self
     end
 

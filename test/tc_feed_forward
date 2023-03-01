@@ -14,7 +14,6 @@ class TestFeedForward < Test::Unit::TestCase
   def test_feed_forward_new
     ff = FeedForward.new([5,3])
     assert_equal 2, ff.length,     'Two layers'
-    assert_equal 1.0, ff.learning, 'Default learning for 2 layers'
     # in
     assert_equal 5, ff[0].length,   'Input layer has 5 nodes'
     assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
@@ -30,7 +29,6 @@ class TestFeedForward < Test::Unit::TestCase
 
     ff = FeedForward.new([9,6,3,1])
     assert_equal 4, ff.length, 'Four layers'
-    assert_equal 1.0/3.0, ff.learning, 'Default learning for 4 layers'
     # in
     assert_equal 9, ff[0].length,   'Input layer has 9 nodes'
     assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
@@ -47,10 +45,6 @@ class TestFeedForward < Test::Unit::TestCase
 
   def test_feed_forward_setters
     ff = FeedForward.new([3,2,1])
-    ff.learning = 0.7
-    assert_equal 0.7, ff.learning
-    ff.number(4) # learning = 1/(sqrt(4)(3-1)) #=> 1/4
-    assert_equal 0.25, ff.learning
     assert_equal [0.0,0.0,0.0], ff.input
     ff.set [1.23, 2.13, -0.654]
     assert_equal [1.23, 2.13, -0.654], ff.input.map{|x| x.round(15)}
@@ -61,7 +55,7 @@ class TestFeedForward < Test::Unit::TestCase
     input = [random, random, random]
     target = [random, random, random]
     ff.set(input)
-    32.times{ff.update.train(target)}
+    37.times{ff.update.train(target)}
     output = ff*input
     # I'm pretty sure it's 3g good... :)
     target = target.map{|x|'%.3g'%x}.join(',')
@@ -71,7 +65,6 @@ class TestFeedForward < Test::Unit::TestCase
 
   def test_feed_forward_inspect
     inspect = <<~INSPECT.chomp
-      #learning:0.5
       a:0,b:0,c:0,d:0
       e:0|0+0*a+0*b+0*c+0*d,f:0|0+0*a+0*b+0*c+0*d,g:0|0+0*a+0*b+0*c+0*d
       h:0|0+0*e+0*f+0*g,i:0|0+0*e+0*f+0*g

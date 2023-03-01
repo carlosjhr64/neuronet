@@ -37,9 +37,8 @@ module Neuronet
     # Connection#backpropagate modifies the connection's weight in proportion to
     # the error given and passes that error to its connected node via the node's
     # backpropagate method.
-    def backpropagate(error, mju)
-      # mju divides the error among the neuron's constituents!
-      @weight += @node.activation * Neuronet.noise[error / mju]
+    def backpropagate(error)
+      @weight += @node.activation * Neuronet.noise[error]
       if @weight.abs > Neuronet.maxw
         @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw
       end

@@ -8,6 +8,10 @@ module Neuronet
       super
     end
 
+    def mu
+      sum { |neuron| neuron.connections.sum { |c| c.node.activation } }
+    end
+
     # Allows one to fully connect layers.
     def connect(layer, weight = [], zero: Neuronet.zero)
       # creates the neuron matrix...
@@ -24,13 +28,11 @@ module Neuronet
 
     # Takes the real world target for each node in this layer
     # and backpropagates the error to each node.
-    # Note that the learning constant is really a value
-    # that needs to be determined for each network.
-    def train(target, learning)
+    def train(target, mju = mu)
       0.upto(length - 1) do |index|
         node = self[index]
-        error = target[index] - node.value
-        node.backpropagate(learning * error)
+        error = (target[index] - node.value) / mju
+        node.backpropagate(error)
       end
       self
     end

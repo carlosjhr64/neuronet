@@ -16,7 +16,7 @@ class TestLayer < Test::Unit::TestCase
     assert_equal [0.0, 0.0, 0.0], layer.values
 
     Neuronet.noise = NO_NOISE
-    layer.train([-1,0,1], 20.0/14.0) # See README on the learning constant
+    layer.train([-1,0,1], 1.75) # actual mu is 4.5
     layer.partial
     assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
     yang = Layer.new 3

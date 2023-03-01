@@ -5,7 +5,6 @@ module Neuronet
   # A Feed Forward Network
   class FeedForward < Array
     attr_reader :entrada, :salida, :yin, :yang
-    attr_accessor :learning
 
     # I find very useful to name certain layers:
     #  [0]    @entrada   Input Layer
@@ -26,12 +25,10 @@ module Neuronet
       @salida   = last
       @yin      = self[1]
       @yang     = self[-2]
-      @learning = 1.0 / (length - 1)
     end
 
-    def number(num)
-      mju = Math.sqrt(num) * (length - 1)
-      @learning = 1.0 / mju
+    def mu
+      self[1..].sum { |layer| layer.mu }
     end
 
     # Set the input layer.
@@ -65,8 +62,8 @@ module Neuronet
       @salida.values
     end
 
-    def train(target)
-      @salida.train(target, @learning)
+    def train(target, mju = mu)
+      @salida.train(target, mju)
       self
     end
 
@@ -83,7 +80,7 @@ module Neuronet
     end
 
     def inspect
-      "#learning:#{Neuronet.format % @learning}\n" + map(&:inspect).join("\n")
+      map(&:inspect).join("\n")
     end
 
     def to_s
