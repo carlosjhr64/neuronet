@@ -6,6 +6,10 @@ module Neuronet
   class FeedForward < Array
     attr_reader :entrada, :salida, :yin, :yang
 
+    # FeedForward's mu sums the mu of all layers and is used to reduce the
+    # back-propagated error.
+    def mu = sum(&:mu)
+
     # I find very useful to name certain layers:
     #  [0]    @entrada   Input Layer
     #  [1]    @yin       Typically the first middle layer
@@ -25,10 +29,6 @@ module Neuronet
       @salida   = last
       @yin      = self[1]
       @yang     = self[-2]
-    end
-
-    def mu
-      self[1..].sum { |layer| layer.mu }
     end
 
     # Set the input layer.

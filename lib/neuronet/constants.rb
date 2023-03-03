@@ -21,12 +21,9 @@ module Neuronet
   # points between -1 and 1, extremes under 2s, and no outbounds above 3s.
   # Standard deviations from the mean is probably a good way to figure the scale
   # of the problem.
-  SQUASH = lambda do |unsquashed|
-    1.0 / (1.0 + Math.exp(-unsquashed))
-  end
-  UNSQUASH = lambda do |squashed|
-    Math.log(squashed / (1.0 - squashed))
-  end
+  SQUASH     = ->(unsquashed) { 1.0 / (1.0 + Math.exp(-unsquashed)) }
+  UNSQUASH   = ->(squashed) { Math.log(squashed / (1.0 - squashed)) }
+  DERIVATIVE = ->(squash) { squash * (1.0 - squash) }
 
   # The above squash function maps R->(0,1), sending the "center" 0 to 0.5.
   # This will be the default "ZERO" value.
@@ -66,18 +63,19 @@ module Neuronet
   # accessable module attributes.  The user may change these to suit their
   # needs.
   class << self
-    attr_accessor :format, :squash, :unsquash, :vzero, :zero, :bzero, :wone,
-                  :noise, :maxw, :maxb, :maxv
+    attr_accessor :format, :squash, :unsquash, :derivative, :vzero, :zero,
+                  :bzero, :wone, :noise, :maxw, :maxb, :maxv
   end
-  self.squash   = SQUASH
-  self.unsquash = UNSQUASH
-  self.vzero    = VZERO
-  self.zero     = ZERO
-  self.bzero    = BZERO
-  self.wone     = WONE
-  self.noise    = NOISE
-  self.format   = FORMAT
-  self.maxw     = MAXW
-  self.maxb     = MAXB
-  self.maxv     = MAXV
+  self.squash     = SQUASH
+  self.unsquash   = UNSQUASH
+  self.derivative = DERIVATIVE
+  self.vzero      = VZERO
+  self.zero       = ZERO
+  self.bzero      = BZERO
+  self.wone       = WONE
+  self.noise      = NOISE
+  self.format     = FORMAT
+  self.maxw       = MAXW
+  self.maxb       = MAXB
+  self.maxv       = MAXV
 end

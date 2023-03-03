@@ -21,6 +21,10 @@ module Neuronet
     alias update activation
     alias partial activation
 
+    # Mu is a measure of sensitivity to errors.  Nodes are assumed error free,
+    # so it's mu is zero.
+    def mu = Neuronet.zero
+
     # The "real world" value of a node is the value of it's activation
     # unsquashed.  So, set the activation to the squashed real world value.
     def value=(value)

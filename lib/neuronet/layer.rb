@@ -4,12 +4,11 @@
 module Neuronet
   # Just a regular Layer. InputLayer is to Layer what Node is to Neuron.
   class Layer < InputLayer
+    # Mu is a measure of sensitivity to errors.
+    def mu = sum(&:mu)
+
     def initialize(length, vzero: Neuronet.vzero, node: Neuronet::Neuron)
       super
-    end
-
-    def mu
-      sum { |neuron| neuron.connections.sum { |c| c.node.activation } }
     end
 
     # Allows one to fully connect layers.

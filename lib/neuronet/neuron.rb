@@ -10,6 +10,9 @@ module Neuronet
     attr_reader :connections
     attr_accessor :bias
 
+    # Mu is a measure of sensitivity to errors.
+    def mu = @connections.sum(&:mu)
+
     # The initialize method sets the neuron's value, bias and connections.
     def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
       super(value)
