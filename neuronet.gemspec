@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'neuronet'
-  s.version  = '7.0.230304'
+  s.version  = '7.0.230305'
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2023-03-04'
+  s.date     = '2023-03-05'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -30,14 +30,12 @@ Gem::Specification.new do |s|
     lib/neuronet/constants.rb
     lib/neuronet/feed_forward.rb
     lib/neuronet/gaussian.rb
-    lib/neuronet/input_layer.rb
     lib/neuronet/layer.rb
     lib/neuronet/log_normal.rb
     lib/neuronet/mediocris.rb
     lib/neuronet/neo.rb
     lib/neuronet/neo_yin_yang.rb
     lib/neuronet/neuron.rb
-    lib/neuronet/node.rb
     lib/neuronet/promedio.rb
     lib/neuronet/scale.rb
     lib/neuronet/scaled_network.rb
