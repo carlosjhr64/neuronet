@@ -6,13 +6,13 @@ class TestConnection < Test::Unit::TestCase
   include Neuronet
 
   def test_connection
-    Node.label = 'a'
-    n = Node.new
+    Neuron.label = 'a'
+    n = Neuron.new
     c = Connection.new n
     assert_equal '0*a:0', c.inspect
     assert_equal '0*a', c.to_s
 
-    n = Node.new 1.25
+    n = Neuron.new 1.25
     c = Connection.new n, 0.33
     assert_equal '0.33*b:1.25', c.inspect
     assert_equal n, c.node

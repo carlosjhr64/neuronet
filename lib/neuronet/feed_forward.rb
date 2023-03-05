@@ -19,12 +19,8 @@ module Neuronet
       length = layers.length
       raise 'Need at least 2 layers' if length < 2
 
-      super(length)
-      self[0] = Neuronet::InputLayer.new(layers[0])
-      1.upto(length - 1) do |index|
-        self[index] = Neuronet::Layer.new(layers[index])
-        self[index].connect(self[index - 1])
-      end
+      super(length) { Layer.new(layers[_1]) }
+      1.upto(length - 1) { self[_1].connect(self[_1 - 1]) }
       @entrada  = first
       @salida   = last
       @yin      = self[1]
@@ -44,7 +40,7 @@ module Neuronet
     # Update the network.
     def update
       # update up the layers
-      1.upto(length - 1) { |index| self[index].partial }
+      1.upto(length - 1) { self[_1].partial }
       self
     end
 

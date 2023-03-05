@@ -2,12 +2,13 @@
 require 'test/unit'
 require 'neuronet'
 
+# This tests Neuron as a terminal node(no connections).
 class TestNode < Test::Unit::TestCase
   include Neuronet
 
   def test_node
-    Node.label = 'a'
-    node = Node.new
+    Neuron.label = 'a'
+    node = Neuron.new
     assert_equal 'a:0', node.inspect
     assert_equal 'a', node.to_s
     assert_equal 0.0, node.value

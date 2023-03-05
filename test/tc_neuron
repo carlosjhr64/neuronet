@@ -6,28 +6,34 @@ class TestNeuron < Test::Unit::TestCase
   include Neuronet
 
   def test_neuron
-    Node.label = 'a'
+    Neuron.label = 'a'
     neuron = Neuron.new
-    assert_equal 'a:0|0', neuron.inspect
+    assert_equal 'a:0', neuron.inspect
     assert_equal 'a', neuron.to_s
     assert_equal 0.0, neuron.value
     assert_equal 0.5, neuron.activation
 
     # bias is zero and there are no connection..
-    assert_equal 0.0, neuron.partial
-    assert_equal 0.0, neuron.update
+    assert_equal 0.5, neuron.partial
+    assert_equal 0.5, neuron.update
     assert_equal 0.0, neuron.value
     assert_equal 0.5, neuron.activation
+
+    # In order to isolate the backpropagate/update methods, we need to trick the
+    # neuron into behaving as if it has a connection.
+    c = neuron.connections
+    def c.empty? = false
 
     Neuronet.noise = NO_NOISE
     assert_equal neuron, neuron.backpropagate(1.0)
     assert_equal 'a:0|1', neuron.inspect
-    assert_equal 1.0, neuron.update
+    # update returns activation.
+    assert_equal 0.731, neuron.update.round(3)
     assert_equal 'a:1|1', neuron.inspect
     Neuronet.noise = NOISE # Restore
 
     ###      :b         connect :c
-    neuron = Neuron.new.connect Node.new
+    neuron = Neuron.new.connect Neuron.new
     assert_equal 'b:0|0+0*c', neuron.inspect
     assert_equal 'b', neuron.to_s
   end

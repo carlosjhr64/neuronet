@@ -18,6 +18,7 @@ module Neuronet
       @weight = weight
     end
 
+    # TODO: Misnomer.  Should be #activation.
     # The value of a connection is the weighted activation of the connected
     # node.
     def value

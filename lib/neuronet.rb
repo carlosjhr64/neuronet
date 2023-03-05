@@ -4,10 +4,8 @@
 module Neuronet
   VERSION = '7.0.230304'
   require_relative           'neuronet/constants'
-  autoload :Node,            'neuronet/node'
   autoload :Connection,      'neuronet/connection'
   autoload :Neuron,          'neuronet/neuron'
-  autoload :InputLayer,      'neuronet/input_layer'
   autoload :Layer,           'neuronet/layer'
   autoload :FeedForward,     'neuronet/feed_forward'
   autoload :Scale,           'neuronet/scale'

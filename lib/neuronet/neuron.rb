@@ -2,29 +2,54 @@
 
 # Neuronet module / Neuron class
 module Neuronet
-  # A Neuron is a Node with some extra features.  It adds two attributes:
-  # connections, and bias.  The connections attribute is a list of the neuron's
-  # connections to other neurons (or nodes).  A neuron's bias is it's kicker
-  # (or deduction) to it's activation value, a sum of its connections values.
-  class Neuron < Node
-    attr_reader :connections
-    attr_accessor :bias
+  # A Neuron is a node capable of creating connections to other nodes(neurons).
+  # The connections attribute is a list of the neuron's connections to other
+  # neurons.  A neuron's bias is it's kicker (or deduction) to it's activation
+  # value, a sum of its connections values.
+  class Neuron
+    # For bookkeeping, each Neuron is given a label, starting with 'a' by
+    # default.
+    class << self; attr_accessor :label; end
+    Neuron.label = 'a'
 
-    # Mu is a measure of sensitivity to errors.
-    def mu = @connections.sum(&:mu)
+    attr_reader :label, :activation, :connections, :bias
+
+    # Mu is a measure of sensitivity to errors.  A neuron without connections
+    # typically is an input neuron, and it's mu is 0(error free).
+    def mu = @connections.sum(Neuronet.zero, &:mu)
+
+    # One can explicitly set the neuron's value, typically used to set the input
+    # neurons.  The given "real world" value is squashed into the neuron's
+    # activation value.
+    def value=(value)
+      # If value is out of bounds, set it to the bound.
+      if value.abs > Neuronet.maxv
+        value = value.positive? ? Neuronet.maxv : -Neuronet.maxv
+      end
+      @activation = Neuronet.squash[value]
+    end
+
+    # The "real world" value of the neuron is the unsquashed activation value.
+    def value
+      Neuronet.unsquash[@activation]
+    end
 
     # The initialize method sets the neuron's value, bias and connections.
     def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
-      super(value)
+      self.value   = value
       @connections = connections
       @bias        = bias
+      @label       = Neuron.label
+      Neuron.label = Neuron.label.next
     end
 
     # Updates the activation with the current value of bias and updated values
     # of connections.
     def update
-      value = @bias + @connections.sum(&:update)
-      self.value = value
+      return @activation if @connections.empty?
+
+      self.value = @bias + @connections.sum(Neuronet.zero, &:update)
+      @activation
     end
 
     # For when connections are already updated, Neuron#partial updates the
@@ -35,8 +60,10 @@ module Neuronet
     # update as update will most likely needlessly update previously updated
     # neurons.
     def partial
-      value = @bias + @connections.sum(&:value)
-      self.value = value
+      return @activation if @connections.empty?
+
+      self.value = @bias + @connections.sum(Neuronet.zero, &:value)
+      @activation
     end
 
     # The backpropagate method modifies the neuron's bias in proportion to the
@@ -44,6 +71,8 @@ module Neuronet
     # backpropagate method.  While updates flows from input to output, back-
     # propagation of errors flows from output to input.
     def backpropagate(error)
+      return self if @connections.empty?
+
       @bias += Neuronet.noise[error]
       if @bias.abs > Neuronet.maxb
         @bias = @bias.positive? ? Neuronet.maxb : -Neuronet.maxb
@@ -69,7 +98,17 @@ module Neuronet
     # Tacks on to node's inspect method to show the neuron's bias and
     # connections.
     def inspect
-      "#{super}|#{[(Neuronet.format % @bias), *@connections].join('+')}"
+      fmt = Neuronet.format
+      if @connections.empty?
+        "#{@label}:#{fmt % value}"
+      else
+        "#{@label}:#{fmt % value}|#{[(fmt % @bias), *@connections].join('+')}"
+      end
+    end
+
+    # A neuron plainly puts itself as it's label.
+    def to_s
+      @label
     end
   end
 end

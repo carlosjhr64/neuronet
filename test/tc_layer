@@ -6,10 +6,10 @@ class TestLayer < Test::Unit::TestCase
   include Neuronet
 
   def test_layer
-    Node.label = 'a'
+    Neuron.label = 'a'
     layer = Layer.new 3
-    assert_equal 'a:0|0,b:0|0,c:0|0', layer.inspect
-    yin = InputLayer.new 3
+    assert_equal 'a:0,b:0,c:0', layer.inspect
+    yin = Layer.new 3
     inspect = 'a:0|0+0*d+0*e+0*f,b:0|0+0*d+0*e+0*f,c:0|0+0*d+0*e+0*f'
     assert_equal inspect, layer.connect(yin).inspect
     assert_equal inspect, layer.partial.inspect

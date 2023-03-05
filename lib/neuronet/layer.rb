@@ -3,12 +3,24 @@
 # Neuronet module
 module Neuronet
   # Just a regular Layer. InputLayer is to Layer what Node is to Neuron.
-  class Layer < InputLayer
+  class Layer < Array
     # Mu is a measure of sensitivity to errors.
-    def mu = sum(&:mu)
+    def mu = sum(Neuronet.zero, &:mu)
 
-    def initialize(length, vzero: Neuronet.vzero, node: Neuronet::Neuron)
-      super
+    # Length is the number of neurons in the layer.
+    def initialize(length)
+      super(length) { Neuron.new }
+    end
+
+    # This is where one enters the "real world" inputs.
+    def set(inputs, vzero: Neuronet.vzero)
+      0.upto(length - 1) { self[_1].value = inputs[_1] || vzero }
+      self
+    end
+
+    # Returns the real world values: [value, ...]
+    def values
+      map(&:value)
     end
 
     # Allows one to fully connect layers.
@@ -34,6 +46,16 @@ module Neuronet
         node.backpropagate(error)
       end
       self
+    end
+
+    # Layer inspects as "label:value,..."
+    def inspect
+      map(&:inspect).join(',')
+    end
+
+    # Layer puts as "label,..."
+    def to_s
+      map(&:to_s).join(',')
     end
   end
 end
