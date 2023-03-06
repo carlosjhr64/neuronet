@@ -2,8 +2,8 @@
 
 # Neuronet module / Neuron class
 module Neuronet
-  # A Neuron is a node capable of creating connections to other nodes(neurons).
-  # The connections attribute is a list of the neuron's connections to other
+  # A Neuron is a capable of creating connections to other neurons.  The
+  # connections attribute is a list of the neuron's connections to other
   # neurons.  A neuron's bias is it's kicker (or deduction) to it's activation
   # value, a sum of its connections values.
   class Neuron
@@ -54,11 +54,11 @@ module Neuronet
 
     # For when connections are already updated, Neuron#partial updates the
     # activation with the current values of bias and connections.  It is not
-    # always necessary to burrow all the way down to the terminal input node to
-    # update the current neuron if it's connected neurons have all been updated.
-    # The implementation should set it's algorithm to use partial instead of
-    # update as update will most likely needlessly update previously updated
-    # neurons.
+    # always necessary to burrow all the way down to the terminal input neuron
+    # to update the current neuron if it's connected neurons have all been
+    # updated.  The implementation should set it's algorithm to use partial
+    # instead of update as update will most likely needlessly update previously
+    # updated neurons.
     def partial
       return @activation if @connections.empty?
 
@@ -81,21 +81,21 @@ module Neuronet
       self
     end
 
-    # Connects the neuron to another node.  Updates the activation with the new
-    # connection.  The default weight=0 means there is no initial association.
-    # The connect method is how the implementation adds a connection, the way to
-    # connect the neuron to another.  To connect "salida" to "entrada", for
-    # example, it is:
+    # Connects the neuron to another neuron.  Updates the activation with the
+    # new connection.  The default weight=0 means there is no initial
+    # association.  The connect method is how the implementation adds a
+    # connection, the way to connect the neuron to another.  To connect "salida"
+    # to "entrada", for example, it is:
     #	  entrada = Neuronet::Neuron.new
     #	  salida = Neuronet::Neuron.new
     #	  salida.connect(entrada)
     # Think output(salida) connects to input(entrada).
-    def connect(node, weight = Neuronet.zero)
-      @connections.push(Connection.new(node, weight))
+    def connect(neuron, weight = Neuronet.zero)
+      @connections.push(Connection.new(neuron, weight))
       self
     end
 
-    # Tacks on to node's inspect method to show the neuron's bias and
+    # Tacks on to neuron's inspect method to show the neuron's bias and
     # connections.
     def inspect
       fmt = Neuronet.format

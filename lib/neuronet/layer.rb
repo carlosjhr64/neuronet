@@ -2,7 +2,7 @@
 
 # Neuronet module
 module Neuronet
-  # Just a regular Layer. InputLayer is to Layer what Node is to Neuron.
+  # Layer is an array of neurons.
   class Layer < Array
     # Mu is a measure of sensitivity to errors.
     def mu = sum(Neuronet.zero, &:mu)
@@ -26,9 +26,8 @@ module Neuronet
     # Allows one to fully connect layers.
     def connect(layer, weight = [], zero: Neuronet.zero)
       # creates the neuron matrix...
-      # note that node can be either Neuron or Node class.
       each_with_index do |neuron, i|
-        layer.each { |node| neuron.connect(node, weight[i] || zero) }
+        layer.each { neuron.connect(_1, weight[i] || zero) }
       end
     end
 
@@ -37,13 +36,13 @@ module Neuronet
       each(&:partial)
     end
 
-    # Takes the real world target for each node in this layer
-    # and backpropagates the error to each node.
+    # Takes the real world target for each neuron in this layer and
+    # backpropagates the error to each neuron.
     def train(target, mju = mu)
       0.upto(length - 1) do |index|
-        node = self[index]
-        error = (target[index] - node.value) / mju
-        node.backpropagate(error)
+        neuron = self[index]
+        error = (target[index] - neuron.value) / mju
+        neuron.backpropagate(error)
       end
       self
     end

@@ -28,11 +28,13 @@ connection
 Connection
 connections
 delete_if
+derivative
+DERIVATIVE
 distribution
 each
 each_with_index
+empty
 entrada
-_error
 error
 even
 exp
@@ -40,6 +42,7 @@ extend
 factor
 FeedForward
 first
+fmt
 format
 FORMAT
 Gaussian
@@ -51,7 +54,6 @@ index
 initialize
 in_length
 input
-InputLayer
 inputs
 inspect
 join
@@ -92,7 +94,6 @@ Neuronet
 new
 next
 node
-Node
 nodes
 noise
 NOISE

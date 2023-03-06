@@ -34,7 +34,7 @@ module Neuronet
   ZERO = 0.0
 
   # TODO: Write the derivation of BZERO and WONE in README.md
-  # I'll want to have a neuron mirror a node later.  I derive BZERO and WONE in
+  # I'll want to have a neuron mirror another later.  I derive BZERO and WONE in
   # README.md, but the point here is that values -1, 0, and 1 map back to
   # themselves:
   #   BZERO + WONE*SQUASH[-1.0] #=> -1.0

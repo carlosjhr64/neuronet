@@ -118,9 +118,9 @@ module Neuronet
     def colorize(verbose: false, nodes: false, biases: true, connections: true)
       parts = inspect.scan(/[: ,|+*\n]|[^: ,|+*\n]+/)
       each do |layer|
-        layer.each do |node|
-          l = node.label
-          v = node.value
+        layer.each do |neuron|
+          l = neuron.label
+          v = neuron.value
           0.upto(parts.length - 1) do |i|
             case parts[i]
             when l
