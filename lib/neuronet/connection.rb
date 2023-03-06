@@ -18,15 +18,14 @@ module Neuronet
       @weight = weight
     end
 
-    # TODO: Misnomer.  Should be #activation.
-    # The value of a connection is the weighted activation of the connected
+    # The activation of a connection is the weighted activation of the connected
     # node.
-    def value
+    def activation
       @node.activation * @weight
     end
 
     # Consistent with Neuron#partial
-    alias partial value
+    alias partial activation
 
     # Connection#update returns the updated value of a connection, which is the
     # weighted updated activation of the node it's connected to:

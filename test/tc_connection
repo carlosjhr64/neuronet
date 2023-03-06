@@ -17,7 +17,7 @@ class TestConnection < Test::Unit::TestCase
     assert_equal '0.33*b:1.25', c.inspect
     assert_equal n, c.node
     assert_equal 0.33, c.weight
-    assert_equal 0.33*SQUASH[1.25], c.value
+    assert_equal 0.33*SQUASH[1.25], c.activation
     assert_equal 0.33*SQUASH[1.25], c.partial
     assert_equal 0.33*SQUASH[1.25], c.update
 

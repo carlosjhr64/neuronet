@@ -62,7 +62,7 @@ module Neuronet
     def partial
       return @activation if @connections.empty?
 
-      self.value = @bias + @connections.sum(Neuronet.zero, &:value)
+      self.value = @bias + @connections.sum(Neuronet.zero, &:activation)
       @activation
     end
 
