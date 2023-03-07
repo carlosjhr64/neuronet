@@ -31,6 +31,18 @@ module Neuronet
       end
     end
 
+    # Set layer to mirror input:
+    #   bias   = BZERO.
+    #   weight = WONE
+    def mirror
+      each_with_index do |neuron, index|
+        next if neuron.connections[index].nil? # Has mirroring input?
+
+        @bias = Neuronet.bzero
+        @weight = Neuronet.wone
+      end
+    end
+
     # updates layer with current values of the previous layer
     def partial
       each(&:partial)

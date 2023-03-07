@@ -22,9 +22,9 @@ class TestBlessing < Test::Unit::TestCase
 
     # initialize network
     Neuronet.format = '%.3g'
-    Node.label = 'a'
+    Neuron.label = 'a'
     ff = Tao[4]
-    puts ff.colorize
+#   puts ff.colorize # TODO
 
     # A 3X4 network
     assert_equal 3, ff.length
@@ -58,7 +58,7 @@ class TestBlessing < Test::Unit::TestCase
         target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
       end
     end
-    puts ff.colorize
+#   puts ff.colorize # TODO
     assert count < 10_000
 
     puts "Time: #{Time.now - start}  Count: #{count}"
@@ -83,9 +83,9 @@ class TestBlessing < Test::Unit::TestCase
 
     # initialize network
     Neuronet.format = '%.3g'
-    Node.label = 'a'
+    Neuron.label = 'a'
     ff = TaoYinYang[4]
-    puts ff.colorize
+#   puts ff.colorize # TODO
 
     # A 3X4 network
     assert_equal 3, ff.length
@@ -121,7 +121,7 @@ class TestBlessing < Test::Unit::TestCase
         target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
       end
     end
-    puts ff.colorize
+#   puts ff.colorize # TODO
     assert count < 10_000
 
     puts "Time: #{Time.now - start}  Count: #{count}"
@@ -153,7 +153,7 @@ class TestBlessing < Test::Unit::TestCase
 
     # initialize network
     Neuronet.format = '%.3g'
-    Node.label = 'a'
+    Neuron.label = 'a'
     ff = NeoYinYang[4]
 
     # A 4X4 network
@@ -193,7 +193,7 @@ class TestBlessing < Test::Unit::TestCase
     ff.distribution.set input_target.flatten
 
     ff.number 26.0 # TODO: review mu stuff
-    puts ff.colorize
+#   puts ff.colorize # TODO
     start, count, max, fg = Time.now, 0, 100_000, '%.1g'
     ff.pairs input_target do # while...
       count += 1
@@ -202,7 +202,7 @@ class TestBlessing < Test::Unit::TestCase
         target.map{|_|fg % _} == (ff*input).map{|_|fg % _}
       end
     end
-    puts ff.colorize
+#   puts ff.colorize # TODO
     puts ff.inspect
 
     puts "Time: #{Time.now - start}  Count: #{count}".colorize :yellow
@@ -229,9 +229,9 @@ class TestBlessing < Test::Unit::TestCase
 
     # initialize network
     Neuronet.format = '%.1g'
-    Node.label = 'a'
+    Neuron.label = 'a'
     ff = BrahmaSynthesis[3]
-    puts ff.colorize
+#   puts ff.colorize # TODO
 
     # A 3,6,3 network
     assert_equal 3, ff.entrada.length
@@ -269,7 +269,7 @@ class TestBlessing < Test::Unit::TestCase
         target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
       end
     end
-    puts ff.colorize
+#   puts ff.colorize # TODO
 
     puts "Time: #{Time.now - start}  Count: #{count}"
     puts 'Inputs(%.2g):'
@@ -287,7 +287,7 @@ class TestBlessing < Test::Unit::TestCase
     # just some quickies
     Neuronet.format = '%.1g'
 
-    Node.label = 'a'
+    Neuron.label = 'a'
     ff = YinYang[1]
     e = "#Yin #Yang #distribution:Gaussian #reset:false #learning:0.5\n" \
         "a:0\nb:0|-2+4*a\nc:0|-2+4*b"
