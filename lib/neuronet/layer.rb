@@ -43,6 +43,20 @@ module Neuronet
       end
     end
 
+    # Could not think of a good name for this method and I just thought "redux".
+    # Mirrors and anti-mirrors the input(+/-).
+    # rubocop:disable Metrics/AbcSize
+    def redux
+      each_with_index do |n, i|
+        j = i * 2
+        next unless (a = n.connections[j]) && (b = n.connections[j + 1])
+
+        b.bias = -(a.bias = Neuronet.bzero)
+        b.weight = -(a.weight = Neuronet.wone)
+      end
+    end
+    # rubocop:enable Metrics/AbcSize
+
     # updates layer with current values of the previous layer
     def partial
       each(&:partial)
