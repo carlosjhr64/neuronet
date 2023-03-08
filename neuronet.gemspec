@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'neuronet'
-  s.version  = '7.0.230307'
+  s.version  = '7.0.230308'
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2023-03-07'
+  s.date     = '2023-03-08'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
   s.files = %w[
     README.md
     lib/neuronet.rb
-    lib/neuronet/average.rb
     lib/neuronet/brahma.rb
     lib/neuronet/brahma_synthesis.rb
     lib/neuronet/connection.rb
@@ -32,11 +31,9 @@ Gem::Specification.new do |s|
     lib/neuronet/gaussian.rb
     lib/neuronet/layer.rb
     lib/neuronet/log_normal.rb
-    lib/neuronet/mediocris.rb
     lib/neuronet/neo.rb
     lib/neuronet/neo_yin_yang.rb
     lib/neuronet/neuron.rb
-    lib/neuronet/promedio.rb
     lib/neuronet/scale.rb
     lib/neuronet/scaled_network.rb
     lib/neuronet/shiva.rb
