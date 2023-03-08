@@ -44,7 +44,7 @@ module Neuronet
 
     def inspect
       distribution = @distribution.class.to_s.split(':').last
-      "#distribution:#{distribution} #reset:#{@reset} " + super
+      "#distribution:#{distribution} #reset:#{@reset}\n" + super
     end
   end
 end

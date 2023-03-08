@@ -13,13 +13,13 @@ class TestFeedForward < Test::Unit::TestCase
 
   def test_feed_forward_new
     ff = FeedForward.new([5,3])
-    assert_equal 2, ff.length,     'Two layers'
+    assert_equal 2, ff.length, 'Two layers'
     # in
     assert_equal 5, ff[0].length,   'Input layer has 5 nodes'
     assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
     # yin
-    assert_equal 3, ff[1].length,  'layer[1] has 3 neurons'
-    assert_equal ff.yin, ff[1],    'layer[1] referenced as yin'
+    assert_equal 3, ff[1].length, 'layer[1] has 3 neurons'
+    assert_equal ff.yin, ff[1],   'layer[1] referenced as yin'
     # yang
     assert_equal 5, ff[-2].length, 'layer[-2] has 5 neurons'
     assert_equal ff.yang, ff[-2],  'layer[-2] referenced as yang'
@@ -33,8 +33,8 @@ class TestFeedForward < Test::Unit::TestCase
     assert_equal 9, ff[0].length,   'Input layer has 9 nodes'
     assert_equal ff[0], ff.entrada, 'Input layer refereced as in'
     # yin
-    assert_equal 6, ff[1].length,  'layer[1] has 6 neurons'
-    assert_equal ff.yin, ff[1],    'layer[1] referenced as yin'
+    assert_equal 6, ff[1].length, 'layer[1] has 6 neurons'
+    assert_equal ff.yin, ff[1],   'layer[1] referenced as yin'
     # yang
     assert_equal 3, ff[-2].length, 'layer[-2] has 3 neurons'
     assert_equal ff.yang, ff[-2],  'layer[-2] referenced as yang'
@@ -55,7 +55,7 @@ class TestFeedForward < Test::Unit::TestCase
     input = [random, random, random]
     target = [random, random, random]
     ff.set(input)
-    37.times{ff.update.train(target)}
+    65.times{ff.update.train(target)}
     output = ff*input
     # I'm pretty sure it's 3g good... :)
     target = target.map{|x|'%.3g'%x}.join(',')

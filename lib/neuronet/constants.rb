@@ -59,12 +59,15 @@ module Neuronet
   MAXB = 18.0 # Maximum bias
   MAXV = 36.0 # Maximum value
 
+  # Mu learning factor.
+  LEARNING = 2.0
+
   # The above constants are the defaults for Neuronet.  They are set below in
   # accessable module attributes.  The user may change these to suit their
   # needs.
   class << self
     attr_accessor :format, :squash, :unsquash, :derivative, :vzero, :zero,
-                  :bzero, :wone, :noise, :maxw, :maxb, :maxv
+                  :bzero, :wone, :noise, :maxw, :maxb, :maxv, :learning
   end
   self.squash     = SQUASH
   self.unsquash   = UNSQUASH
@@ -78,4 +81,5 @@ module Neuronet
   self.maxw       = MAXW
   self.maxb       = MAXB
   self.maxv       = MAXV
+  self.learning   = LEARNING
 end

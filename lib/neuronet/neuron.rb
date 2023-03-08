@@ -12,7 +12,8 @@ module Neuronet
     class << self; attr_accessor :label; end
     Neuron.label = 'a'
 
-    attr_reader :label, :activation, :connections, :bias
+    attr_reader :label, :activation, :connections
+    attr_accessor :bias
 
     # Mu is a measure of sensitivity to errors.  A neuron without connections
     # typically is an input neuron, and it's mu is 0(error free).

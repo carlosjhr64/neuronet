@@ -6,7 +6,6 @@ brahmasynthesis
 bzero
 carlosjhr
 cyletmz
-elsif
 feedforward
 feedforwardnetwork
 github
@@ -17,12 +16,12 @@ hybrid
 maxb
 maxv
 maxw
-mediocris
 mju
 neoyinyang
 perceptron
 randomly
 readme
+redux
 rubygems
 scalednetwork
 sigmoid
