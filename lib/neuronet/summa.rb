@@ -6,15 +6,7 @@ module Neuronet
   # above(entrada). See code for "corresponding" semantic.
   module Summa
     def self.bless(myself)
-      yin = myself.yin
-      # just cover as much as you can
-      in_length = [myself.entrada.length / 2, yin.length].min
-      0.upto(in_length - 1) do |index|
-        neuron = yin[index]
-        neuron.bias = Neuronet.bzero
-        neuron.connections[2 * index].weight = Neuronet.wone / 2.0
-        neuron.connections[(2 * index) + 1].weight = Neuronet.wone / 2.0
-      end
+      myself.yin.synthesis
       myself.extend Summa
       myself
     end

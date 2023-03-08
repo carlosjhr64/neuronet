@@ -34,28 +34,36 @@ module Neuronet
     # Set layer to mirror input:
     #   bias   = BZERO.
     #   weight = WONE
+    # Input should be the same size as the layer.
     def mirror
       each_with_index do |neuron, index|
-        next if neuron.connections[index].nil? # Has mirroring input?
-
-        @bias = Neuronet.bzero
-        @weight = Neuronet.wone
+        neuron.bias = Neuronet.bzero
+        neuron.connections[index].weight = Neuronet.wone
       end
     end
 
     # Could not think of a good name for this method and I just thought "redux".
     # Mirrors and anti-mirrors the input(+/-).
-    # rubocop:disable Metrics/AbcSize
+    # Input should be half the size of the layer.
     def redux
-      each_with_index do |n, i|
-        j = i * 2
-        next unless (a = n.connections[j]) && (b = n.connections[j + 1])
-
+      each_slice(2).with_index do |ab, i|
+        a, b = ab
         b.bias = -(a.bias = Neuronet.bzero)
-        b.weight = -(a.weight = Neuronet.wone)
+        b.connections[i].weight = -(a.connections[i].weight = Neuronet.wone)
       end
     end
-    # rubocop:enable Metrics/AbcSize
+
+    # Sums two corresponding input neurons above each neuron in the layer.
+    # Input should be twice the size of the layer.
+    def synthesis
+      each_with_index do |n, i|
+        j = i * 2
+        c = n.connections
+        n.bias = Neuronet.bzero
+        c[j].weight = Neuronet.wone / 2
+        c[j + 1].weight = Neuronet.wone / 2
+      end
+    end
 
     # updates layer with current values of the previous layer
     def partial
