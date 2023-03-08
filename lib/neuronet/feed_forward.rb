@@ -8,7 +8,7 @@ module Neuronet
 
     # FeedForward's mu sums the mu of all layers and is used to reduce the
     # back-propagated error.
-    def mu = Neuronet.learning * sum(&:mu)
+    def mu = Neuronet.learning * sum(Neuronet.zero, &:mu)
 
     # I find very useful to name certain layers:
     #  [0]    @entrada   Input Layer
