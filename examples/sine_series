@@ -1,65 +1,76 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Given as input:
+#   (0...20).map{|n| f(n)}
+# Have Neuronet predict:
+#   (20...25).map{|n| f(n)}
+# Where f is:
+#   f(n) = A + (B * Math.sin(phase + (D * t)))
+# A, B, and D are constants but arbitrary.  The phase is an arbitrary attribute
+# of the sequence:
+#   (0...25).map{|n| f(n)}
+
 require 'neuronet'
 
-# Math.sin(x) cycles from 0.0 at x=0.0,
-# up to 1.0 at x=Math.PI/2.0,
-# back down to 0.0 at x=Math::PI (may be off by a computational error),
-# down to -1.0 at x=3.0*Math::PI/2.0,
-# and back up to 0.0 at x=2.0*Math::PI.
-# The entire cycle is:
-CYCLE = 2.0*Math::PI
+# Math.sin(x) cycles from 0.0 at x=0.0, up to 1.0 at x=Math.PI/2.0, back down to
+# 0.0 at x=Math::PI (may be off by a computational error), down to -1.0 at
+# x=3.0*Math::PI/2.0, and back up to 0.0 at x=2.0*Math::PI. The entire cycle is:
+CYCLE = 2.0 * Math::PI
 
-# I'll use CYCLE to scale my random number
+# I'll use CYCLE to scale my random number.
 def random
-  CYCLE*rand
+  CYCLE * rand
 end
 
-# I'll make this an [INPUTS, OUTPUTS] layer feed forward network.
-# I've found a middle layer un-nescessary for this problem.
+# I'll make this an [INPUTS, OUTPUTS] layer feed forward network. I've found a
+# middle layer unnecessary for this problem.
 INPUTS = 20
 OUTPUTS = 5
 
-# computation time... maximum number of iterations before calling it quits!
+# computation iterations... Maximum number of iterations before calling it
+# quits!
 MAX = 1_000_000
 
-# Radomly set the sine function's parameters
-A, B, D = random, random, random
+# Radomly set the sine function's parameters.
+A = random
+B = random
+D = random
 
 # The randomly parametized sine function, f.
-def f(phase, t)
-  A + B*Math.sin(phase + D*t)
+def f(phase, var)
+  A + (B * Math.sin(phase + (D * var)))
 end
 
 # Feedback on what the function is.
 puts "f(phase, t) = #{A.round(3)} + #{B.round(3)}*Sin(phase + #{D.round(3)}*t)"
-puts "Cycle step = #{(D/CYCLE).round(3)}"
+puts "Cycle step = #{(D / CYCLE).round(3)}"
 
-neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS])
-# We're trying to train a function, so there's no noise
-# to smooth out over a number of data points.
-neuronet.number(1.0)
+neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS], reset: true)
+# We're trying to train a function, so there's no noise to smooth out over a
+# number of data points.
+# neuronet.number(1.0) # TODO: still working on automating the learning rate.
 
 # Training...
 mma = B # moving average set high to be averaged down.
 count = 0
-# looking for 1%, but quit if it's taking too long
-while mma/B>0.01 && count<MAX
+# Looking for 1%, but quit if it's taking too long.
+while mma / B > 0.01 && count < MAX
   count += 1
-  print '.' if (count%5000).zero? # just to let us know it's iterating...
+  print '.' if (count % 5000).zero? # just to let us know it's iterating...
   phase = random # any random starting point for the series
-  input = 0.upto(INPUTS-1).inject([]){|v,t| v.push f(phase,t)}
-  neuronet.reset(input) # reset sets both neuronet and distribution
+  input = 0.upto(INPUTS - 1).inject([]) { |v, t| v.push f(phase, t) }
+  neuronet.set(input).update # sets both neuronet and distribution, and updates
   output = neuronet.output
-  # I don't think I get NaN anymore, but checking...
-  # raise "Got NaN" if output.inject(false){|v,x| v ||= true if x.nan? }
-  # A NaN would be a bug.  It was a bug b/4.
-  target = INPUTS.upto(INPUTS+OUTPUTS-1).inject([]){|v,t| v.push f(phase,t)}
-  error2 = 0.upto(4).map{|i| output[i] - target[i] }
-           .inject(0.0){|v,x| v+x*x } / 5.0 # five points!
-  # Note that the real task is to describe the motion (deviation) from A
-  mma = (127.0*mma + Math.sqrt(error2)) / 128.0
+  target = INPUTS.upto(INPUTS + OUTPUTS - 1).inject([]) do |v, t|
+    v.push f(phase, t)
+  end
+  error2 = 0.upto(4).map { |i| output[i] - target[i] }
+            .inject(0.0) { |v, x| v + (x * x) } / 5.0 # five points!
+  # Note that the real task is to describe the motion (deviation) from A.
+  mma = (127.0 * mma + Math.sqrt(error2)) / 128.0
   mma = B if mma > B
-  neuronet.train!(target) # neuronet trains the output
+  neuronet.train(target) # neuronet trains the output
 end
 
 # How good are we?
@@ -69,30 +80,36 @@ error2 = 0.0
 sample = 100
 sample.times do
   phase = random # any random starting point for the series
-  input = 0.upto(INPUTS-1).inject([]){|v,t| v.push f(phase,t)}
-  neuronet.reset(input)
+  input = 0.upto(INPUTS - 1).inject([]) { |v, t| v.push f(phase, t) }
+  neuronet.set(input).update
   output = neuronet.output
-  target = INPUTS.upto(INPUTS+OUTPUTS-1).inject([]){|v,t| v.push f(phase,t)}
+  target = INPUTS.upto(INPUTS + OUTPUTS - 1).inject([]) do |v, t|
+    v.push f(phase, t)
+  end
   # five points! Divided out below...
-  error2 += 0.upto(4).map{|i| output[i] - target[i]}.inject(0.0){|v,x| v+x*x}
+  error2 += 0.upto(4).map { output[_1] - target[_1] }.inject(0.0) do |v, x|
+    v + (x * x)
+  end
 end
 
 # Notice that for every interaction, there were five points!
-std = Math.sqrt(error2/(5.0*sample-1.0))
-relative = std/B
+std = Math.sqrt(error2 / ((5.0 * sample) - 1.0))
+relative = std / B
 
-puts "Relative Error (std/B): #{(100.0*relative).round(2)}%\t" \
+puts "Relative Error (std/B): #{(100.0 * relative).round(2)}%\t" \
      "Standard Deviation: #{std.round(3)}"
 puts 'Examples:'
 3.times do
   phase = random # any random starting point for the series
-  input = 0.upto(INPUTS-1).inject([]){|v,t| v.push f(phase,t)}
-  neuronet.reset(input)
+  input = 0.upto(INPUTS - 1).inject([]) { |v, t| v.push f(phase, t) }
+  neuronet.set(input).update
   output = neuronet.output
-  target = INPUTS.upto(INPUTS+OUTPUTS-1).inject([]){|v,t| v.push f(phase,t)}
+  target = INPUTS.upto(INPUTS + OUTPUTS - 1).inject([]) do |v, t|
+    v.push f(phase, t)
+  end
   puts
-  puts "Input:\t#{input.map{|x| x.round(3) }.join(', ')}"
-  puts "Target:\t#{target.map{|x| x.round(3) }.join(', ')}"
-  puts "Output:\t#{output.map{|x| x.round(3) }.join(', ')}"
+  puts "Input:\t#{input.map { _1.round(3) }.join(', ')}"
+  puts "Target:\t#{target.map { _1.round(3) }.join(', ')}"
+  puts "Output:\t#{output.map { _1.round(3) }.join(', ')}"
 end
 puts
