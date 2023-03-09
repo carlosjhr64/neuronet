@@ -1,13 +1,17 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'neuronet'
 
 def random
+  # rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
   rand - rand
+  # rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
 end
 
 # create the input nodes
-a = Neuronet::Node.new
-b = Neuronet::Node.new
+a = Neuronet::Neuron.new
+b = Neuronet::Neuron.new
 
 # create the output neuron
 sum = Neuronet::Neuron.new
@@ -25,25 +29,37 @@ sum.connect(b)
 # and to the adjuster
 sum.connect(adjuster)
 
+# TODO: Semantics of this constant vs mu and current Neuronet.learning
 # The learning constant is about...
-learning = 0.1
+learning = 0.3
 
 # Train the tiny network
-10_000.times do
+1_000_000.times do
   a.value = x = random
   b.value = y = random
-  target = x+y
-  output = sum.update
-  sum.backpropagate(learning*(target-output))
+  sum.update
+  target = x + y
+  output = sum.value
+  sum.backpropagate(learning * (target - output))
 end
 
 # Let's see how well the training went
-10.times do
+e2 = 0.0
+trials = 100
+12.times do
   a.value = x = random
   b.value = y = random
-  target = x+y
-  output = sum.update
+  sum.update
+  target = x + y
+  output = sum.value
+  error = target - output
+  e2 += error * error
   puts "#{x.round(3)} + #{y.round(3)} = #{target.round(3)}"
   puts "  Neuron says #{output.round(3)}, " \
-       "#{(100.0*(target-output)/target).round(2)}% error."
+       "#{(100.0 * error / target).round(2)}% error."
 end
+standard_deviation = Math.sqrt(e2 / (trials + 1))
+
+puts "Learning: #{learning}"
+puts "Mu: #{sum.mu}"
+puts "Standard Deviation: #{standard_deviation}"
