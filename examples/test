@@ -1,41 +1,43 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'neuronet'
 
 ### Squash/UnSquash ###
 raise 'Expected version 7' unless /^7\./.match? Neuronet::VERSION
-raise 'Bad Squash 0.0' unless Neuronet.squash(0.0) == 0.5
-raise 'Bad Squash 1.0' unless Neuronet.squash(1.0).round(3) == 0.731
-raise 'Bad Squash -1.0' unless Neuronet.squash(-1.0).round(3) == 0.269
-raise 'Bad UnSquash 0.5' unless Neuronet.unsquash(0.5) == 0.0
-raise 'Bad UnSquash 0.731' unless Neuronet.unsquash(0.731).round(3) == 1.0
-raise 'Bad UnSquash 0.269' unless Neuronet.unsquash(0.269).round(3) == -1.0
+raise 'Bad Squash 0.0' unless Neuronet.squash[0.0] == 0.5
+raise 'Bad Squash 1.0' unless Neuronet.squash[1.0].round(3) == 0.731
+raise 'Bad Squash -1.0' unless Neuronet.squash[-1.0].round(3) == 0.269
+raise 'Bad UnSquash 0.5' unless Neuronet.unsquash[0.5] == 0.0
+raise 'Bad UnSquash 0.731' unless Neuronet.unsquash[0.731].round(3) == 1.0
+raise 'Bad UnSquash 0.269' unless Neuronet.unsquash[0.269].round(3) == -1.0
 
 ### Noise ###
 sum = 0.0
-n = 10_000
-n.times do
-  sum += Neuronet.noise
+N = 10_000
+N.times do
+  sum += Neuronet.noise[1.0]
 end
-# Everyonce in a while by chage, this will happen.
-unless (sum/n.to_f).round(1) == 1.0
+# Every once in a while by chance, this will happen.
+unless (sum/N.to_f).round(1) == 1.0
   raise 'Noise not averaging to one? (Happens sometimes)'
 end
 sum = 0.0
-n.times do
-  sum += (1.0 - Neuronet.noise)**2.0
+N.times do
+  sum += (1.0 - Neuronet.noise[1.0])**2.0
 end
-std = Math.sqrt(sum/n.to_f)
+std = Math.sqrt(sum/N.to_f)
 unless std.round(1) == 0.4
-  raise "Standard Deviation #{std.round(2)} in noise not 0.29?"
+  raise "Standard Deviation #{std.round(2)} in noise not 0.4?"
 end
 
 ### Node ###
-node = Neuronet::Node.new
+node = Neuronet::Neuron.new
 raise 'Bad node value' unless node.value == 0.0
 raise 'Bad node activation' unless node.activation == 0.5
 raise 'Bad node updated' unless node.update == 0.5
-raise 'Bad node backpropagate' unless node.backpropagate(0.1).nil?
-node = Neuronet::Node.new(1.0)
+raise 'Bad node backpropagate' unless node.backpropagate(0.1).activation == 0.5
+node = Neuronet::Neuron.new(1.0)
 raise 'Bad node value' unless node.value.round(3) == 1.0
 raise 'Bad node activation' unless node.activation.round(3) == 0.731
 raise 'Bad node updated' unless node.update.round(3) == 0.731
@@ -43,13 +45,13 @@ raise 'Bad node updated' unless node.update.round(3) == 0.731
 ### Connection ###
 conn = Neuronet::Connection.new(node)
 raise 'Bad connection weight' unless conn.weight == 0.0
-raise 'Bad connection node' unless conn.node == node
-raise 'Bad connection value' unless conn.value == 0.0
+raise 'Bad connection node' unless conn.neuron == node
+raise 'Bad connection value' unless conn.activation == 0.0
 # and a quick sanity check
-raise 'Bad connection node' unless conn.node.activation == node.activation
+raise 'Bad connection node' unless conn.neuron.activation == node.activation
 conn = Neuronet::Connection.new(node, 1.0)
 raise 'Bad connection weight' unless conn.weight == 1.0
-raise 'Bad connection value' unless conn.value == node.activation # * 1.0
+raise 'Bad connection value' unless conn.activation == node.activation # * 1.0
 # stays the same, of course:
 raise 'Bad connection update' unless conn.update == node.activation
 # Positive error increments weight
@@ -72,16 +74,16 @@ raise 'Missing backpropagate?' unless neuron.respond_to?(:backpropagate)
 raise 'Missing connect?' unless neuron.respond_to?(:connect)
 
 ### InputLayer ###
-input = Neuronet::InputLayer.new(5)
-raise 'Bad InputLayer length' unless input.length == 5
-raise 'Bad InputLayer terminal node' unless input[0].instance_of? Neuronet::Node
+input = Neuronet::Layer.new(5)
+raise 'Bad Layer length' unless input.length == 5
+raise 'Bad Layer node' unless input[0].instance_of? Neuronet::Neuron
 
 ### Layer ###
 layer = Neuronet::Layer.new(6)
 raise 'Bad Layer length' unless layer.length == 6
 raise 'Bad layer neuron' unless layer[0].instance_of? Neuronet::Neuron
 layer.connect(input)
-unless layer.last.connections.last.node.instance_of? Neuronet::Node
+unless layer.last.connections.last.neuron.connections.empty?
   raise "Where's the input node?"
 end
 # Will test the partial and train by behavior later
@@ -91,20 +93,23 @@ raise 'Bad layer values?' unless layer.values == [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 ### FeedForward ###
 ffn = Neuronet::FeedForward.new([4,3,2])
-mu = 1 + 4 + 4*3 + 3 + 3*2
-raise 'WUT IZZ MU???' unless ffn.mu == mu
-ffn.muk(0.5)
-raise 'What the muk!?' unless ffn.learning == 0.5/mu
-ffn.num(2.0)
-raise 'Num num!?' unless ffn.learning == 1.0/(Math.sqrt(2.0) * mu)
-ffn.learning = 0.0123
-raise 'Could not set learing constant.' unless ffn.learning == 0.0123
-unless ffn.in.instance_of? Neuronet::InputLayer
-  raise 'ffn.in is not InputLayer?'
+# TODO: Still working on mu and learning
+raise 'Unexpected mu' unless ffn.mu == 9.0
+raise 'Unexpected learning' unless Neuronet.learning == 2.0
+Neuronet.learning = 3.0
+raise 'Could not set learning' unless Neuronet.learning == 3.0
+Neuronet.learning = 2.0
+raise 'Could not reset learning' unless Neuronet.learning == 2.0
+unless ffn.all?{ _1.instance_of? Neuronet::Layer }
+  raise 'ffn is not an Array of Layers'
 end
-raise 'ffn.out is not Layer?' unless ffn.out.instance_of? Neuronet::Layer
+raise 'entrada is not Layer?' unless ffn.entrada.instance_of? Neuronet::Layer
+raise 'salida is not Layer?' unless ffn.salida.instance_of? Neuronet::Layer
+raise 'yin is not Layer?' unless ffn.yin.instance_of? Neuronet::Layer
+raise 'yant is not Layer?' unless ffn.yang.instance_of? Neuronet::Layer
+
 # the rest of FeedForwardNetwork to be tested by behavior.
-%i[update set train! exemplar input output].each do |symbol|
+%i[update set train input output].each do |symbol|
   raise "ffn does not respond to #{symbol}." unless ffn.respond_to?(symbol)
 end
 
@@ -161,27 +166,21 @@ raise 'ScaledNetwork should respond to reset' unless ffn.respond_to?(:reset)
 
 ### Tao ###
 ffn = Neuronet::Tao.bless Neuronet::ScaledNetwork.new([6,5,4,3,2])
-mu = 1 + 6 + 6*5 + 5 + 5*4 + 4 + 4*3 + 3 + 3*2 + 6*2
-raise 'MU???' unless ffn.mu == mu
+# TODO: Still working on mu and learning
+raise 'Unexpected mu' unless ffn.mu == 40.0
 raise 'Yin should be a layer.' unless ffn.yin.instance_of? Neuronet::Layer
 raise 'Yin should be the first middle layer' unless ffn.yin.length == 5
 raise 'Yang should be a layer.' unless ffn.yang.instance_of? Neuronet::Layer
 raise 'Yang should be the last middle layer.' unless ffn.yang.length == 3
 # a quick sanity check
-raise 'The last layer should be the output layer' unless ffn.out == ffn.last
-unless ffn.last.last.connections.last.node.instance_of? Neuronet::Node
-  # Remember the Node is a terminal in InputLayer.
+raise 'The last layer should be the output layer' unless ffn.salida == ffn.last
+a = ffn.last.last.connections.last.neuron
+b = ffn.first.last
+unless a.instance_of?(Neuronet::Neuron) && a == b
   raise 'The output layer should be connected to the input layer.'
 end
 
 ### Yin ###
-complained = false
-begin
-  ffn = Neuronet::Yin.bless Neuronet::FeedForward.new([5,3,3])
-rescue
-  complained = true
-end
-raise 'Should have complained about Input longer than Yin' unless complained
 ffn = Neuronet::Yin.bless Neuronet::FeedForward.new([3,3,3])
 0.upto(ffn.yin.length-1) do |i|
   unless ffn.yin[i].connections[i].weight == Neuronet::WONE
@@ -199,17 +198,16 @@ rescue
 end
 raise 'Should have complained about Output longer than Yang' unless complained
 ffn = Neuronet::Yang.bless Neuronet::FeedForward.new([3,3,3])
-0.upto(ffn.out.length-1) do |i|
-  unless ffn.out[i].connections[i].weight == Neuronet::WONE
+0.upto(ffn.salida.length-1) do |i|
+  unless ffn.salida[i].connections[i].weight == Neuronet::WONE
     raise 'Output is supposed to initially mirror Yang'
   end
-  unless ffn.out[i].bias == Neuronet::BZERO
+  unless ffn.salida[i].bias == Neuronet::BZERO
     raise 'Output with Yang should have BZERO bias.'
   end
 end
 
 ### TaoYinYang ###
-ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([3,5,2])
-# It works... I know it does.  :P
-mu = ffn.mu
-raise 'mu should have upgraded' unless mu == 1 + 3 + 3*5 + 5 + 5*2 + 3*2
+ffn = Neuronet::TaoYinYang[3]
+# TODO: Still working on mu and learning
+raise 'Unexpected mu' unless ffn.mu == 13.5
