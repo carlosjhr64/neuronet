@@ -4,6 +4,10 @@
 module Neuronet
   # The obvious BrahmaSynthesis ScaledNetwork
   module BrahmaSynthesis
+    def self.bless(myself)
+      Brahma.bless Synthesis.bless myself
+    end
+
     def self.[](size)
       Brahma.bless Synthesis.bless ScaledNetwork.new [size, 2 * size, size]
     end
