@@ -63,14 +63,14 @@ module Neuronet
       self
     end
 
+    def pair(input, target)
+      set(input).update.train(target)
+    end
+
     def pairs(pairs)
-      pairs.shuffle.each { |input, target| set(input).update.train(target) }
+      pairs.shuffle.each { |input, target| pair(input, target) }
       if block_given?
-        while yield
-          pairs.shuffle.each do |input, target|
-            set(input).update.train(target)
-          end
-        end
+        pairs.shuffle.each { |input, target| pair(input, target) } while yield
       end
       self
     end
