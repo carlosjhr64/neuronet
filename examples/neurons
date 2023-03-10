@@ -3,11 +3,13 @@
 
 require 'neuronet'
 
+# rubocop:disable Lint/RedundantCopDisableDirective
+# rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
 def random
-  # rubocop:disable Lint/BinaryOperatorWithIdenticalOperands
   rand - rand
-  # rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
 end
+# rubocop:enable Lint/BinaryOperatorWithIdenticalOperands
+# rubocop:enable Lint/RedundantCopDisableDirective
 
 # create the input nodes
 a = Neuronet::Neuron.new
