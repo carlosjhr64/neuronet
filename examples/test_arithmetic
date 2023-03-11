@@ -1,33 +1,36 @@
 #!/usr/bin/env ruby
+require 'colorize'
 require 'neuronet'
+
 MANY = 100_000
 
 def network(i)
-  ffn, name = nil, nil
+  ffn, type = nil, nil
   case i
   when 1
     ffn = Neuronet::FeedForward.new([2,1])
-    name = '[2,1]'
+    type = '[2,1]'
   when 2
-    ffn = Neuronet::FeedForward.new([2,3,1])
-    name = '[2,3,1]'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    type = '[2,4,1]'
   when 3
-    ffn = Neuronet::Tao.bless Neuronet::FeedForward.new([2,3,1])
-    name = '[2,3,1] Tao'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    Neuronet::Tao.bless ffn
+    type = '[2,4,1].Tao'
   when 4
-    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,1])
-    name = '[2,3,1] TaoYinYang'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    Neuronet::Brahma.bless ffn
+    type = '[2,4,1].Brahma'
   when 5
-    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,2,1])
-    name = '[2,3,2,1] TaoYinYang'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    Neuronet::Tao.bless Neuronet::Brahma.bless ffn
+    type = '[2,4,1].TaoBrahma'
   when 6
-    ffn = Neuronet::Brahma.bless Neuronet::FeedForward.new([2,4,1])
-    name = '[2,4,1] Brahma'
-  when 7
-    ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
-    name = '[2,4,1] TaoBrahma'
+    ffn = Neuronet::FeedForward.new([2,4,8,1])
+    Neuronet::Brahma.bless Neuronet::Vishnu.bless ffn
+    type = '[2,4,8,1].BrahmaVishnu'
   end
-  [ffn, name]
+  [ffn, type]
 end
 
 [
@@ -35,31 +38,25 @@ end
   ['Subtract',proc{|a,b|a-b}],
   ['Multiply',proc{|a,b|a*b}],
 ].each do |name, f|
-  1.upto(7) do |i|
+  1.upto(6) do |i|
     ffn, type = network(i)
-    puts "#{name} with #{type} #{MANY} times trained."
     MANY.times do
       input = [rand-rand, rand-rand] # creates [(-1,1), (-1,1)]
       target = [f.call(input[0], input[1])]
-      ffn.exemplar(input, target)
+      ffn.pair(input, target)
     end
-    good = true
-    ok = true
-    3.times do
-      input = [rand-rand, rand-rand].map{|x| x.round(3)}
-      target = [f.call(input[0], input[1])].map{|x| x.round(3)}
-      ffn.set(input)
-      puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t" \
-           "#{ffn.output.map{|x| x.round(3)}.join(', ')}"
-      t,o = target.first, ffn.output.first
-      n,d = [t.abs,o.abs].minmax
-      e = n/d
-      s = ((t<=>0.0) == (o<=>0.0))
-      good &&= (s && (e>0.90))
-      ok &&= (s && (e>0.75))
+    sum = 0.0
+    10_000.times do
+      input = [rand-rand, rand-rand]
+      target = f.call(input[0], input[1])
+      ffn.set(input).update
+      output = ffn.output.first
+      error = target - output
+      sum += error*error
     end
-    puts 'Close Enough!' if good
-    puts 'Failed!' unless ok
+    std = Math.sqrt(sum/10_000.to_f)
+    color = std < 0.015 ? :green : :red
+    puts "#{std.round(4)}, #{name}, #{type}".colorize(color)
   end
 end
 puts <<~MSG
