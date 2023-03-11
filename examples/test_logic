@@ -13,17 +13,17 @@ def network(i)
     ffn = Neuronet::FeedForward.new([2,3,1])
     name = '[2,3,1]'
   when 3
-    ffn = Neuronet::Tao.bless Neuronet::FeedForward.new([2,3,1])
-    name = '[2,3,1] Tao'
+    ffn = Neuronet::FeedForward.new([2,3,1])
+    Neuronet::Tao.bless ffn
+    name = '[2,3,1].Tao'
   when 4
-    ffn = Neuronet::TaoYinYang.bless Neuronet::FeedForward.new([2,3,1])
-    name = '[2,3,1] TaoYinYang'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    Neuronet::Brahma.bless ffn
+    name = '[2,4,1].Brahma'
   when 5
-    ffn = Neuronet::Brahma.bless Neuronet::FeedForward.new([2,4,1])
-    name = '[2,4,1] Brahma'
-  when 6
-    ffn = Neuronet::TaoBrahma.bless Neuronet::FeedForward.new([2,4,1])
-    name = '[2,4,1] TaoBrahma'
+    ffn = Neuronet::FeedForward.new([2,4,1])
+    Neuronet::Tao.bless Neuronet::Brahma.bless ffn
+    name = '[2,4,1].TaoBrahma'
   end
   [ffn, name]
 end
@@ -58,17 +58,17 @@ data_xor = [
 ]
 
 [[data_or,'OR'],[data_and,'AND'],[data_xor,'XOR']].each do |data,name|
-  1.upto(6) do |i|
+  1.upto(5) do |i|
     ffn, type = network(i)
     puts "#{name} with #{type} #{MANY} times trained."
     MANY.times do
       data.shuffle.each do |input, target|
-        ffn.exemplar(input, target)
+        ffn.pair(input, target)
       end
     end
     ok = true
     data.each do |input, target|
-      ffn.set(input)
+      ffn.set(input).update
       puts "  #{input.join(",\t")}\t=> #{target.join(', ')}\t\t" \
            "#{ffn.output.map{|x| x.round(3)}.join(', ')}"
       ok &&= (ffn.output.first<=>0.0)==target.first
