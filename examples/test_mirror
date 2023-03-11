@@ -5,14 +5,14 @@ require 'neuronet'
 
 yinyang = Neuronet::YinYang.bless Neuronet::FeedForward.new([3, 3, 3])
 input = [-1.0, 0.0, 1.0]
-yinyang.set(input)
+yinyang.set(input).update
 
 puts '### YinYang ###'
 puts 'Input:'
 puts input.join(",\t")
 
 puts 'In:'
-puts yinyang.in.map(&:activation).join(",\t")
+puts yinyang.entrada.map(&:activation).join(",\t")
 
 # Yin and Yang are one and the same middle layer.
 puts 'Yin/Yang:'
@@ -20,7 +20,7 @@ puts yinyang.yin.map(&:activation).join(",\t")
 puts yinyang.yang.map(&:activation).join(",\t")
 
 puts 'Out:'
-puts yinyang.out.map(&:activation).join(",\t")
+puts yinyang.salida.map(&:activation).join(",\t")
 
 puts 'Output:'
 puts yinyang.output.join(",\t")
@@ -28,16 +28,17 @@ puts yinyang.output.join(",\t")
 puts
 puts
 
-brahma = Neuronet::BrahmaYang.bless Neuronet::FeedForward.new([3, 6, 6])
+brahma = Neuronet::FeedForward.new([3, 6, 6])
+Neuronet::Brahma.bless Neuronet::Yang.bless brahma
 input = [-1.0, 0.0, 1.0]
-brahma.set(input)
+brahma.set(input).update
 
 puts '### BrahmaYang ###'
 puts 'Input:'
 puts input.join(",\t")
 
 puts 'In:'
-puts brahma.in.map(&:activation).join(",\t")
+puts brahma.entrada.map(&:activation).join(",\t")
 
 # Yin and Yang are one and the same middle layer.
 puts 'Yin/Yang:'
@@ -45,7 +46,7 @@ puts brahma.yin.map(&:activation).join(",\t")
 puts brahma.yang.map(&:activation).join(",\t")
 
 puts 'Out:'
-puts brahma.out.map(&:activation).join(",\t")
+puts brahma.salida.map(&:activation).join(",\t")
 
 puts 'Output:'
 puts brahma.output.join(",\t")
