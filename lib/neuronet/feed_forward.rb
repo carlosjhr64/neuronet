@@ -71,7 +71,7 @@ module Neuronet
       pairs.shuffle.each { |input, target| pair(input, target) }
       return self unless block_given?
 
-      pairs.shuffle.each { pair(_1, _2) } while yield
+      pairs.shuffle.each { |input, target| pair(input, target) } while yield
       self
     end
 

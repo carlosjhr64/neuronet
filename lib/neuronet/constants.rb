@@ -33,14 +33,47 @@ module Neuronet
   # change.  Our default ZERO weight/bias value is 0.0.
   ZERO = 0.0
 
-  # TODO: Write the derivation of BZERO and WONE in README.md
-  # I'll want to have a neuron mirror another later.  I derive BZERO and WONE in
-  # README.md, but the point here is that values -1, 0, and 1 map back to
-  # themselves:
-  #   BZERO + WONE*SQUASH[-1.0] #=> -1.0
-  #   BZERO + WONE*SQUASH[0.0]  #=> 0.0
-  #   BZERO + WONE*SQUASH[1.0]  #=> 1.0
-  BZERO = 1.0 / (1.0 - (2.0 * SQUASH[1.0]))
+  # I'll want to have a neuron roughly mirror another later.   Let [v] be the
+  # squash of v.  Consider:
+  #   v = b + w*[v]
+  # There is no constant b and w that will satisfy the above equation for all v.
+  # But one can satisfy the equation for v in {-1, 0, 1}.  Find b and w such
+  # that:
+  #   A: 0 = b + w*[0]
+  #   B: 1 = b + w*[1]
+  #   C: -1 = b + w*[-1]
+  # Use A and B to solve for b and w:
+  #   A: 0 = b + w*[0]
+  #      b = -w*[0]
+  #   B: 1 = b + w*[1]
+  #      1 = -w*[0] + w*[1]
+  #      1 = w*(-[0] + [1])
+  #      w = 1/([1] - [0])
+  #      b = -[0]/([1] - [0])
+  # Verify A, B, and C:
+  #   A: 0 = b + w*[0]
+  #      0 = -[0]/([1] - [0]) + [0]/([1] - [0])
+  #      0 = 0 # OK
+  #   B: 1 = b + w*[1]
+  #      1 = -[0]/([1] - [0]) + [1]/([1] - [0])
+  #      1 = ([1] - [0])/([1] - [0])
+  #      1 = 1 # OK
+  # Using the squash function identity, [v] = 1 - [-v]:
+  #   C: -1 = b + w*[-1]
+  #      -1 = -[0]/([1] - [0]) + [-1]/([1] - [0])
+  #      -1 = ([-1] - [0])/([1] - [0])
+  #      [0] - [1] = [-1] - [0]
+  #      [0] - [1] = 1 - [1] - [0] # Identity substitution.
+  #      [0] = 1 - [0] # OK, by identity(0=-0).
+  # Evaluate given that [0] = 0.5:
+  #      b = -[0]/([1] - [0])
+  #      b = [0]/([0] - [1])
+  #      b = 0.5/(0.5 - [1])
+  #      w = 1/([1] - [0])
+  #      w = 1/([1] - 0.5)
+  #      w = -2 * 0.5/(0.5 - [1])
+  #      w = -2 * b
+  BZERO = 0.5 / (0.5 - SQUASH[1.0])
   WONE  = -2.0 * BZERO
 
   # Although the implementation is free to set all parameters for each neuron,
