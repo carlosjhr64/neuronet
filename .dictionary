@@ -3,9 +3,9 @@ backpropagates
 bookkeeping
 brahma
 brahmasynthesis
+branmasynthesis
 bzero
 carlosjhr
-cyletmz
 feedforward
 feedforwardnetwork
 github
@@ -25,8 +25,6 @@ rubygems
 scalednetwork
 sigmoid
 sintezo
-spx
-srand
 tao
 taoyinyang
 unsquash
@@ -35,5 +33,3 @@ vishnu
 vzero
 wiki
 wikipedia
-zcr
-zhyybrqn

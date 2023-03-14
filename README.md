@@ -8,9 +8,8 @@
 
 Library to create neural networks.
 
-This is primarily a math project
-meant to be used to investigate the behavior
-of different small neural networks.
+This is primarily a math project meant to be used to investigate the behavior of
+different small neural networks.
 
 ## INSTALL:
 ```console
@@ -18,49 +17,48 @@ gem install neuronet
 ```
 ## SYNOPSIS:
 
-Note that the user really needs to read the library,
-but here is a very quick usage example:
+The library is meant to be read, but here is a motivating example:
 ```ruby
 require 'neuronet'
 include Neuronet
-
-# srand seed for this demo
-srand '5o0zhyybrqn8f4kj0b7spx22zcr0cyletmz8h53vi3o2xpr4my'.to_i(36)
-
-def random
-  100.0*((rand + rand + rand) - (rand + rand + rand))
-end
-
-def rounded(values)
-  values.map{|value| '%.3g' % value}
-end
-
-input_target = [
-  [[random, random, random],  [random, random, random]],
-  [[random, random, random],  [random, random, random]],
-  [[random, random, random],  [random, random, random]],
-]
-
-# Create a 3,3,3 network
-nn = ScaledNetwork.new [3, 3, 3]
-
-# Need to set distribution
-nn.distribution.set input_target.flatten
-
-# Train...
-nn.pairs(input_target) do # while
-  not input_target.all?{|input, target| rounded(target) == rounded(nn*input)}
-end
-
-# Verifying the first input/target/output values
-input = input_target[0][0]
-target = input_target[0][1]
-output = nn*input
-rounded(input)  #=> ["-11", "-27.8", "-97.3"]
-rounded(target) #=> ["-157", "75.1", "-108"]
-rounded(output) #=> ["-157", "75.1", "-108"]
+# TODO: highly motivating example...
 ```
-[There's a lot more...](doc/MORE.md)
+## CONTENTS:
+
+### Base
+
+* [Requires and autoloads](lib/neuronet.rb)
+* [Constants and lambdas](lib/neuronet/constants.rb)
+* [Connection](lib/neuronet/connection.rb)
+* [Neuron](lib/neuronet/neuron.rb)
+* [Layer](lib/neuronet/layer.rb)
+* [FeedForward](lib/neuronet/feed_forward.rb)
+
+### Scaled
+
+* [Scale](lib/neuronet/scale.rb)
+* [Gaussian](lib/neuronet/gaussian.rb)
+* [LogNormal](lib/neuronet/log_normal.rb)
+* [ScaledNetwork](lib/neuronet/scaled_network.rb)
+
+### Mods
+
+* [Tao](lib/neuronet/tao.rb)
+* [Yin](lib/neuronet/yin.rb)
+* [Yang](lib/neuronet/yang.rb)
+* [Brahma](lib/neuronet/brahma.rb)
+* [Vishnu](lib/neuronet/vishnu.rb)
+* [Shiva](lib/neuronet/shiva.rb)
+* [Summa](lib/neuronet/summa.rb)
+* [Sintezo](lib/neuronet/sintezo.rb)
+* [Synthesis](lib/neuronet/synthesis.rb)
+
+### Composites
+
+* [YinYang](lib/neuronet/yin_yang.rb)
+* [TaoYinYang](lib/neuronet/tao_yin_yang.rb)
+* [NeoYinYang](lib/neuronet/neo_yin_yang.rb)
+* [BranmaSynthesis](lib/neuronet/brahma_synthesis.rb)
 
 ## LICENSE:
 
