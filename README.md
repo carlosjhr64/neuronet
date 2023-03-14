@@ -25,6 +25,8 @@ include Neuronet
 ```
 ## CONTENTS:
 
+* [Neuronet wiki](https://github.com/carlosjhr64/neuronet/wiki)
+
 ### Base
 
 * [Requires and autoloads](lib/neuronet.rb)
