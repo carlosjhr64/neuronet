@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Neuronet module
+# Neuronet/Brahma module
 module Neuronet
   # Brahma is a network which has its @yin layer initially "redux"(mirror and
   # "anti-mirror") @entrada.

@@ -2,7 +2,8 @@
 
 # Neuronet module
 module Neuronet
-  # Yang is a network which has its @salida layer initially mirroring @yang.
+  # Yang is a network which has its @salida(the output layer) initially
+  # mirroring @yang(that just prior to the output layer).
   module Yang
     def self.bless(myself)
       myself.salida.mirror

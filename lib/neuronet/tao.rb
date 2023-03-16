@@ -2,8 +2,8 @@
 
 # Neuronet module
 module Neuronet
-  # A Perceptron Hybrid,
-  # Tao directly connects the output layer to the input layer.
+  # A Perceptron Hybrid, Tao(The Way) directly connects the output layer to the
+  # input layer.
   module Tao
     # Tao.bless connects the network's output layer to the input layer.
     def self.bless(myself)

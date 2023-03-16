@@ -2,7 +2,8 @@
 
 # Neuronet module
 module Neuronet
-  # Yin is a network which has its @yin layer initially mirroring @entrada.
+  # Yin is a network which has its @yin layer(that after the input layer)
+  # initially mirroring @entrada(the input layer).
   module Yin
     def self.bless(myself)
       myself.yin.mirror

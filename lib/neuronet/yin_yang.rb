@@ -4,12 +4,12 @@
 module Neuronet
   # The obvious YinYang ScaledNetwork
   module YinYang
-    def self.bless(myself)
-      Yin.bless Yang.bless myself
+    def self.[](size)
+      YinYang.bless ScaledNetwork.new [size, size, size]
     end
 
-    def self.[](size)
-      Yin.bless Yang.bless ScaledNetwork.new [size, size, size]
+    def self.bless(myself)
+      Yin.bless Yang.bless myself
     end
   end
 end
