@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'neuronet'
-  s.version  = '7.0.230313'
+  s.version  = '7.0.230319'
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2023-03-13'
+  s.date     = '2023-03-19'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -14,9 +14,8 @@ Gem::Specification.new do |s|
   s.description = <<~DESCRIPTION
     Library to create neural networks.
     
-    This is primarily a math project
-    meant to be used to investigate the behavior
-    of different small neural networks.
+    This is primarily a math project meant to be used to investigate the behavior of
+    different small neural networks.
   DESCRIPTION
   ## FILES ##
   s.require_paths = ['lib']
