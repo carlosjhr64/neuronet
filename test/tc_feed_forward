@@ -55,7 +55,8 @@ class TestFeedForward < Test::Unit::TestCase
     input = [random, random, random]
     target = [random, random, random]
     ff.set(input)
-    65.times{ff.update.train(target)}
+    mju = 7.5 # TODO: derive optimal mju
+    65.times{ff.update.train(target, mju)}
     output = ff*input
     # I'm pretty sure it's 3g good... :)
     target = target.map{|x|'%.3g'%x}.join(',')
@@ -87,7 +88,8 @@ class TestFeedForward < Test::Unit::TestCase
       [[random, random, random], [random, random, random]],
       [[random, random, random], [random, random, random]],
     ]
-    ff.pairs(input_target) do # while...
+    mju = 7.5 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       !input_target.all? do |input, target|
         target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
       end
