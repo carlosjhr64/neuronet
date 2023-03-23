@@ -50,7 +50,8 @@ class TestBlessing < Test::Unit::TestCase
     ff.distribution.set input_target.flatten
 
     start, count = Time.now, 0
-    ff.pairs input_target do # while...
+    mju = 4.0 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       count += 1
       break if count > 10_000
       !input_target.all? do |input, target|
@@ -111,7 +112,8 @@ class TestBlessing < Test::Unit::TestCase
     ff.distribution.set input_target.flatten
 
     start, count = Time.now, 0
-    ff.pairs input_target do # while...
+    mju = 5.0 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       count += 1
       break if count > 10_000
       !input_target.all? do |input, target|
@@ -188,8 +190,9 @@ class TestBlessing < Test::Unit::TestCase
 
     ff.distribution.set input_target.flatten
 
-    start, count, max, fg = Time.now, 0, 100_000, '%.1g'
-    ff.pairs input_target do # while...
+    start, count, max, fg = Time.now, 0, 30_000, '%.1g'
+    mju = 10.0 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       count += 1
       break if count > max
       !input_target.all? do |input, target|
@@ -253,7 +256,8 @@ class TestBlessing < Test::Unit::TestCase
     ff.distribution.set input_target.flatten
 
     start, count, max = Time.now, 0, 10_000
-    ff.pairs input_target do # while...
+    mju = 6.0 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       count += 1
       break if count > max
       !input_target.all? do |input, target|
