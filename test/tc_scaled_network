@@ -45,7 +45,8 @@ class TestScaledNetwork < Test::Unit::TestCase
 
     fg = '%.2g'
     start, count, max = Time.now, 0, 100_000
-    ff.pairs input_target do # while...
+    mju = 2.0 # TODO: derive optimal mju
+    ff.pairs(input_target, mju) do # while...
       count += 1
       break if count > max
       !input_target.all? do |input, target|
