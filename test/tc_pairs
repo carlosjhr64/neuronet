@@ -23,7 +23,8 @@ class TestPairs < Test::Unit::TestCase
     12.times do
       pairs = [[v3, v3], [v3, v3], [v3, v3]]
       ff = FeedForward.new [3,3]
-      many.times{ff.pairs pairs}
+      mju = 3.75 # TODO: derive optimal mju
+      many.times{ff.pairs pairs, mju}
       pairs.each do |input, target|
         # Get 1 significant figure
         unless target.map{|x|'%.1g'%x} == (ff*input).map{|x|'%.1g'%x}
@@ -40,7 +41,8 @@ class TestPairs < Test::Unit::TestCase
     count = 0
     pairs = [[v3, v3], [v3, v3], [v3, v3]]
     ff = FeedForward.new [3,3]
-    ff.pairs(pairs) do
+    mju = 2.5 # TODO: derive optimal mju
+    ff.pairs(pairs, mju) do
       count += 1
       break if count > 3000
       !pairs.all? do |input,target|
