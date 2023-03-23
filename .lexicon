@@ -89,6 +89,7 @@ next
 noise
 NOISE
 NO_NOISE
+nu
 _other
 other
 output
@@ -123,6 +124,7 @@ sum2
 Summa
 synthesis
 Synthesis
+t
 Tao
 TaoYinYang
 target
@@ -144,6 +146,7 @@ Vishnu
 vzero
 VZERO
 weight
+weighted_activation
 with_index
 wone
 WONE
