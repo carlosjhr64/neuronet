@@ -6,10 +6,6 @@ module Neuronet
   class FeedForward < Array
     attr_reader :entrada, :salida, :yin, :yang
 
-    # FeedForward's mu sums the mu of all layers and is used to reduce the
-    # back-propagated error.
-    def mu = Neuronet.learning * sum(Neuronet.zero, &:mu)
-
     # I find very useful to name certain layers:
     #  [0]    @entrada   Input Layer
     #  [1]    @yin       Typically the first middle layer
@@ -33,9 +29,7 @@ module Neuronet
       self
     end
 
-    def input
-      @entrada.values
-    end
+    def input = @entrada.values
 
     # Update the network.
     def update
@@ -44,9 +38,7 @@ module Neuronet
       self
     end
 
-    def output
-      @salida.values
-    end
+    def output = @salida.values
 
     # Consider:
     #   m = Neuronet::FeedForward.new(layers)
@@ -58,29 +50,24 @@ module Neuronet
       @salida.values
     end
 
-    def train(target, mju = mu)
+    # TODO: a default mju.
+    def train(target, mju)
       @salida.train(target, mju)
       self
     end
 
-    def pair(input, target)
-      set(input).update.train(target)
-    end
+    def pair(input, target, mju) = set(input).update.train(target, mju)
 
-    def pairs(pairs)
-      pairs.shuffle.each { |input, target| pair(input, target) }
+    def pairs(pairs, mju)
+      pairs.shuffle.each { |input, target| pair(input, target, mju) }
       return self unless block_given?
 
-      pairs.shuffle.each { |input, target| pair(input, target) } while yield
+      pairs.shuffle.each { |i, t| pair(i, t, mju) } while yield
       self
     end
 
-    def inspect
-      map(&:inspect).join("\n")
-    end
+    def inspect = map(&:inspect).join("\n")
 
-    def to_s
-      map(&:to_s).join("\n")
-    end
+    def to_s = map(&:to_s).join("\n")
   end
 end

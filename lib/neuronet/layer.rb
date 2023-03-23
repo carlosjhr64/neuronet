@@ -4,9 +4,6 @@
 module Neuronet
   # Layer is an array of neurons.
   class Layer < Array
-    # Mu is a measure of sensitivity to errors.
-    def mu = sum(Neuronet.zero, &:mu)
-
     # Length is the number of neurons in the layer.
     def initialize(length)
       super(length) { Neuron.new }
@@ -72,7 +69,8 @@ module Neuronet
 
     # Takes the real world target for each neuron in this layer and
     # backpropagates the error to each neuron.
-    def train(target, mju = mu)
+    # TODO: a per neuron mju.
+    def train(target, mju)
       0.upto(length - 1) do |index|
         neuron = self[index]
         error = (target[index] - neuron.value) / mju

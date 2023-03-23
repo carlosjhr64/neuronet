@@ -15,9 +15,14 @@ module Neuronet
     attr_reader :label, :activation, :connections
     attr_accessor :bias
 
-    # Mu is a measure of sensitivity to errors.  A neuron without connections
-    # typically is an input neuron, and it's mu is 0(error free).
-    def mu = @connections.sum(Neuronet.zero, &:mu)
+    # The neuron's mu is the sum of the connections' mu(activation), plus one
+    # for the bias:
+    #   𝛍 = 1+∑𝐚
+    def mu = 1 + @connections.sum(Neuronet.zero, &:mu)
+
+    # The neurons's nu is the sum of the connections' nu values:
+    #   ∑𝛎ᵢ = 𝐰ᵢ𝛍ⁱ(1-𝐚ⁱ)𝐚ⁱ
+    def nu = @connections.sum(Neuronet.zero, &:nu)
 
     # One can explicitly set the neuron's value, typically used to set the input
     # neurons.  The given "real world" value is squashed into the neuron's
@@ -31,9 +36,7 @@ module Neuronet
     end
 
     # The "real world" value of the neuron is the unsquashed activation value.
-    def value
-      Neuronet.unsquash[@activation]
-    end
+    def value = Neuronet.unsquash[@activation]
 
     # The initialize method sets the neuron's value, bias and connections.
     def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
@@ -63,7 +66,7 @@ module Neuronet
     def partial
       return @activation if @connections.empty?
 
-      self.value = @bias + @connections.sum(Neuronet.zero, &:activation)
+      self.value = @bias + @connections.sum(Neuronet.zero, &:partial)
       @activation
     end
 
@@ -108,8 +111,6 @@ module Neuronet
     end
 
     # A neuron plainly puts itself as it's label.
-    def to_s
-      @label
-    end
+    def to_s = @label
   end
 end

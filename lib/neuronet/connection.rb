@@ -8,24 +8,24 @@ module Neuronet
   class Connection
     attr_accessor :neuron, :weight
 
-    # Mu is a measure of sensitivity to errors.  It's the derivative of the
-    # squash function.
-    def mu = Neuronet.derivative[@neuron.activation]
-
     # Connection#initialize takes a neuron and a weight with a default of 0.0.
     def initialize(neuron, weight = Neuronet.zero)
       @neuron = neuron
       @weight = weight
     end
 
-    # The activation of a connection is the weighted activation of the connected
-    # neuron.
-    def activation
-      @neuron.activation * @weight
-    end
+    # The connection's mu is the activation of the connected neuron.
+    def mu = @neuron.activation
+    alias activation mu
 
-    # Consistent with Neuron#partial
-    alias partial activation
+    # 𝛎 = 𝐰𝛍(1-𝐚)𝐚
+    def nu = @weight * @neuron.mu * Neuronet.derivative[@neuron.activation]
+
+    # The weighted activation of the connected neuron.
+    def weighted_activation = @neuron.activation * @weight
+
+    # Consistent with #update
+    alias partial weighted_activation
 
     # Connection#update returns the updated activation of a connection, which is
     # the weighted updated activation of the neuron it's connected to:
@@ -34,9 +34,7 @@ module Neuronet
     # (or right after training).  Otherwise, both update and value should give
     # the same result.  When back calculation are not needed, use
     # Connection#activation instead.
-    def update
-      @neuron.update * @weight
-    end
+    def update = @neuron.update * @weight
 
     # Connection#backpropagate modifies the connection's weight in proportion to
     # the error given and passes that error to its connected neuron via the
@@ -49,15 +47,15 @@ module Neuronet
       @neuron.backpropagate(error)
       self
     end
+    # On how to reduce the error, the above makes it obvious how to interpret
+    # the equipartition of errors among the connections.  Backpropagation is
+    # simmetric to forward propagation of errors. The error variable is the
+    # reduced error, 𝛆(see the wiki notes).
 
     # A connection inspects itself as "weight*label:...".
-    def inspect
-      "#{Neuronet.format % @weight}*#{@neuron.inspect}"
-    end
+    def inspect = "#{Neuronet.format % @weight}*#{@neuron.inspect}"
 
     # A connection puts itself as "weight*label".
-    def to_s
-      "#{Neuronet.format % @weight}*#{@neuron}"
-    end
+    def to_s = "#{Neuronet.format % @weight}*#{@neuron}"
   end
 end
