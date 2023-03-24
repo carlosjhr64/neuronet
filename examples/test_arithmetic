@@ -40,10 +40,11 @@ end
 ].each do |name, f|
   1.upto(6) do |i|
     ffn, type = network(i)
+    mju = ffn.sum{ _1.first.mu } # TODO: derive optimal mju
     MANY.times do
       input = [rand-rand, rand-rand] # creates [(-1,1), (-1,1)]
       target = [f.call(input[0], input[1])]
-      ffn.pair(input, target)
+      ffn.pair(input, target, mju)
     end
     sum = 0.0
     10_000.times do

@@ -54,6 +54,7 @@ neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS], reset: true)
 # Training...
 mma = B # moving average set high to be averaged down.
 count = 0
+mju = 11.0 # TODO: derive optimal mju
 # Looking for 1%, but quit if it's taking too long.
 while mma / B > 0.01 && count < MAX
   count += 1
@@ -70,7 +71,7 @@ while mma / B > 0.01 && count < MAX
   # Note that the real task is to describe the motion (deviation) from A.
   mma = (127.0 * mma + Math.sqrt(error2)) / 128.0
   mma = B if mma > B
-  neuronet.train(target) # neuronet trains the output
+  neuronet.train(target, mju) # neuronet trains the output
 end
 
 # How good are we?

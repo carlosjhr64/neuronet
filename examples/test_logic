@@ -60,10 +60,11 @@ data_xor = [
 [[data_or,'OR'],[data_and,'AND'],[data_xor,'XOR']].each do |data,name|
   1.upto(5) do |i|
     ffn, type = network(i)
+    mju = ffn.sum{ _1.first.mu } # TODO: derive optimal mju
     puts "#{name} with #{type} #{MANY} times trained."
     MANY.times do
       data.shuffle.each do |input, target|
-        ffn.pair(input, target)
+        ffn.pair(input, target, mju)
       end
     end
     ok = true
