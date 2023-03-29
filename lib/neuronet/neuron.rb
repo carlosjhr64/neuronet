@@ -34,7 +34,7 @@ module Neuronet
 
     # The neuron's nu is the product of the neuron's mu and the derivative of
     # the activation function:
-    #   𝛎 = 𝛍 𝓓⎡𝒂
+    #   𝛎 = 𝛍 𝓓𝒂
     def nu
       mju = mu
       return mju if mju.zero?
