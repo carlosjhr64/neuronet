@@ -32,12 +32,11 @@ module Neuronet
       @connections.sum(Neuronet.zero, &:kappa)
     end
 
-    # The neuron's nu is the product of the neuron's mu and the derivative of
+    # The neuron's lamda is the product of the neuron's mu and the derivative of
     # the activation function:
-    #   𝛎 = 𝛍 𝓓𝒂
-    def nu
-      mju = mu
-      return mju if mju.zero?
+    #   𝝀 = 𝛍 𝓓𝒂
+    def lamda
+      return mju if (mju = mu).zero?
 
       mju * Neuronet.derivative[@activation]
     end
