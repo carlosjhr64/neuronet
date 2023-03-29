@@ -17,12 +17,30 @@ module Neuronet
 
     # The neuron's mu is the sum of the connections' mu(activation), plus one
     # for the bias:
-    #   𝛍 = 1+∑𝐚
-    def mu = 1 + @connections.sum(Neuronet.zero, &:mu)
+    #   𝛍 := 1+∑𝐚'
+    def mu
+      return Neuronet.zero if @connections.empty?
 
-    # The neurons's nu is the sum of the connections' nu values:
-    #   ∑𝛎ᵢ = 𝐰ᵢ𝛍ⁱ(1-𝐚ⁱ)𝐚ⁱ
-    def nu = @connections.sum(Neuronet.zero, &:nu)
+      1 + @connections.sum(Neuronet.zero, &:mu)
+    end
+
+    # The neurons's kappa is the sum of the connections' kappa values:
+    #   𝜿 := 𝑾 𝛎'
+    def kappa
+      return Neuronet.zero if @connections.empty?
+
+      @connections.sum(Neuronet.zero, &:kappa)
+    end
+
+    # The neuron's nu is the product of the neuron's mu and the derivative of
+    # the activation function:
+    #   𝛎 = 𝛍 𝓓⎡𝒂
+    def nu
+      mju = mu
+      return mju if mju.zero?
+
+      mju * Neuronet.derivative[@activation]
+    end
 
     # One can explicitly set the neuron's value, typically used to set the input
     # neurons.  The given "real world" value is squashed into the neuron's
