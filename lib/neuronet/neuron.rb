@@ -34,7 +34,7 @@ module Neuronet
 
     # The neuron's lamda is the product of the neuron's mu and the derivative of
     # the activation function:
-    #   𝝀 = 𝛍 𝓓𝒂
+    #   𝝀 = 𝛍𝓑𝒂
     def lamda
       if (mju = mu).zero?
         return mju
