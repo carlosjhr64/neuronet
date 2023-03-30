@@ -36,7 +36,9 @@ module Neuronet
     # the activation function:
     #   𝝀 = 𝛍 𝓓𝒂
     def lamda
-      return mju if (mju = mu).zero?
+      if (mju = mu).zero?
+        return mju
+      end
 
       mju * Neuronet.derivative[@activation]
     end
