@@ -35,13 +35,7 @@ module Neuronet
     # The neuron's lamda is the product of the neuron's mu and the derivative of
     # the activation function:
     #   𝝀 = 𝛍𝓑𝒂
-    def lamda
-      if (mju = mu).zero?
-        return mju
-      end
-
-      mju * Neuronet.derivative[@activation]
-    end
+    def lamda = (mju = mu).zero? ? mju : mju * Neuronet.derivative[@activation]
 
     # One can explicitly set the neuron's value, typically used to set the input
     # neurons.  The given "real world" value is squashed into the neuron's
