@@ -18,11 +18,12 @@ module Neuronet
     def mu = @neuron.activation
     alias activation mu
 
+    # The connection's mju is 𝑾𝓑𝒂'.
+    def mju = @weight * @neuron.derivative
+
     # The connection kappa is a component of the neuron's sum kappa:
-    #   𝜿 := 𝑾 𝛎'
-    def kappa
-      @weight * @neuron.nu
-    end
+    #   𝜿 := 𝑾 𝝀'
+    def kappa = @weight * @neuron.lamda
 
     # The weighted activation of the connected neuron.
     def weighted_activation = @neuron.activation * @weight

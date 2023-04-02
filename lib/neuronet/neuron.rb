@@ -25,33 +25,27 @@ module Neuronet
     end
 
     # Reference the library's wiki:
-    #   𝒆ₕ ~ 𝜀(𝝁ₕ + 𝓦ₕⁱ𝝁ᵢ + 𝓦ₕⁱ𝓦ᵢʲ𝝁ⱼ + 𝓦ₕⁱ𝓦ᵢʲ𝓦ⱼᵏ𝝁ₖ + ...)
-    # 𝓦ₕⁱ𝝁ᵢ is:
-    #   neuron.wba{ |connected_neuron| connected_neuron.mu }
-    # 𝓦ₕⁱ𝓦ᵢʲ𝝁ⱼ is
-    #   nh.wba{ |ni| ni.wba{ |nj| nj.mu }}
-    def wba(&block)
-      return Neuronet.zero if @connections.empty?
-
-      @connections.sum(Neuronet.zero) do |connection|
-        weight = connection.weight
-        neuron = connection.neuron
-        weight * Neuronet.derivative[neuron.activation] * block[neuron]
-      end
+    #   𝒆ₕ ~ 𝜀(𝝁ₕ + 𝜧ₕⁱ𝝁ᵢ + 𝜧ₕⁱ𝜧ᵢʲ𝝁ⱼ + 𝜧ₕⁱ𝜧ᵢʲ𝜧ⱼᵏ𝝁ₖ + ...)
+    # 𝜧ₕⁱ𝝁ᵢ is:
+    #   neuron.mju{ |connected_neuron| connected_neuron.mu }
+    # 𝜧ₕⁱ𝜧ᵢʲ𝝁ⱼ is:
+    #   nh.mju{ |ni| ni.mju{ |nj| nj.mu }}
+    def mju(&block)
+      @connections.sum(Neuronet.zero) { _1.mju * block[_1.neuron] }
     end
 
-    # The neurons's kappa is the sum of the connections' kappa values:
-    #   𝜿 := 𝑾 𝛎'
-    def kappa
-      return Neuronet.zero if @connections.empty?
+    # 𝓓𝒗⌈𝒗 = (1-⌈𝒗)⌈𝒗 = (1-𝒂)𝒂 = 𝓑𝒂
+    def derivative = Neuronet.derivative[@activation]
 
-      @connections.sum(Neuronet.zero, &:kappa)
-    end
+    # 𝝀 = 𝓑𝒂𝛍
+    def lamda = derivative * mu
 
-    # The neuron's lamda is the product of the neuron's mu and the derivative of
-    # the activation function:
-    #   𝝀 = 𝛍𝓑𝒂
-    def lamda = (mju = mu).zero? ? mju : mju * Neuronet.derivative[@activation]
+    # 𝜿 := 𝜧 𝝁' = 𝑾 𝓑𝒂'𝝁' = 𝑾 𝝀'
+    # def kappa = mju(&:mu)
+    def kappa = @connections.sum(Neuronet.zero, &:kappa)
+
+    # 𝜾 := 𝜧 𝜧' 𝝁" = 𝜧 𝜿'
+    def iota = mju(&:kappa)
 
     # One can explicitly set the neuron's value, typically used to set the input
     # neurons.  The given "real world" value is squashed into the neuron's
