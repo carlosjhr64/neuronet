@@ -1,0 +1,103 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'neuronet'
+
+# These tests are mostly sanity checks.
+class TestConstants < Test::Unit::TestCase
+  FMT = '%.13g'
+
+  def test_format
+    # assertion(expected, actual)
+    assert_equal FMT, Neuronet::FORMAT
+    assert_equal FMT, Neuronet.format
+    assert_equal '1.234567890123e+13', Neuronet.format % 12345678901234
+    assert_equal '1234567890123', Neuronet.format % 1234567890123
+  end
+
+  def test_squash
+    # assertion(expected, actual)
+    assert_equal Neuronet::SQUASH, Neuronet.squash
+    assert_equal '0.5', FMT % Neuronet.squash[0]
+    assert_equal '0.73105857863', FMT % Neuronet.squash[1]
+    assert_equal '0.26894142137', FMT % Neuronet.squash[-1]
+  end
+
+  def test_unsquash
+    # assertion(expected, actual)
+    assert_equal Neuronet::UNSQUASH, Neuronet.unsquash
+    # Note that the following also tests the inverse property to squash:
+    assert_equal '0', FMT % Neuronet.unsquash[0.5]
+    assert_equal '1', FMT % Neuronet.unsquash[0.73105857863]
+    assert_equal '-1', FMT % Neuronet.unsquash[0.26894142137]
+  end
+
+  def test_derivative
+    # The derivative of the squash function is given in terms of the squash
+    # function itself: f'(x) = (1-f(x))*f(x).
+    # assertion(expected, actual)
+    assert_equal Neuronet::DERIVATIVE, Neuronet.derivative
+    assert_equal '0.25', FMT % Neuronet.derivative[0.5]
+    assert_equal '0', FMT % Neuronet.derivative[0]
+    assert_equal '0', FMT % Neuronet.derivative[1]
+  end
+
+  # The default data type for Neuronet is Float.  But I wanted to keep the
+  # library agnostic and take advantage of Ruby's duck typing.  So I seed the
+  # data type with configurable constants.
+  def test_constants
+    assert Neuronet::ZERO.equal? 0.0
+    assert Neuronet::VZERO.equal? 0.0
+    # assertion(expected, actual)
+    assert_equal Neuronet::ZERO, Neuronet.zero
+    assert_equal Neuronet::VZERO, Neuronet.vzero
+  end
+
+  def test_mirror_constants
+    # assertion(expected, actual)
+    assert_equal Neuronet::BZERO, Neuronet.bzero
+    assert_equal Neuronet::WONE, Neuronet.wone
+    v = ->(x) { Neuronet::BZERO + (Neuronet::WONE * Neuronet::SQUASH[x]) }
+    middle = Neuronet::ZERO
+    # Adding +/- 1 to middle is OK for the default Float case.
+    high = middle + 1
+    low = middle - 1
+    assert_equal(middle, v[middle])
+    assert_equal(high, v[high])
+    assert_equal(low, v[low])
+  end
+
+  def test_mirror_float
+    v = ->(x) { Neuronet::BZERO + (Neuronet::WONE * Neuronet::SQUASH[x]) }
+    # Demonstrating that mirroring roughly works:
+    [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2].each do |x|
+      assert_equal(x,  v[x].round(1))
+      assert_equal(-x, v[-x].round(1))
+    end
+  end
+
+  def test_noise
+    # assertion(expected, actual)
+    assert_equal Neuronet::NOISE, Neuronet.noise
+    assert Neuronet::NOISE[1] > 0
+    assert Neuronet::NOISE[1] < 2
+    refute Neuronet::NOISE[1] == 1
+    # Very likely passes:
+    assert 10_000.times.sum{ Neuronet::NOISE[1] } < 10_100
+    assert 10_000.times.sum{ Neuronet::NOISE[1] } > 9_900
+    # There is the no noise option:
+    assert_equal 1, Neuronet::NO_NOISE[1]
+  end
+
+  def test_limits
+    # assertion(expected, actual)
+    assert_equal Neuronet::MAXW, Neuronet.maxw
+    assert_equal Neuronet::MAXB, Neuronet.maxb
+    assert_equal Neuronet::MAXV, Neuronet.maxv
+  end
+
+  def test_learning
+    # assertion(expected, actual)
+    assert_equal 2.0, Neuronet::LEARNING
+    assert_equal Neuronet::LEARNING, Neuronet.learning
+  end
+end

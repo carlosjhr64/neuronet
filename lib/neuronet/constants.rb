@@ -5,7 +5,7 @@ module Neuronet
   # Neuronet allows one to set the format to use for displaying float values,
   # mostly used in the inspect methods.
   # [Docs](https://docs.ruby-lang.org/en/master/format_specifications_rdoc.html)
-  FORMAT = '%.14g'
+  FORMAT = '%.13g'
 
   # An artificial neural network uses a squash function to determine the
   # activation value of a neuron.  The squash function for Neuronet is the
