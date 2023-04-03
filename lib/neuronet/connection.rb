@@ -9,7 +9,7 @@ module Neuronet
     attr_accessor :neuron, :weight
 
     # Connection#initialize takes a neuron and a weight with a default of 0.0.
-    def initialize(neuron, weight = Neuronet.zero)
+    def initialize(neuron = Neuron.new, weight = Neuronet.zero)
       @neuron = neuron
       @weight = weight
     end

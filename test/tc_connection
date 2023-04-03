@@ -1,31 +1,100 @@
 #!/usr/bin/env ruby
 require 'test/unit'
+require 'ostruct'
 require 'neuronet'
 
 class TestConnection < Test::Unit::TestCase
-  include Neuronet
+  def test_connection1
+    c = Neuronet::Connection.new
 
-  def test_connection
-    Neuron.label = 'a'
-    n = Neuron.new
-    c = Connection.new n
+    # assertion(expected, actual)
     assert_equal '0*a:0', c.inspect
     assert_equal '0*a', c.to_s
 
-    n = Neuron.new 1.25
-    c = Connection.new n, 0.33
-    assert_equal '0.33*b:1.25', c.inspect
-    assert_equal n, c.neuron
-    assert_equal 0.33, c.weight
-    assert_equal 0.33*SQUASH[1.25], c.weighted_activation
-    assert_equal 0.33*SQUASH[1.25], c.partial
-    assert_equal 0.33*SQUASH[1.25], c.update
+    assert c.weight.equal? Neuronet.zero
+    assert_equal Neuronet::Neuron, c.neuron.class
 
-    Neuronet.noise = NO_NOISE
-    c.backpropagate(0.01)
-    assert_equal 0.33+SQUASH[1.25]*0.01, c.weight
-    # but the input neuron remains the same!
-    assert_equal 'b:1.25', n.inspect
-    Neuronet.noise = NOISE # Restore
+    assert_equal 0.5, c.mu
+    assert c.mu.equal? c.activation
+    assert c.mu.equal? c.neuron.activation
+
+    assert_equal Neuronet.zero, c.mju
+    assert_equal Neuronet.zero, c.kappa
+    assert_equal Neuronet.zero, c.weighted_activation
+    assert_equal Neuronet.zero, c.partial
+    assert_equal Neuronet.zero, c.update
+
+    Neuronet::Neuron.label = 'a' # restore
+  end
+
+  def test_connection2
+    n = Neuronet::Neuron.new
+    c = Neuronet::Connection.new n, 1.0
+
+    # assertion(expected, actual)
+    assert_equal '1*a:0', c.inspect
+    assert_equal '1*a', c.to_s
+
+    assert_equal 1.0, c.weight
+    assert c.neuron.equal? n
+
+    assert_equal 0.5, c.mu
+    assert c.mu.equal? c.activation
+    assert c.mu.equal? c.neuron.activation
+
+    assert_equal 0.25, c.mju
+    assert_equal Neuronet.zero, c.kappa
+    assert_equal 0.5, c.weighted_activation
+    assert_equal 0.5, c.partial
+    assert_equal 0.5, c.update
+
+    Neuronet::Neuron.label = 'a' # restore
+  end
+
+  def test_connection_backpropagate
+    Neuronet.noise = Neuronet::NO_NOISE
+    c = Neuronet::Connection.new
+
+    assert_equal 0.0, c.weight
+    c.backpropagate(1.0)
+    assert_equal 0.5, c.weight
+
+    # tests maxw
+    c.weight = Neuronet::maxw
+    assert_equal Neuronet::maxw, c.weight
+    assert_equal c, c.backpropagate(1.0) # tests it returns self
+    assert_equal Neuronet::maxw, c.weight
+
+    # restore
+    Neuronet.noise = Neuronet::NOISE
+    Neuronet::Neuron.label = 'a'
+  end
+
+  def test_connection_mockup
+    n = OpenStruct.new
+    w = rand
+    c = Neuronet::Connection.new(n, w)
+
+    n.activation = rand
+    assert_equal n.activation, c.mu
+
+    n.derivative = rand
+    assert_equal w*n.derivative, c.mju
+
+    n.lamda = rand
+    assert_equal w*n.lamda, c.kappa
+
+    assert_equal w*n.activation, c.weighted_activation
+    assert_equal w*n.activation, c.partial
+
+    n.update = rand
+    assert_equal w*n.update, c.update
+
+    def n.backpropagate(x)
+      self.backpropagated = x
+    end
+    x = rand
+    c.backpropagate(x)
+    assert_equal x, n.backpropagated
   end
 end
