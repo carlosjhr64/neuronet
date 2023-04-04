@@ -117,9 +117,10 @@ module Neuronet
     #	  salida = Neuronet::Neuron.new
     #	  salida.connect(entrada)
     # Think output(salida) connects to input(entrada).
-    def connect(neuron, weight = Neuronet.zero)
-      @connections.push(Connection.new(neuron, weight))
-      self
+    def connect(neuron = Neuron.new, weight: Neuronet.zero)
+      @connections.push(Connection.new(neuron, weight:))
+      # Note that we're returning the connected neuron:
+      neuron
     end
 
     # Tacks on to neuron's inspect method to show the neuron's bias and

@@ -29,7 +29,7 @@ class TestConnection < Test::Unit::TestCase
 
   def test_connection2
     n = Neuronet::Neuron.new
-    c = Neuronet::Connection.new n, 1.0
+    c = Neuronet::Connection.new n, weight: 1.0
 
     # assertion(expected, actual)
     assert_equal '1*a:0', c.inspect
@@ -73,7 +73,7 @@ class TestConnection < Test::Unit::TestCase
   def test_connection_mockup
     n = OpenStruct.new
     w = rand
-    c = Neuronet::Connection.new(n, w)
+    c = Neuronet::Connection.new(n, weight: w)
 
     n.activation = rand
     assert_equal n.activation, c.mu

@@ -6,7 +6,6 @@ class TestNeuron < Test::Unit::TestCase
   include Neuronet
 
   def test_neuron
-    Neuron.label = 'a'
     neuron = Neuron.new
     assert_equal 'a:0', neuron.inspect
     assert_equal 'a', neuron.to_s
@@ -33,8 +32,73 @@ class TestNeuron < Test::Unit::TestCase
     Neuronet.noise = NOISE # Restore
 
     ###      :b         connect :c
-    neuron = Neuron.new.connect Neuron.new
+    neuron = Neuron.new
+    neuron.connect(Neuron.new)
     assert_equal 'b:0|0+0*c', neuron.inspect
     assert_equal 'b', neuron.to_s
+
+    Neuron.label = 'a' # restore
+  end
+
+  def test_legacy
+    output = Neuron.new
+    3.times{ output.connect(weight: 1.0) }
+    assert_equal 'a:0|0+1*b+1*c+1*d', output.inspect
+
+    assert_equal 1+3*0.5, output.mu
+    assert_equal 3*0.25*0.5, output.mju{ |input| input.activation }
+    assert_equal (1-0.5)*0.5, output.derivative
+    assert_equal (1-0.5)*0.5*(1+3*0.5), output.lamda
+    assert_equal 0.0, output.kappa # kappa is level two.
+    assert_equal 0.0, output.iota # iota is level three.
+
+    ni = output.connections.first.neuron
+    ni.connect(weight: 1.0)
+    assert_equal 1*0.25*(1+0.5), output.kappa # 0.375
+    assert_equal 0.0, output.iota # iota is level three.
+
+    nj = ni.connections.first.neuron
+    nj.connect(weight: 1.0)
+    assert_equal 0.375, output.kappa # kappa is level two.
+    assert_equal 1*0.25*0.375, output.iota # iota is level three.
+
+    Neuron.label = 'a' # restore
+  end
+
+  def test_value
+    n = Neuron.new
+    n.value = 1.0
+    assert_equal 1.0, n.value
+    assert_equal Neuronet::SQUASH[1], n.activation
+    assert_equal 'a:1', n.inspect
+
+    Neuron.label = 'a' # restore
+  end
+
+  def test_backpropagate
+    Neuronet.noise = NO_NOISE
+    Neuronet.format = '%.3g'
+
+    a = Neuron.new
+    b = a.connect
+    c = b.connect
+    d = c.connect
+
+    assert_equal 'a:0|0+0*b', a.inspect
+    assert_equal 'b:0|0+0*c', b.inspect
+    assert_equal 'c:0|0+0*d', c.inspect
+    assert_equal 'd:0', d.inspect
+
+    a.backpropagate(1.0).update
+    # a, b, and c are updated, changed.
+    assert_equal 'a:1.4|1+0.5*b', a.inspect
+    assert_equal 'b:1.39|1+0.5*c', b.inspect
+    assert_equal 'c:1.25|1+0.5*d', c.inspect
+    # d is input, remains unchanged.
+    assert_equal 'd:0', d.inspect
+
+    Neuron.label = 'a' # restore
+    Neuronet.noise = NOISE
+    Neuronet.format = FORMAT
   end
 end
