@@ -6,23 +6,115 @@ class TestLayer < Test::Unit::TestCase
   include Neuronet
 
   def test_layer
-    Neuron.label = 'a'
     layer = Layer.new 3
     assert_equal 'a:0,b:0,c:0', layer.inspect
+
     yin = Layer.new 3
+    layer.connect yin
     inspect = 'a:0|0+0*d+0*e+0*f,b:0|0+0*d+0*e+0*f,c:0|0+0*d+0*e+0*f'
-    assert_equal inspect, layer.connect(yin).inspect
+    assert_equal inspect, layer.inspect
     assert_equal inspect, layer.partial.inspect
     assert_equal [0.0, 0.0, 0.0], layer.values
 
     Neuronet.noise = NO_NOISE
-    layer.train([-1,0,1], 1.75) # actual mu is 4.5
+    layer.train([-1,0,1], 1.75) # 1.75 mju by trial and error
     layer.partial
     assert_equal [-1.0,0.0,1.0], layer.values.map{|f| f.round(14)}
+
     yang = Layer.new 3
     yang.connect layer
     assert_equal('g:0|0+0*a+0*b+0*c,h:0|0+0*a+0*b+0*c,i:0|0+0*a+0*b+0*c',
                  yang.inspect)
-    Neuronet.noise = NOISE # Restore
+
+    # Restore
+    Neuronet.noise = NOISE
+    Neuron.label = 'a'
+  end
+
+  def test_set_values
+    Neuron.label = 'x'
+
+    layer = Layer.new 3
+    assert_equal 'x:0,y:0,z:0', layer.inspect
+
+    values = [1, 2, 3]
+    layer.set(values)
+    assert_equal 'x:1,y:2,z:3', layer.inspect
+    assert_equal values, layer.values.map{ _1.round(14) }
+
+    # Restore
+    Neuron.label = 'a'
+  end
+
+  def test_mirror
+    Neuronet.format = '%.1g'
+
+    output = Layer.new 3
+    # Auto connects to another layer as the same size, and returns the newly
+    # connected layer:
+    input = output.connect
+    assert_equal 'd:0,e:0,f:0', input.inspect
+
+    output.mirror
+    assert_equal 'a:0|-2+4*d+0*e+0*f,b:0|-2+0*d+4*e+0*f,c:0|-2+0*d+0*e+4*f',
+                 output.inspect
+
+    # Restore
+    Neuron.label = 'a'
+    Neuronet.format = FORMAT
+  end
+
+  def test_redux
+    Neuronet.format = '%.1g'
+
+    output = Layer.new 2
+    input = output.connect(Layer.new 4)
+
+    assert_equal 'a,b', output.to_s
+    assert_equal 'c,d,e,f', input.to_s
+
+    output.redux
+    assert_equal 'a:0|-2+4*c+4*d+0*e+0*f,b:0|-2+0*c+0*d+4*e+4*f',
+                 output.inspect
+
+    # Restore
+    Neuron.label = 'a'
+    Neuronet.format = FORMAT
+  end
+
+  def test_antithesis
+    Neuronet.format = '%.1g'
+
+    output = Layer.new 4
+    input = output.connect
+
+    assert_equal 'a,b,c,d', output.to_s
+    assert_equal 'e,f,g,h', input.to_s
+
+    output.antithesis
+    input.set([1, 1, 1, 1])
+    output.partial
+    assert_equal [1, -1, 1, -1], output.values.map{ _1.round(14) }
+
+    # Restore
+    Neuron.label = 'a'
+    Neuronet.format = FORMAT
+  end
+
+  def test_synthesis
+    Neuronet.format = '%.1g'
+
+    output = Layer.new 2
+    input = output.connect(Layer.new 4)
+
+    assert_equal 'a,b', output.to_s
+    assert_equal 'c,d,e,f', input.to_s
+
+    output.synthesis
+    assert_equal 'a:0|-2+2*c+2*d+0*e+0*f,b:0|-2+0*c+0*d+2*e+2*f', output.inspect
+
+    # Restore
+    Neuron.label = 'a'
+    Neuronet.format = FORMAT
   end
 end

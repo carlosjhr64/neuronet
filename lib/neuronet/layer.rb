@@ -21,11 +21,14 @@ module Neuronet
     end
 
     # Allows one to fully connect layers.
-    def connect(layer, weight = [], zero: Neuronet.zero)
+    def connect(layer = Layer.new(length), weights: [], zero: Neuronet.zero)
       # creates the neuron matrix...
       each_with_index do |neuron, i|
-        layer.each { neuron.connect(_1, weight[i] || zero) }
+        weight = weights[i] || zero
+        layer.each { neuron.connect(_1, weight:) }
       end
+      # Note: the layer is returned for chaining.
+      layer
     end
 
     # Set layer to mirror input:
@@ -39,14 +42,25 @@ module Neuronet
       end
     end
 
-    # Could not think of a good name for this method and I just thought "redux".
-    # Mirrors and anti-mirrors the input(+/-).
-    # Input should be half the size of the layer.
+    # Doubles up the input mirroring it.  The layer should by twice the size of
+    # the input.
     def redux
-      each_slice(2).with_index do |ab, i|
-        a, b = ab
-        b.bias = -(a.bias = Neuronet.bzero)
-        b.connections[i].weight = -(a.connections[i].weight = Neuronet.wone)
+      each.with_index do |n, i|
+        n.bias = Neuronet.bzero
+        j = i * 2
+        n.connections[j].weight = Neuronet.wone
+        n.connections[j+1].weight = Neuronet.wone
+      end
+    end
+
+    # Antithesis alternates mirror and anti-mirror.  The input should be the
+    # same even size of the layer.  Typically used with redux.
+    def antithesis
+      sign = 1
+      each.with_index do |n, i|
+        n.bias = sign * Neuronet.bzero
+        n.connections[i].weight = sign * Neuronet.wone
+        sign = -sign
       end
     end
 
