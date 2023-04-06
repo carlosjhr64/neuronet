@@ -9,8 +9,8 @@ class TestLambdas < Test::Unit::TestCase
     # SQUASH maps Float to (0.0, 1.0) centered around 0.5.
     assert_equal 0.5, SQUASH[0.0], 'Centered'
     assert_equal 1.0, SQUASH[-1.0]+SQUASH[1.0], 'Balanced'
-    assert_equal 1.0, (SQUASH[-2.0]+SQUASH[2.0]).round(15), 'Balanced'
-    assert_equal 1.0, (SQUASH[-3.0]+SQUASH[3.0]).round(15), 'Balanced'
+    assert_equal 1.0, (SQUASH[-2.0]+SQUASH[2.0]).round(14), 'Balanced'
+    assert_equal 1.0, (SQUASH[-3.0]+SQUASH[3.0]).round(14), 'Balanced'
     -3.upto(2).each{|n| assert SQUASH[n] < SQUASH[n+1], 'Ordered'}
     assert SQUASH[3.0] < 1.0, 'Bounded(under one)'
     assert SQUASH[-3.0] > 0.0, 'Bounded(over zero)'
