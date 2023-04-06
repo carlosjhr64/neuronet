@@ -50,6 +50,22 @@ module Neuronet
       @salida.values
     end
 
+    # 𝝁 + 𝜧 𝝁' + 𝜧 𝜧'𝝁" + 𝜧 𝜧'𝜧"𝝁"' + ...
+    # |𝜧| ~ |𝑾||𝓑𝒂|
+    # |∑𝑾| ~ √𝑁
+    # |𝓑𝒂| ~ ¼
+    # |𝝁| ~ 1+∑|𝒂'| ~ 1+½𝑁
+    def expected_mju
+      sum = 0.0
+      mju = 1.0
+      reverse[1..].each do |layer|
+        n = layer.length
+        sum += mju * (1.0 + (0.5 * n))
+        mju *= 0.25 * Math.sqrt(layer.length)
+      end
+      sum
+    end
+
     # TODO: a default mju.
     def train(target, mju)
       @salida.train(target, mju)

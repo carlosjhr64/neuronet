@@ -27,7 +27,7 @@ module Neuronet
         weight = weights[i] || zero
         layer.each { neuron.connect(_1, weight:) }
       end
-      # Note: the layer is returned for chaining.
+      # NOTE: the layer is returned for chaining.
       layer
     end
 
@@ -49,7 +49,7 @@ module Neuronet
         n.bias = Neuronet.bzero
         j = i * 2
         n.connections[j].weight = Neuronet.wone
-        n.connections[j+1].weight = Neuronet.wone
+        n.connections[j + 1].weight = Neuronet.wone
       end
     end
 
