@@ -59,6 +59,32 @@ class TestLayer < Test::Unit::TestCase
     assert_equal 'a:0|-2+4*d+0*e+0*f,b:0|-2+0*d+4*e+0*f,c:0|-2+0*d+0*e+4*f',
                  output.inspect
 
+    input.set([-1.0, 0.0, 1.0])
+    output.partial
+    assert_equal [-1.0, 0.0, 1.0], output.values.map{ _1.round(14) }
+
+    # Restore
+    Neuron.label = 'a'
+    Neuronet.format = FORMAT
+  end
+
+  def test_anti_mirror
+    Neuronet.format = '%.1g'
+
+    output = Layer.new 3
+    # Auto connects to another layer as the same size, and returns the newly
+    # connected layer:
+    input = output.connect
+    assert_equal 'd:0,e:0,f:0', input.inspect
+
+    output.mirror(-1)
+    assert_equal 'a:0|2+-4*d+0*e+0*f,b:0|2+0*d+-4*e+0*f,c:0|2+0*d+0*e+-4*f',
+                 output.inspect
+
+    input.set([-1.0, 0.0, 1.0])
+    output.partial
+    assert_equal [1.0, 0.0, -1.0], output.values.map{ _1.round(14) }
+
     # Restore
     Neuron.label = 'a'
     Neuronet.format = FORMAT

@@ -34,11 +34,12 @@ module Neuronet
     # Set layer to mirror input:
     #   bias   = BZERO.
     #   weight = WONE
-    # Input should be the same size as the layer.
-    def mirror
+    # Input should be the same size as the layer.  One can set sign to -1 to
+    # anti-mirror.  One can set sign to other than |1| to scale.
+    def mirror(sign = 1)
       each_with_index do |neuron, index|
-        neuron.bias = Neuronet.bzero
-        neuron.connections[index].weight = Neuronet.wone
+        neuron.bias = sign * Neuronet.bzero
+        neuron.connections[index].weight = sign * Neuronet.wone
       end
     end
 
