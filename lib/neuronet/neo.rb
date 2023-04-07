@@ -4,8 +4,8 @@
 module Neuronet
   # Neo is a network which has its @yang layer initially mirroring it's input.
   module Neo
-    def self.bless(myself)
-      myself.yang.mirror
+    def self.bless(myself, sign = 1)
+      myself.yang.mirror(sign)
       myself.extend Neo
       myself
     end
