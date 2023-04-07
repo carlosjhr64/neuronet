@@ -1,0 +1,71 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+require 'neuronet'
+
+class TestBlessing < Test::Unit::TestCase
+  include Neuronet
+
+  def random
+    100.0*((rand + rand + rand) - (rand + rand + rand))
+  end
+
+  def test_tao
+    # set up random input target pairs
+    srand '5inbyuq1667xysxq25twpzrvcrwyyb6jt7twwn14lfxsiek4cs'.to_i(36)
+    input_target = [
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.3g'
+    Neuron.label = 'a'
+    ff = Tao[4]
+
+    # A 3X4 network
+    assert_equal 3, ff.length
+    assert ff.all?{|layer| layer.length == 4}
+
+    # yin connected to entrada
+    inspected = [ # e,f,g,h X a,b,c,d =>
+      'e:0|0+0*a+0*b+0*c+0*d',
+      'f:0|0+0*a+0*b+0*c+0*d',
+      'g:0|0+0*a+0*b+0*c+0*d',
+      'h:0|0+0*a+0*b+0*c+0*d',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # salida connected to yin and entrada
+    inspected = [ # i,j,k,l X e,f,g,h,a,b,c,d =>
+      'i:0|0+0*e+0*f+0*g+0*h+0*a+0*b+0*c+0*d',
+      'j:0|0+0*e+0*f+0*g+0*h+0*a+0*b+0*c+0*d',
+      'k:0|0+0*e+0*f+0*g+0*h+0*a+0*b+0*c+0*d',
+      'l:0|0+0*e+0*f+0*g+0*h+0*a+0*b+0*c+0*d',
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+
+    start, count = Time.now, 0
+    ff.pairs(input_target) do # while...
+      count += 1
+      break if count > 10_000
+      !input_target.all? do |input, target|
+        target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
+      end
+    end
+    assert count < 10_000
+
+    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts 'Inputs(%.2g):'
+    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
+    puts 'Targets(%.2g):'
+    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
+    puts 'Ouputs(%.2g):'
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+    puts ':)'
+  end
+end
