@@ -43,24 +43,13 @@ module Neuronet
       end
     end
 
-    # Doubles up the input mirroring it.  The layer should by twice the size of
-    # the input.
-    def redux
-      each.with_index do |n, i|
-        n.bias = Neuronet.bzero
-        j = i * 2
-        n.connections[j].weight = Neuronet.wone
-        n.connections[j + 1].weight = Neuronet.wone
-      end
-    end
-
-    # Antithesis alternates mirror and anti-mirror.  The input should be the
-    # same even size of the layer.  Typically used with redux.
+    # Doubles up the input mirroring and anti-mirroring it.  The layer should be
+    # twice the size of the input.
     def antithesis
       sign = 1
-      each.with_index do |n, i|
+      each_with_index do |n, i|
+        n.connections[i / 2].weight = sign * Neuronet.wone
         n.bias = sign * Neuronet.bzero
-        n.connections[i].weight = sign * Neuronet.wone
         sign = -sign
       end
     end
@@ -68,12 +57,23 @@ module Neuronet
     # Sums two corresponding input neurons above each neuron in the layer.
     # Input should be twice the size of the layer.
     def synthesis
+      semi = Neuronet.wone / 2
       each_with_index do |n, i|
         j = i * 2
         c = n.connections
         n.bias = Neuronet.bzero
         c[j].weight = Neuronet.wone / 2
         c[j + 1].weight = Neuronet.wone / 2
+      end
+    end
+
+    # Set layer to average input.
+    def average(sign = 1)
+      bias = sign * Neuronet.bzero
+      each_with_index do |n, i|
+        n.bias = bias
+        weight = sign * Neuronet.wone / n.connections.length
+        n.connections.each{ _1.weight = weight }
       end
     end
 
