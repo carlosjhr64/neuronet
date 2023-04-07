@@ -38,8 +38,7 @@ module Neuronet
       @distribution.unmapped_output(super)
     end
 
-    # TODO: a default mju.
-    def train(target, mju)
+    def train(target, mju = expected_mju)
       super(@distribution.mapped_output(target), mju)
     end
 

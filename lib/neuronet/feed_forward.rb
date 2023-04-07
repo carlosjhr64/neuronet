@@ -55,7 +55,7 @@ module Neuronet
     # |∑𝑾| ~ √𝑁
     # |𝓑𝒂| ~ ¼
     # |𝝁| ~ 1+∑|𝒂'| ~ 1+½𝑁
-    def expected_mju
+    def expected_mju!
       sum = 0.0
       mju = 1.0
       reverse[1..].each do |layer|
@@ -63,18 +63,23 @@ module Neuronet
         sum += mju * (1.0 + (0.5 * n))
         mju *= 0.25 * Math.sqrt(layer.length)
       end
-      sum
+      @mju = sum
     end
 
-    # TODO: a default mju.
-    def train(target, mju)
+    def expected_mju
+      @mju || expected_mju!
+    end
+
+    def train(target, mju = expected_mju)
       @salida.train(target, mju)
       self
     end
 
-    def pair(input, target, mju) = set(input).update.train(target, mju)
+    def pair(input, target, mju = expected_mju)
+      set(input).update.train(target, mju)
+    end
 
-    def pairs(pairs, mju)
+    def pairs(pairs, mju = expected_mju)
       pairs.shuffle.each { |input, target| pair(input, target, mju) }
       return self unless block_given?
 
