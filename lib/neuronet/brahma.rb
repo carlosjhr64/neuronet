@@ -2,11 +2,11 @@
 
 # Neuronet/Brahma module
 module Neuronet
-  # Brahma is a network which has its @yin layer initially "redux"(mirror and
-  # "anti-mirror") @entrada.
+  # Brahma is a network which has its @yin layer initially
+  # "antithesis" @entrada.
   module Brahma
     def self.bless(myself)
-      myself.yin.redux
+      myself.yin.antithesis
       myself.extend Brahma
       myself
     end

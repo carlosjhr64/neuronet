@@ -2,11 +2,10 @@
 
 # Neuronet module
 module Neuronet
-  # Shiva is a network which has its @salida layer initially "redux"(mirror and
-  # "shadow" @yang.
+  # Shiva is a network which has its @salida layer initially "synthesis" @yang.
   module Shiva
     def self.bless(myself)
-      myself.salida.redux
+      myself.salida.synthesis
       myself.extend Shiva
       myself
     end
