@@ -23,7 +23,7 @@ class TestBrahmaShiva < Test::Unit::TestCase
     # initialize network
     Neuronet.format = '%.1g'
     Neuron.label = 'a'
-    ff = BrahmaShiva[3]
+    ff = Brahma.bless Shiva.bless ScaledNetwork.new [3, 6, 3]
 
     # A 3,6,3 network
     assert_equal 3, ff.entrada.length

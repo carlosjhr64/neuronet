@@ -30,7 +30,7 @@ class TestNeoYinYang < Test::Unit::TestCase
     # initialize network
     Neuronet.format = '%.3g'
     Neuron.label = 'a'
-    ff = NeoYinYang[4]
+    ff = Neo.bless Yin.bless Yang.bless ScaledNetwork.new [4, 4, 4, 4]
 
     # A 4X4 network
     assert_equal 4, ff.length
