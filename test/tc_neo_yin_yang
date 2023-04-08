@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+require 'neuronet'
+
+class TestNeoYinYang < Test::Unit::TestCase
+  include Neuronet
+
+  def random
+    100.0*((rand + rand + rand) - (rand + rand + rand))
+  end
+
+  def test_neoyinyang
+    # set up random input target pairs
+    # srand '5f70525vvv119egnuj2361dwknkw5b1h64rbhz8r2yuunleec9'.to_i(36) # 1
+      srand '5db2avuse31mmorp9hs622wfr0063ll3xkev6zb397xhu0gl9t'.to_i(36) # 2
+    # srand '3kv1opxkgpncte7fp0xr03lh7ohz6cewq5qp5dfeyivmvyv6h8'.to_i(36) # 3
+    # srand '2cuofi5du3f7jkbnsh2zm5ezsx8orcqkaf6o356bvws982mwd6'.to_i(36) # 4
+    # srand '15ggtc8s461an2mkdeezg8p15it0i0xrt5wsg2pqigohpf10yw'.to_i(36) # 5
+    # srand '3cqsdp03o8h08thvnlmt5u8nf9lh7j8mdicbd3g8assj95bvt7'.to_i(36) # 6
+    # srand '4k5dugldjo8iexsg7noe8yvq9e19zm3zm83ef33xvgfg5ymler'.to_i(36) # 7
+    # srand '17m5g5dbm984pcogspx6olii3xr63kupoozrclnr8we8peu9ch'.to_i(36) # 8 X
+    input_target = [
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+      [[random, random, random, random], [random, random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.3g'
+    Neuron.label = 'a'
+    ff = NeoYinYang[4]
+
+    # A 4X4 network
+    assert_equal 4, ff.length
+    assert ff.all?{|layer| layer.length == 4}
+
+    # yin mirrors entrada
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'e:0|-2.16+4.33*a+0*b+0*c+0*d',
+      'f:0|-2.16+0*a+4.33*b+0*c+0*d',
+      'g:0|-2.16+0*a+0*b+4.33*c+0*d',
+      'h:0|-2.16+0*a+0*b+0*c+4.33*d',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # yang mirrors ying
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'i:0|-2.16+4.33*e+0*f+0*g+0*h',
+      'j:0|-2.16+0*e+4.33*f+0*g+0*h',
+      'k:0|-2.16+0*e+0*f+4.33*g+0*h',
+      'l:0|-2.16+0*e+0*f+0*g+4.33*h',
+    ].join(',')
+    assert_equal inspected, ff.yang.inspect
+
+    # salida mirrors yang
+    inspected = [
+      # e,f,g,h X a,b,c,d =>
+      'm:0|-2.16+4.33*i+0*j+0*k+0*l',
+      'n:0|-2.16+0*i+4.33*j+0*k+0*l',
+      'o:0|-2.16+0*i+0*j+4.33*k+0*l',
+      'p:0|-2.16+0*i+0*j+0*k+4.33*l',
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+    start, count, max, fg = Time.now, 0, 100_000, '%.1g'
+    mju = 2*ff.expected_mju # needed to increase mju
+    ff.pairs(input_target, mju) do # while...
+      count += 1
+      break if count > max
+      !input_target.all? do |input, target|
+        target.map{|_|fg % _} == (ff*input).map{|_|fg % _}
+      end
+    end
+    puts ff.inspect
+
+    puts "Time: #{Time.now - start}  Count: #{count}".colorize :yellow
+    puts 'Inputs:'
+    pp input_target.map{|a|a[0].map{|_|fg % _}}
+    puts 'Targets:'
+    pp input_target.map{|a|a[1].map{|_|fg % _}}
+    puts 'Ouputs:'
+    pp input_target.map{|a|(ff*a[0]).map{|_|fg % _}}
+
+    assert count < max
+    puts ':)'
+  end
+end

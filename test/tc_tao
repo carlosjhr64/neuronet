@@ -3,7 +3,7 @@ require 'test/unit'
 require 'colorize'
 require 'neuronet'
 
-class TestBlessing < Test::Unit::TestCase
+class TestTao < Test::Unit::TestCase
   include Neuronet
 
   def random
