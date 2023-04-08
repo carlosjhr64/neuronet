@@ -122,6 +122,8 @@ Style/NestedParenthesizedCalls:
   Enabled: false
 Style/NestedTernaryOperator:
   Enabled: false
+Style/OpenStructUse:
+  Enabled: false
 Style/ParallelAssignment:
   Enabled: false
 Style/PerlBackrefs:

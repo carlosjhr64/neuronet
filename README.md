@@ -27,6 +27,14 @@ include Neuronet
 
 * [Neuronet wiki](https://github.com/carlosjhr64/neuronet/wiki)
 
+### Mju
+
+Mju is a Marklar which value depends on which Marklar is asked.
+Other known Marklars are Mu and Kappa.
+Hope it's not confusing...
+I tried to give related Marklars the same name.
+![Marklar](img/marklar.png)
+
 ### Base
 
 * [Requires and autoloads](lib/neuronet.rb)

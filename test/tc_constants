@@ -10,8 +10,8 @@ class TestConstants < Test::Unit::TestCase
     # assertion(expected, actual)
     assert_equal FMT, Neuronet::FORMAT
     assert_equal FMT, Neuronet.format
-    assert_equal '1.234567890123e+13', Neuronet.format % 12345678901234
-    assert_equal '1234567890123', Neuronet.format % 1234567890123
+    assert_equal '1.234567890123e+13', Neuronet.format % 12_345_678_901_234
+    assert_equal '1234567890123', Neuronet.format % 1_234_567_890_123
   end
 
   def test_squash
@@ -78,7 +78,7 @@ class TestConstants < Test::Unit::TestCase
   def test_noise
     # assertion(expected, actual)
     assert_equal Neuronet::NOISE, Neuronet.noise
-    assert Neuronet::NOISE[1] > 0
+    assert Neuronet::NOISE[1].positive?
     assert Neuronet::NOISE[1] < 2
     refute Neuronet::NOISE[1] == 1
     # Very likely passes:
@@ -97,7 +97,7 @@ class TestConstants < Test::Unit::TestCase
 
   def test_learning
     # assertion(expected, actual)
-    assert_equal 2.0, Neuronet::LEARNING
+    assert_equal 1.0, Neuronet::LEARNING
     assert_equal Neuronet::LEARNING, Neuronet.learning
   end
 end

@@ -60,10 +60,10 @@ class TestConnection < Test::Unit::TestCase
     assert_equal 0.5, c.weight
 
     # tests maxw
-    c.weight = Neuronet::maxw
-    assert_equal Neuronet::maxw, c.weight
+    c.weight = Neuronet.maxw
+    assert_equal Neuronet.maxw, c.weight
     assert_equal c, c.backpropagate(1.0) # tests it returns self
-    assert_equal Neuronet::maxw, c.weight
+    assert_equal Neuronet.maxw, c.weight
 
     # restore
     Neuronet.noise = Neuronet::NOISE
