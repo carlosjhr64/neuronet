@@ -19,8 +19,4 @@ module Neuronet
   autoload :Brahma,          'neuronet/brahma'
   autoload :Vishnu,          'neuronet/vishnu'
   autoload :Shiva,           'neuronet/shiva'
-  autoload :YinYang,         'neuronet/yin_yang'
-  autoload :TaoYinYang,      'neuronet/tao_yin_yang'
-  autoload :NeoYinYang,      'neuronet/neo_yin_yang'
-  autoload :BrahmaShiva,     'neuronet/brahma_shiva'
 end
