@@ -59,16 +59,6 @@ I tried to give related Marklars the same name.
 * [Brahma](lib/neuronet/brahma.rb)
 * [Vishnu](lib/neuronet/vishnu.rb)
 * [Shiva](lib/neuronet/shiva.rb)
-* [Summa](lib/neuronet/summa.rb)
-* [Sintezo](lib/neuronet/sintezo.rb)
-* [Synthesis](lib/neuronet/synthesis.rb)
-
-### Composites
-
-* [YinYang](lib/neuronet/yin_yang.rb)
-* [TaoYinYang](lib/neuronet/tao_yin_yang.rb)
-* [NeoYinYang](lib/neuronet/neo_yin_yang.rb)
-* [BranmaSynthesis](lib/neuronet/brahma_synthesis.rb)
 
 ## LICENSE:
 
