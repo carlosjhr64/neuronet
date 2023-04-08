@@ -34,6 +34,13 @@ module Neuronet
       @connections.sum(Neuronet.zero) { _1.mju * block[_1.neuron] }
     end
 
+    # Full recursive implementation of mju:
+    def self.mju(neuron)
+      return Neuronet.zero if neuron.connections.empty?
+
+      neuron.mu + neuron.mju{ |connected_neuron| Neuron.mju(connected_neuron) }
+    end
+
     # 𝓓𝒗⌈𝒗 = (1-⌈𝒗)⌈𝒗 = (1-𝒂)𝒂 = 𝓑𝒂
     def derivative = Neuronet.derivative[@activation]
 

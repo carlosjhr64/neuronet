@@ -65,6 +65,30 @@ class TestNeuron < Test::Unit::TestCase
     Neuron.label = 'a' # restore
   end
 
+  def test_recursive_mju
+    ff = FeedForward.new([12, 12, 12, 12])
+
+    3.times do
+      ff.each do |layer|
+        layer.each do |neuron|
+          next if neuron.connections.empty?
+          neuron.bias = rand - rand
+          neuron.connections.each do |connection|
+            connection.weight = rand - rand
+          end
+        end
+      end
+
+      ff.last.each do |neuron|
+        mju0 = (neuron.mu + neuron.kappa + neuron.iota).round(12)
+        mju1 = Neuron.mju(neuron).round(12)
+        assert_equal mju0, mju1
+      end
+    end
+
+    Neuron.label = 'a' # restore
+  end
+
   def test_value
     n = Neuron.new
     n.value = 1.0
