@@ -25,5 +25,5 @@ module Neuronet
   autoload :YinYang,         'neuronet/yin_yang'
   autoload :TaoYinYang,      'neuronet/tao_yin_yang'
   autoload :NeoYinYang,      'neuronet/neo_yin_yang'
-  autoload :BrahmaSynthesis, 'neuronet/brahma_synthesis'
+  autoload :BrahmaShiva,     'neuronet/brahma_shiva'
 end

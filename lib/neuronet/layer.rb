@@ -62,18 +62,18 @@ module Neuronet
         j = i * 2
         c = n.connections
         n.bias = Neuronet.bzero
-        c[j].weight = Neuronet.wone / 2
-        c[j + 1].weight = Neuronet.wone / 2
+        c[j].weight = semi
+        c[j + 1].weight = semi
       end
     end
 
     # Set layer to average input.
     def average(sign = 1)
       bias = sign * Neuronet.bzero
-      each_with_index do |n, i|
+      each do |n|
         n.bias = bias
         weight = sign * Neuronet.wone / n.connections.length
-        n.connections.each{ _1.weight = weight }
+        n.connections.each { _1.weight = weight }
       end
     end
 

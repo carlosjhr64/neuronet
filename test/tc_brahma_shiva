@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+require 'neuronet'
+
+class TestBrahmaShiva < Test::Unit::TestCase
+  include Neuronet
+
+  def random
+    100.0*((rand + rand + rand) - (rand + rand + rand))
+  end
+
+  def test_brahma_shiva
+    # set up random input target pairs
+    srand '3qwqmo1uj7fbzegcbh9efepraekc4m2e30n4urvwbf8o4rrclc'.to_i(36)
+    input_target = [
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+      [[random, random, random], [random, random, random]],
+    ]
+
+    # initialize network
+    Neuronet.format = '%.1g'
+    Neuron.label = 'a'
+    ff = BrahmaShiva[3]
+
+    # A 3,6,3 network
+    assert_equal 3, ff.entrada.length
+    assert_equal 6, ff.yin.length
+    assert_equal 3, ff.salida.length
+
+    # yin mirrors and shadows entrada
+    inspected = [
+      # d,e,f, g,h,i X a,b,c =>
+      'd:0|-2+4*a+0*b+0*c',
+      'e:0|2+-4*a+0*b+0*c',
+      'f:0|-2+0*a+4*b+0*c',
+      'g:0|2+0*a+-4*b+0*c',
+      'h:0|-2+0*a+0*b+4*c',
+      'i:0|2+0*a+0*b+-4*c',
+    ].join(',')
+    assert_equal inspected, ff.yin.inspect
+
+    # salida synthesis
+    inspected = [
+      'j:0|-2+2*d+2*e+0*f+0*g+0*h+0*i',
+      'k:0|-2+0*d+0*e+2*f+2*g+0*h+0*i',
+      'l:0|-2+0*d+0*e+0*f+0*g+2*h+2*i'
+    ].join(',')
+    assert_equal inspected, ff.salida.inspect
+
+    ff.distribution.set input_target.flatten
+
+    start, count, max = Time.now, 0, 20_000
+    ff.pairs(input_target) do # while...
+      count += 1
+      break if count > max
+      !input_target.all? do |input, target|
+        target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
+      end
+    end
+
+    puts "Time: #{Time.now - start}  Count: #{count}"
+    puts 'Inputs(%.2g):'
+    pp input_target.map{|a|a[0].map{|_|'%.2g' % _}}
+    puts 'Targets(%.2g):'
+    pp input_target.map{|a|a[1].map{|_|'%.2g' % _}}
+    puts 'Ouputs(%.2g):'
+    pp input_target.map{|a|(ff*a[0]).map{|_|'%.2g' % _}}
+
+    assert count < max
+    puts ':)'
+  end
+end
