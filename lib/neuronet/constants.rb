@@ -93,7 +93,7 @@ module Neuronet
   MAXV = 36.0 # Maximum value
 
   # Mu learning factor.
-  LEARNING = 2.0
+  LEARNING = 1.0
 
   # The above constants are the defaults for Neuronet.  They are set below in
   # accessable module attributes.  The user may change these to suit their
