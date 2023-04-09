@@ -11,18 +11,18 @@ class TestConnection < Test::Unit::TestCase
     assert_equal '0*a:0', c.inspect
     assert_equal '0*a', c.to_s
 
-    assert c.weight.equal? Neuronet.zero
+    assert c.weight.equal? 0.0
     assert_equal Neuronet::Neuron, c.neuron.class
 
     assert_equal 0.5, c.mu
     assert c.mu.equal? c.activation
     assert c.mu.equal? c.neuron.activation
 
-    assert_equal Neuronet.zero, c.mju
-    assert_equal Neuronet.zero, c.kappa
-    assert_equal Neuronet.zero, c.weighted_activation
-    assert_equal Neuronet.zero, c.partial
-    assert_equal Neuronet.zero, c.update
+    assert_equal 0.0, c.mju
+    assert_equal 0.0, c.kappa
+    assert_equal 0.0, c.weighted_activation
+    assert_equal 0.0, c.partial
+    assert_equal 0.0, c.update
 
     Neuronet::Neuron.label = 'a' # restore
   end
@@ -43,7 +43,7 @@ class TestConnection < Test::Unit::TestCase
     assert c.mu.equal? c.neuron.activation
 
     assert_equal 0.25, c.mju
-    assert_equal Neuronet.zero, c.kappa
+    assert_equal 0.0, c.kappa
     assert_equal 0.5, c.weighted_activation
     assert_equal 0.5, c.partial
     assert_equal 0.5, c.update

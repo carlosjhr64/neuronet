@@ -41,29 +41,14 @@ class TestConstants < Test::Unit::TestCase
     assert_equal '0', FMT % Neuronet.derivative[1]
   end
 
-  # The default data type for Neuronet is Float.  But I wanted to keep the
-  # library agnostic and take advantage of Ruby's duck typing.  So I seed the
-  # data type with configurable constants.
-  def test_constants
-    assert Neuronet::ZERO.equal? 0.0
-    assert Neuronet::VZERO.equal? 0.0
-    # assertion(expected, actual)
-    assert_equal Neuronet::ZERO, Neuronet.zero
-    assert_equal Neuronet::VZERO, Neuronet.vzero
-  end
-
   def test_mirror_constants
     # assertion(expected, actual)
     assert_equal Neuronet::BZERO, Neuronet.bzero
     assert_equal Neuronet::WONE, Neuronet.wone
     v = ->(x) { Neuronet::BZERO + (Neuronet::WONE * Neuronet::SQUASH[x]) }
-    middle = Neuronet::ZERO
-    # Adding +/- 1 to middle is OK for the default Float case.
-    high = middle + 1
-    low = middle - 1
-    assert_equal(middle, v[middle])
-    assert_equal(high, v[high])
-    assert_equal(low, v[low])
+    assert_equal(0.0, v[0.0])
+    assert_equal(1.0, v[1.0])
+    assert_equal(-1.0, v[-1.0])
   end
 
   def test_mirror_float

@@ -133,8 +133,6 @@ upto
 value
 values
 VERSION
-vzero
-VZERO
 weight
 weighted_activation
 weights
@@ -142,5 +140,3 @@ wone
 WONE
 yang
 yin
-zero
-ZERO

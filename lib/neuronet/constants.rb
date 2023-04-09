@@ -25,14 +25,6 @@ module Neuronet
   UNSQUASH   = ->(squashed) { Math.log(squashed / (1.0 - squashed)) }
   DERIVATIVE = ->(squash) { squash * (1.0 - squash) }
 
-  # The above squash function maps R->(0,1), sending the "center" 0 to 0.5.
-  # This will be the default "ZERO" value.
-  VZERO = 0.0
-
-  # By default, Neuronet assumes we're working with floats, but that could
-  # change.  Our default ZERO weight/bias value is 0.0.
-  ZERO = 0.0
-
   # I'll want to have a neuron roughly mirror another later.   Let [v] be the
   # squash of v.  Consider:
   #   v = b + w*[v]
@@ -99,14 +91,12 @@ module Neuronet
   # accessable module attributes.  The user may change these to suit their
   # needs.
   class << self
-    attr_accessor :format, :squash, :unsquash, :derivative, :vzero, :zero,
-                  :bzero, :wone, :noise, :maxw, :maxb, :maxv, :learning
+    attr_accessor :format, :squash, :unsquash, :derivative, :bzero, :wone,
+                  :noise, :maxw, :maxb, :maxv, :learning
   end
   self.squash     = SQUASH
   self.unsquash   = UNSQUASH
   self.derivative = DERIVATIVE
-  self.vzero      = VZERO
-  self.zero       = ZERO
   self.bzero      = BZERO
   self.wone       = WONE
   self.noise      = NOISE

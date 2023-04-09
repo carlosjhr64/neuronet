@@ -19,9 +19,9 @@ module Neuronet
     # for the bias:
     #   𝛍 := 1+∑𝐚'
     def mu
-      return Neuronet.zero if @connections.empty?
+      return 0.0 if @connections.empty?
 
-      1 + @connections.sum(Neuronet.zero, &:mu)
+      1 + @connections.sum(&:mu)
     end
 
     # Reference the library's wiki:
@@ -31,14 +31,14 @@ module Neuronet
     # 𝜧ₕⁱ𝜧ᵢʲ𝝁ⱼ is:
     #   nh.mju{ |ni| ni.mju{ |nj| nj.mu }}
     def mju(&block)
-      @connections.sum(Neuronet.zero) { _1.mju * block[_1.neuron] }
+      @connections.sum { _1.mju * block[_1.neuron] }
     end
 
     # Full recursive implementation of mju:
     def self.mju(neuron)
-      return Neuronet.zero if neuron.connections.empty?
+      return 0.0 if neuron.connections.empty?
 
-      neuron.mu + neuron.mju{ |connected_neuron| Neuron.mju(connected_neuron) }
+      neuron.mu + neuron.mju { |connected_neuron| Neuron.mju(connected_neuron) }
     end
 
     # 𝓓𝒗⌈𝒗 = (1-⌈𝒗)⌈𝒗 = (1-𝒂)𝒂 = 𝓑𝒂
@@ -49,7 +49,7 @@ module Neuronet
 
     # 𝜿 := 𝜧 𝝁' = 𝑾 𝓑𝒂'𝝁' = 𝑾 𝝀'
     # def kappa = mju(&:mu)
-    def kappa = @connections.sum(Neuronet.zero, &:kappa)
+    def kappa = @connections.sum(&:kappa)
 
     # 𝜾 := 𝜧 𝜧' 𝝁" = 𝜧 𝜿'
     def iota = mju(&:kappa)
@@ -69,7 +69,7 @@ module Neuronet
     def value = Neuronet.unsquash[@activation]
 
     # The initialize method sets the neuron's value, bias and connections.
-    def initialize(value = Neuronet.vzero, bias: Neuronet.zero, connections: [])
+    def initialize(value = 0.0, bias: 0.0, connections: [])
       self.value   = value
       @connections = connections
       @bias        = bias
@@ -82,7 +82,7 @@ module Neuronet
     def update
       return @activation if @connections.empty?
 
-      self.value = @bias + @connections.sum(Neuronet.zero, &:update)
+      self.value = @bias + @connections.sum(&:update)
       @activation
     end
 
@@ -96,7 +96,7 @@ module Neuronet
     def partial
       return @activation if @connections.empty?
 
-      self.value = @bias + @connections.sum(Neuronet.zero, &:partial)
+      self.value = @bias + @connections.sum(&:partial)
       @activation
     end
 
@@ -124,7 +124,7 @@ module Neuronet
     #	  salida = Neuronet::Neuron.new
     #	  salida.connect(entrada)
     # Think output(salida) connects to input(entrada).
-    def connect(neuron = Neuron.new, weight: Neuronet.zero)
+    def connect(neuron = Neuron.new, weight: 0.0)
       @connections.push(Connection.new(neuron, weight:))
       # Note that we're returning the connected neuron:
       neuron

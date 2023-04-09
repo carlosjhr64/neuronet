@@ -10,8 +10,8 @@ module Neuronet
     end
 
     # This is where one enters the "real world" inputs.
-    def set(inputs, vzero: Neuronet.vzero)
-      0.upto(length - 1) { self[_1].value = inputs[_1] || vzero }
+    def set(inputs)
+      0.upto(length - 1) { self[_1].value = inputs[_1] || 0.0 }
       self
     end
 
@@ -21,10 +21,10 @@ module Neuronet
     end
 
     # Allows one to fully connect layers.
-    def connect(layer = Layer.new(length), weights: [], zero: Neuronet.zero)
+    def connect(layer = Layer.new(length), weights: [])
       # creates the neuron matrix...
       each_with_index do |neuron, i|
-        weight = weights[i] || zero
+        weight = weights[i] || 0.0
         layer.each { neuron.connect(_1, weight:) }
       end
       # NOTE: the layer is returned for chaining.
