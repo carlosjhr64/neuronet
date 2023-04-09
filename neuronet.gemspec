@@ -1,11 +1,11 @@
 Gem::Specification.new do |s|
   ## INFO ##
   s.name     = 'neuronet'
-  s.version  = '7.0.230407'
+  s.version  = '7.0.230409'
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2023-04-07'
+  s.date     = '2023-04-09'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
     README.md
     lib/neuronet.rb
     lib/neuronet/brahma.rb
-    lib/neuronet/brahma_synthesis.rb
     lib/neuronet/connection.rb
     lib/neuronet/constants.rb
     lib/neuronet/feed_forward.rb
@@ -31,20 +30,14 @@ Gem::Specification.new do |s|
     lib/neuronet/layer.rb
     lib/neuronet/log_normal.rb
     lib/neuronet/neo.rb
-    lib/neuronet/neo_yin_yang.rb
     lib/neuronet/neuron.rb
     lib/neuronet/scale.rb
     lib/neuronet/scaled_network.rb
     lib/neuronet/shiva.rb
-    lib/neuronet/sintezo.rb
-    lib/neuronet/summa.rb
-    lib/neuronet/synthesis.rb
     lib/neuronet/tao.rb
-    lib/neuronet/tao_yin_yang.rb
     lib/neuronet/vishnu.rb
     lib/neuronet/yang.rb
     lib/neuronet/yin.rb
-    lib/neuronet/yin_yang.rb
   ]
   
   ## REQUIREMENTS ##
