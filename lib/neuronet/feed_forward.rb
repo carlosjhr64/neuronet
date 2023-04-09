@@ -54,11 +54,15 @@ module Neuronet
         sum += mju * (1.0 + (0.5 * n))
         mju *= 0.25 * Math.sqrt(layer.length)
       end
-      @mju = Neuronet.learning * sum
+      @expected_mju = Neuronet.learning * sum
     end
 
     def expected_mju
-      @mju || expected_mju!
+      @expected_mju || expected_mju!
+    end
+
+    def average_mju
+      last.average_mju
     end
 
     def train(target, mju = expected_mju)

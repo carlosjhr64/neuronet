@@ -7,6 +7,7 @@ attr_accessor
 attr_reader
 autoload
 average
+average_mju
 backpropagate
 bias
 block

@@ -82,13 +82,17 @@ module Neuronet
       each(&:partial)
     end
 
+    def average_mju
+      Neuronet.learning * sum { Neuron.mju(_1) } / length
+    end
+
     # Takes the real world target for each neuron in this layer and
     # backpropagates the error to each neuron.
-    # TODO: a per neuron mju.
-    def train(target, mju)
+    def train(target, mju = nil)
       0.upto(length - 1) do |index|
         neuron = self[index]
-        error = (target[index] - neuron.value) / mju
+        error = (target[index] - neuron.value) /
+                (mju || (Neuronet.learning * Neuron.mju(neuron)))
         neuron.backpropagate(error)
       end
       self
