@@ -21,7 +21,58 @@ The library is meant to be read, but here is a motivating example:
 ```ruby
 require 'neuronet'
 include Neuronet
-# TODO: highly motivating example...
+
+ff = FeedForward.new([3,3])
+# It can mirror, equivalent to "copy":
+ff.last.mirror
+values = ff * [-1, 0, 1]
+values.map { '%.13g' % _1 } #=> ["-1", "0", "1"]
+# It can anti-mirror, equivalent to "not":
+ff.last.mirror(-1)
+values = ff * [-1, 0, 1]
+values.map { '%.13g' % _1 } #=> ["1", "0", "-1"]
+
+# It can "and";
+ff = FeedForward.new([2,2,1])
+ff[1].mirror(-1)
+ff.last.connect(ff.first)
+ff.last.average
+# Training "and" pairs:
+pairs = [
+  [[1, 1], [1]],
+  [[-1, 1], [-1]],
+  [[1, -1], [-1]],
+  [[-1, -1], [-1]],
+]
+# Train until values match:
+ff.pairs(pairs) do
+  pairs.any? { |input, target| (ff * input).map { _1.round(1) } != target }
+end
+(ff * [-1, -1]).map{ _1.round } #=> [-1]
+(ff * [-1,  1]).map{ _1.round } #=> [-1]
+(ff * [ 1, -1]).map{ _1.round } #=> [-1]
+(ff * [ 1,  1]).map{ _1.round } #=> [1]
+
+# It can "or";
+ff = FeedForward.new([2,2,1])
+ff[1].mirror(-1)
+ff.last.connect(ff.first)
+ff.last.average
+# Training "or" pairs:
+pairs = [
+  [[1, 1], [1]],
+  [[-1, 1], [1]],
+  [[1, -1], [1]],
+  [[-1, -1], [-1]],
+]
+# Train until values match:
+ff.pairs(pairs) do
+  pairs.any? { |input, target| (ff * input).map { _1.round(1) } != target }
+end
+(ff * [-1, -1]).map{ _1.round } #=> [-1]
+(ff * [-1,  1]).map{ _1.round } #=> [1]
+(ff * [ 1, -1]).map{ _1.round } #=> [1]
+(ff * [ 1,  1]).map{ _1.round } #=> [1]
 ```
 ## CONTENTS:
 
