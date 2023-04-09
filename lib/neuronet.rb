@@ -12,11 +12,4 @@ module Neuronet
   autoload :Gaussian,        'neuronet/gaussian'
   autoload :LogNormal,       'neuronet/log_normal'
   autoload :ScaledNetwork,   'neuronet/scaled_network'
-  autoload :Tao,             'neuronet/tao'
-  autoload :Yin,             'neuronet/yin'
-  autoload :Yang,            'neuronet/yang'
-  autoload :Neo,             'neuronet/neo'
-  autoload :Brahma,          'neuronet/brahma'
-  autoload :Vishnu,          'neuronet/vishnu'
-  autoload :Shiva,           'neuronet/shiva'
 end

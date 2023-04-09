@@ -9,16 +9,15 @@ autoload
 average
 backpropagate
 bias
-bless
 block
 block_given
-Brahma
 bzero
 BZERO
 c
 center
 class
 connect
+connected_neuron
 connection
 Connection
 connections
@@ -32,7 +31,6 @@ entrada
 error
 exp
 expected_mju
-extend
 factor
 FeedForward
 first
@@ -79,9 +77,7 @@ minmax
 mirror
 mju
 mu
-myself
 n
-Neo
 neuron
 Neuron
 Neuronet
@@ -110,10 +106,8 @@ Scale
 ScaledNetwork
 semi
 set
-Shiva
 shuffle
 sign
-size
 split
 spread
 sqrt
@@ -124,7 +118,6 @@ sum
 sum2
 synthesis
 t
-Tao
 target
 to_f
 to_s
@@ -140,7 +133,6 @@ upto
 value
 values
 VERSION
-Vishnu
 vzero
 VZERO
 weight
@@ -149,8 +141,6 @@ weights
 wone
 WONE
 yang
-Yang
 yin
-Yin
 zero
 ZERO

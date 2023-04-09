@@ -51,15 +51,6 @@ I tried to give related Marklars the same name.
 * [LogNormal](lib/neuronet/log_normal.rb)
 * [ScaledNetwork](lib/neuronet/scaled_network.rb)
 
-### Mods
-
-* [Tao](lib/neuronet/tao.rb)
-* [Yin](lib/neuronet/yin.rb)
-* [Yang](lib/neuronet/yang.rb)
-* [Brahma](lib/neuronet/brahma.rb)
-* [Vishnu](lib/neuronet/vishnu.rb)
-* [Shiva](lib/neuronet/shiva.rb)
-
 ## LICENSE:
 
 Copyright 2023 CarlosJHR64
