@@ -31,24 +31,22 @@ sum.connect(b)
 # and to the adjuster
 sum.connect(adjuster)
 
-# TODO: Semantics of this constant vs mu and current Neuronet.learning
-# The learning constant is about...
-learning = 0.3
+Neuronet.noise = Neuronet::NO_NOISE
 
 # Train the tiny network
-1_000_000.times do
+100_000.times do
   a.value = x = random
   b.value = y = random
   sum.update
   target = x + y
   output = sum.value
-  sum.backpropagate(learning * (target - output))
+  sum.backpropagate(0.25 * (target - output))
 end
 
 # Let's see how well the training went
 e2 = 0.0
-trials = 100
-12.times do
+trials = 1000
+trials.times do |trial|
   a.value = x = random
   b.value = y = random
   sum.update
@@ -56,12 +54,12 @@ trials = 100
   output = sum.value
   error = target - output
   e2 += error * error
+  next unless (trial % 100).zero?
   puts "#{x.round(3)} + #{y.round(3)} = #{target.round(3)}"
-  puts "  Neuron says #{output.round(3)}, " \
-       "#{(100.0 * error / target).round(2)}% error."
+  puts "   Neuron says: #{output.round(3)}"
+  puts "   Error: #{(100.0 * error / target).round(2)}%, #{error.round(3)}"
 end
 standard_deviation = Math.sqrt(e2 / (trials + 1))
 
-puts "Learning: #{learning}"
-puts "Mu: #{sum.mu}"
-puts "Standard Deviation: #{standard_deviation}"
+puts "Mju: #{Neuronet::Neuron.mju(sum)}"
+puts "Standard Deviation: #{standard_deviation.round(3)}"
