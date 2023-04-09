@@ -47,14 +47,10 @@ puts "f(phase, t) = #{A.round(3)} + #{B.round(3)}*Sin(phase + #{D.round(3)}*t)"
 puts "Cycle step = #{(D / CYCLE).round(3)}"
 
 neuronet = Neuronet::ScaledNetwork.new([INPUTS, OUTPUTS], reset: true)
-# We're trying to train a function, so there's no noise to smooth out over a
-# number of data points.
-# neuronet.number(1.0) # TODO: still working on automating the learning rate.
 
 # Training...
 mma = B # moving average set high to be averaged down.
 count = 0
-mju = 11.0 # TODO: derive optimal mju
 # Looking for 1%, but quit if it's taking too long.
 while mma / B > 0.01 && count < MAX
   count += 1
@@ -71,7 +67,7 @@ while mma / B > 0.01 && count < MAX
   # Note that the real task is to describe the motion (deviation) from A.
   mma = (127.0 * mma + Math.sqrt(error2)) / 128.0
   mma = B if mma > B
-  neuronet.train(target, mju) # neuronet trains the output
+  neuronet.train(target) # neuronet trains the output
 end
 
 # How good are we?
@@ -114,3 +110,5 @@ puts 'Examples:'
   puts "Output:\t#{output.map { _1.round(3) }.join(', ')}"
 end
 puts
+puts "Expected mju: #{neuronet.expected_mju}"
+puts "Average mju: #{neuronet.average_mju}"

@@ -61,5 +61,5 @@ trials.times do |trial|
 end
 standard_deviation = Math.sqrt(e2 / (trials + 1))
 
-puts "Mju: #{Neuronet::Neuron.mju(sum)}"
+puts "Mju: #{Neuronet::Neuron.mju(sum).round(2)}"
 puts "Standard Deviation: #{standard_deviation.round(3)}"
