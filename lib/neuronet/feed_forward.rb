@@ -4,32 +4,23 @@
 module Neuronet
   # A Feed Forward Network
   class FeedForward < Array
-    attr_reader :entrada, :salida, :yin, :yang
-
-    # I find very useful to name certain layers:
-    #  [0]    @entrada   Input Layer
-    #  [1]    @yin       Typically the first middle layer
-    #  [-2]   @yang      Typically the last middle layer
-    #  [-1]   @salida    Output Layer
+    # Example:
+    #   ff = Neuronet::FeedForward.new([2, 3, 1])
     def initialize(layers)
       length = layers.length
       raise 'Need at least 2 layers' if length < 2
 
       super(length) { Layer.new(layers[_1]) }
       1.upto(length - 1) { self[_1].connect(self[_1 - 1]) }
-      @entrada  = first
-      @salida   = last
-      @yin      = self[1]
-      @yang     = self[-2]
     end
 
     # Set the input layer.
     def set(input)
-      @entrada.set(input)
+      first.set(input)
       self
     end
 
-    def input = @entrada.values
+    def input = first.values
 
     # Update the network.
     def update
@@ -38,7 +29,7 @@ module Neuronet
       self
     end
 
-    def output = @salida.values
+    def output = last.values
 
     # Consider:
     #   m = Neuronet::FeedForward.new(layers)
@@ -47,7 +38,7 @@ module Neuronet
     def *(other)
       set(other)
       update
-      @salida.values
+      last.values
     end
 
     # 𝝁 + 𝜧 𝝁' + 𝜧 𝜧'𝝁" + 𝜧 𝜧'𝜧"𝝁"' + ...
@@ -71,7 +62,7 @@ module Neuronet
     end
 
     def train(target, mju = expected_mju)
-      @salida.train(target, mju)
+      last.train(target, mju)
       self
     end
 
