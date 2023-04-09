@@ -37,7 +37,7 @@ module Neuronet
     # This method is the one to use whenever the value of the inputs are changed
     # (or right after training).  Otherwise, both update and value should give
     # the same result.  When back calculation are not needed, use
-    # Connection#activation instead.
+    # Connection#weighted_activation instead.
     def update = @neuron.update * @weight
 
     # Connection#backpropagate modifies the connection's weight in proportion to
@@ -53,7 +53,7 @@ module Neuronet
     end
     # On how to reduce the error, the above makes it obvious how to interpret
     # the equipartition of errors among the connections.  Backpropagation is
-    # simmetric to forward propagation of errors. The error variable is the
+    # symmetric to forward propagation of errors. The error variable is the
     # reduced error, 𝛆(see the wiki notes).
 
     # A connection inspects itself as "weight*label:...".

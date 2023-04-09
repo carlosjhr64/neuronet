@@ -27,7 +27,7 @@ module Neuronet
         weight = weights[i] || 0.0
         layer.each { neuron.connect(_1, weight:) }
       end
-      # NOTE: the layer is returned for chaining.
+      # The layer is returned for chaining.
       layer
     end
 

@@ -2,7 +2,7 @@
 
 # Neuronet module / Neuron class
 module Neuronet
-  # A Neuron is a capable of creating connections to other neurons.  The
+  # A Neuron is capable of creating connections to other neurons.  The
   # connections attribute is a list of the neuron's connections to other
   # neurons.  A neuron's bias is it's kicker (or deduction) to it's activation
   # value, a sum of its connections values.
@@ -115,15 +115,14 @@ module Neuronet
       self
     end
 
-    # Connects the neuron to another neuron.  Updates the activation with the
-    # new connection.  The default weight=0 means there is no initial
-    # association.  The connect method is how the implementation adds a
-    # connection, the way to connect the neuron to another.  To connect "salida"
-    # to "entrada", for example, it is:
-    #	  entrada = Neuronet::Neuron.new
-    #	  salida = Neuronet::Neuron.new
-    #	  salida.connect(entrada)
-    # Think output(salida) connects to input(entrada).
+    # Connects the neuron to another neuron.  The default weight=0 means there
+    # is no initial association.  The connect method is how the implementation
+    # adds a connection, the way to connect a neuron to another.  To connect
+    # "output" to "input", for example, it is:
+    #	  input = Neuronet::Neuron.new
+    #	  output = Neuronet::Neuron.new
+    #	  output.connect(input)
+    # Think "output" connects to "input".
     def connect(neuron = Neuron.new, weight: 0.0)
       @connections.push(Connection.new(neuron, weight:))
       # Note that we're returning the connected neuron:

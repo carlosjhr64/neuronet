@@ -77,9 +77,11 @@ module Neuronet
   NOISE = ->(error) { error * (rand + rand) }
 
   # One may choose not to have noise.
-  NO_NOISE = IDENTITY = ->(error) { error }
+  NO_NOISE = ->(error) { error }
 
   # To keep components bounded, Neuronet limits the weights, biases, and values.
+  # Note that on a 64-bit machine SQUASH[37] rounds to 1.0, and
+  # SQUASH[9] is 0.99987...
   MAXW = 9.0  # Maximum weight
   MAXB = 18.0 # Maximum bias
   MAXV = 36.0 # Maximum value
