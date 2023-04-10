@@ -87,4 +87,65 @@ class TestEpsilon < Test::Unit::TestCase
       puts 'Got error greater than 10 times expected error.'.colorize(:red)
     end
   end
+
+
+  def r4
+    4.times.sum { rand }
+  end
+
+  def test_really
+    # Arbitrary layers:
+    layers = (2 + r4).to_i.times.inject([]) { |a,i| a << (1+r4+r4+r4+r4).to_i }
+    puts "Testing FF #{layers.inspect}".colorize(:green)
+    ff = FeedForward.new(layers)
+
+    # Arbitrary weights and biases:
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.bias = r4 - r4
+        neuron.connections.each do |connection|
+          connection.weight = r4 - r4
+        end
+      end
+    end
+
+    # Arbitrary input values:
+    values = ff.first.map { r4 - r4 }
+    puts "With input #{values.map{_1.round(4)}.inspect}".colorize(:green)
+
+    # Target:
+    target = ff * values
+    puts "Output is #{target.map{_1.round(4)}.inspect}".colorize(:green)
+
+    # Expected errors:
+    expected_errors = ff.last.map { Neuron.mju(_1) * EPSILON }
+    puts "Expected errors is #{expected_errors.map{'%.2e' % _1}.inspect}"
+         .colorize(:magenta)
+
+    # Set all weights and biases to  += epsilon:
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.bias += EPSILON
+        neuron.connections.each do |connection|
+          connection.weight += EPSILON
+        end
+      end
+    end
+
+    # Deviant:
+    deviant = ff * values
+    puts "Deviant is #{deviant.map{_1.round(4)}.inspect}".colorize(:green)
+
+    # Errors:
+    errors = deviant.zip(target).map { _1 - _2 }
+    puts "Actual errors is #{errors.map{'%.2e' % _1}.inspect}".colorize(:magenta)
+
+    # Experimentally observed error is the expected_error to 2 digits.
+    assert_equal expected_errors.map{'%.1e' % _1}, errors.map{'%.1e' % _1}
+    # Experimentally observed error is the expected_error to 3 digits.
+    # Happens sometimes...
+    unless expected_errors.map{'%.2e' % _1} == errors.map{'%.2e' % _1}
+      puts 'An error differed at 3 significant figures.'.colorize(:red)
+    end
+  end
 end
