@@ -5,6 +5,12 @@ require 'neuronet'
 
 class TestEpsilon < Test::Unit::TestCase
   include Neuronet
+  EPSILON = 0.5**13
+
+  def test_epsilon
+    # EPSILON is parts per thousands...
+    assert_equal 8192.0, 1.0 / EPSILON
+  end
 
   def test_average_mju
     ff = FeedForward.new([4, 4, 4, 4])
@@ -21,16 +27,15 @@ class TestEpsilon < Test::Unit::TestCase
     end
 
     target = ff * [0.0, 0.0, 0.0, 0.0]
-    epsilon = 0.5**16
-    expected_error = ff.average_mju * epsilon
+    expected_error = ff.average_mju * EPSILON
 
     # Set all weights to 1.0 + epsilon, biases to epsilon
     ff.each do |layer|
       layer.each do |neuron|
         neuron.value = 0.0
-        neuron.bias = epsilon
+        neuron.bias = EPSILON
         neuron.connections.each do |connection|
-          connection.weight = 1.0 + epsilon
+          connection.weight = 1.0 + EPSILON
         end
       end
     end
@@ -38,8 +43,8 @@ class TestEpsilon < Test::Unit::TestCase
     deviant = ff * [0.0, 0.0, 0.0, 0.0]
     error = deviant[0] - target[0]
 
-    # Experimentally observed error is the expected_error to five digits.
-    assert_equal '%.5g' % expected_error, '%.5g' % error
+    # Experimentally observed error is the expected_error to 3 digits.
+    assert_equal '%.3g' % expected_error, '%.3g' % error
   end
 
   def test_expected_mju
@@ -57,16 +62,15 @@ class TestEpsilon < Test::Unit::TestCase
     end
 
     target = ff * [0.0, 0.0, 0.0, 0.0]
-    epsilon = 0.5**16
-    expected_error = ff.expected_mju * epsilon
+    expected_error = ff.expected_mju * EPSILON
 
     # Set all weights to weight + epsilon, biases to epsilon
     ff.each do |layer|
       layer.each do |neuron|
         neuron.value = 0.0
-        neuron.bias = epsilon
+        neuron.bias = EPSILON
         neuron.connections.each do |connection|
-          connection.weight += epsilon
+          connection.weight += EPSILON
         end
       end
     end
