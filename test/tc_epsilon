@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+require 'test/unit'
+require 'colorize'
+require 'neuronet'
+
+class TestEpsilon < Test::Unit::TestCase
+  include Neuronet
+
+  def test_average_mju
+    ff = FeedForward.new([4, 4, 4, 4])
+
+    # Set all weights to 1.0, biases to 0.0
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.value = 0.0
+        neuron.bias = 0.0
+        neuron.connections.each do |connection|
+          connection.weight = 1.0
+        end
+      end
+    end
+
+    target = ff * [0.0, 0.0, 0.0, 0.0]
+    epsilon = 0.5**16
+    expected_error = ff.average_mju * epsilon
+
+    # Set all weights to 1.0 + epsilon, biases to epsilon
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.value = 0.0
+        neuron.bias = epsilon
+        neuron.connections.each do |connection|
+          connection.weight = 1.0 + epsilon
+        end
+      end
+    end
+
+    deviant = ff * [0.0, 0.0, 0.0, 0.0]
+    error = deviant[0] - target[0]
+
+    # Experimentally observed error is the expected_error to five digits.
+    assert_equal '%.5g' % expected_error, '%.5g' % error
+  end
+
+  def test_expected_mju
+    ff = FeedForward.new([128, 128, 128, 128])
+
+    # Randomly set all weights to (+/-)1.0, biases to 0.0
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.value = 0.0
+        neuron.bias = 0.0
+        neuron.connections.each do |connection|
+          connection.weight = rand > 0.5 ? 1.0 : -1.0
+        end
+      end
+    end
+
+    target = ff * [0.0, 0.0, 0.0, 0.0]
+    epsilon = 0.5**16
+    expected_error = ff.expected_mju * epsilon
+
+    # Set all weights to weight + epsilon, biases to epsilon
+    ff.each do |layer|
+      layer.each do |neuron|
+        neuron.value = 0.0
+        neuron.bias = epsilon
+        neuron.connections.each do |connection|
+          connection.weight += epsilon
+        end
+      end
+    end
+
+    deviant = ff * [0.0, 0.0, 0.0, 0.0]
+    error = deviant[0] - target[0]
+
+    # Experimentally observed error is less than the expected_error.
+    assert error.abs < expected_error.abs
+    # Expected error is not more than 100 times the observed error.
+    assert expected_error.abs / error.abs < 100.0
+    # And it's typically less than 10 times the observed error.
+    if expected_error.abs / error.abs > 10.0
+      puts 'Got error greater than 10 times expected error.'.colorize(:red)
+    end
+  end
+end
