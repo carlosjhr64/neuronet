@@ -86,6 +86,14 @@ Hope it's not confusing...
 I tried to give related Marklars the same name.
 ![Marklar](img/marklar.png)
 
+### Marshal
+
+Marshal works with Neuronet to save your networks:
+```ruby
+dump = Marshal.dump ff
+ff2 = Marshal.load dump
+ff2.inspect == ff.inspect #=> true
+```
 ### Base
 
 * [Requires and autoloads](lib/neuronet.rb)
