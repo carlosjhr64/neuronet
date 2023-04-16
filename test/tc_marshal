@@ -12,7 +12,7 @@ class TestMarshal < Test::Unit::TestCase
 
   def test_really
     # Arbitrary layers:
-    layers = (2 + r4).to_i.times.inject([]) { |a,i| a << (1+r4+r4+r4+r4).to_i }
+    layers = (2 + r4).to_i.times.inject([]) { |a,_| a << (1+r4+r4+r4+r4).to_i }
     puts "Testing FF #{layers.inspect}".colorize(:green)
     ff0 = FeedForward.new(layers)
 

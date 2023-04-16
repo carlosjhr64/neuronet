@@ -88,14 +88,13 @@ class TestEpsilon < Test::Unit::TestCase
     end
   end
 
-
   def r4
     4.times.sum { rand }
   end
 
   def test_really
     # Arbitrary layers:
-    layers = (2 + r4).to_i.times.inject([]) { |a,i| a << (1+r4+r4+r4+r4).to_i }
+    layers = (2 + r4).to_i.times.inject([]) { |a,_| a << (1+r4+r4+r4+r4).to_i }
     puts "Testing FF #{layers.inspect}".colorize(:green)
     ff = FeedForward.new(layers)
 
@@ -137,8 +136,9 @@ class TestEpsilon < Test::Unit::TestCase
     puts "Deviant is #{deviant.map{_1.round(4)}.inspect}".colorize(:green)
 
     # Errors:
-    errors = deviant.zip(target).map { _1 - _2 }
-    puts "Actual errors is #{errors.map{'%.2e' % _1}.inspect}".colorize(:magenta)
+    errors = deviant.zip(target).map {|a,b| a-b}
+    puts "Actual errors is #{errors.map{'%.2e' % _1}.inspect}"
+         .colorize(:magenta)
 
     # Experimentally observed error is the expected_error to 2 digits.
     assert_equal expected_errors.map{'%.1e' % _1}, errors.map{'%.1e' % _1}

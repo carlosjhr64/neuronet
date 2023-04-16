@@ -92,6 +92,8 @@ Naming/MethodParameterName:
   Enabled: false
 Naming/MemoizedInstanceVariableName:
   Enabled: false
+Security/MarshalLoad:
+  Enabled: false
 Security/Open:
   Enabled: false
 Style/AccessModifierDeclarations:
