@@ -112,7 +112,7 @@ ff2.inspect == ff.inspect #=> true
 
 ## LICENSE:
 
-Copyright 2023 CarlosJHR64
+Copyright (c) 2023 CarlosJHR64
 
 Permission is hereby granted, free of charge,
 to any person obtaining a copy of this software and
