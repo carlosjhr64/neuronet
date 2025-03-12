@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'colorize'
 
@@ -6,17 +8,20 @@ class TestRubySyntax < Test::Unit::TestCase
   def test_ruby_syntax
     # Get all files in git...
     `git ls-files`.lines.map(&:chomp)
-    # select rb files, skip others(md,txt,etc.), and select ruby executables...
-    .select{/\.rb$/.match?_1 or (!/\.\w*$/.match?_1 and _bang_ruby?_1)}
-    # and iterate!
-    .each do |fn|
-      msg = "\n#### SYNTAX: ####\n# #{fn}\n#################".red
-      assert system("ruby -c #{fn} >/dev/null"), msg
+                  .select { /\.rb$/.match?(_1) || _bang_ruby?(_1) }
+                  .each do |filename|
+      msg = "\n#### SYNTAX: ####\n# #{filename}\n#################".red
+      assert system("ruby -c #{filename} >/dev/null"), msg
     end
   end
+
   private
-  def _bang_ruby?(fn)
-    return false if File.directory?(fn) || !File.executable?(fn)
-    /^#!.*\bruby$/.match? File.read(fn,80).lines[0].rstrip
+
+  def _bang_ruby?(filename)
+    return false if /\.\w*$/.match?(filename) ||
+                    File.directory?(filename) ||
+                    !File.executable?(filename)
+
+    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
   end
 end

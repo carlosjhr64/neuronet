@@ -1,17 +1,17 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'colorize'
-=begin
-The gem 'parser' provides `ruby-parse`
-require 'parser'
-=end
+# The gem 'parser' provides `ruby-parse`
+# require 'parser'
 
 class TestLexicon < Test::Unit::TestCase
   GLOB = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
-  ADD_TO_LEXI = %q(egrep -o ':\w+' | sort -u | egrep -o '\w+' > tmp/lexicon)
+  ADD_TO_LEXI = %q(egrep -o ':@?\w+' | egrep -o '\w+' | sort -u > tmp/lexicon)
   def test_lexicon
     system %(ruby-parse #{GLOB} | #{ADD_TO_LEXI})
     diff = `colordiff .lexicon tmp/lexicon`.strip
-    flunk 'Code lexicon changed:'.colorize(:blue)+"\n"+diff unless diff.empty?
+    diff.empty? or flunk "#{'Code lexicon changed:'.colorize(:blue)}\n#{diff}"
   end
 end

@@ -1,24 +1,35 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'colorize'
 require 'zlib'
 
 class TestDictionary < Test::Unit::TestCase
-  GLOB  = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
-  WORDS = "egrep -i -o '[a-z]+' | tr '[:upper:]' '[:lower:]' | sort -u"
-  VALID = Zlib::GzipReader.open('test/cons.gz').readlines.map(&:strip).to_set
+  EGREP   = %q(egrep -o '[\]?[[:alpha:]]+')         # Extract words
+  SED_ESC = %q(sed 's/^[\].//')                     # Remove escaped character
+  SED_CC  = %q(sed 's/\\([a-z]\\)\\([A-Z]\\)/\1 \2/g') # Split camelCase
+  TR_NL   = %q(tr ' ' '\n')                         # One word per line
+  TR_LC   = "tr '[:upper:]' '[:lower:]'"            # Lowercase
+  SORT    = 'sort -u'                               # Sort and remove duplicates
+  WORDS   = "#{EGREP} | #{SED_ESC} | #{SED_CC} | #{TR_NL} | #{TR_LC} | #{SORT}"
+            .freeze
+  GLOB    = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
+  VALID   = Zlib::GzipReader.open('test/cons.gz').readlines.to_set(&:strip)
 
   def test_dictionary
-    unrecognized = `cat README.md #{GLOB}| #{WORDS}`.lines.map(&:strip)
-                   .select{_unrecognized?(_1)}
-    File.open('tmp/dictionary','w'){_1.puts unrecognized}
+    unrecognized = `cat README.md #{GLOB} | #{WORDS}`
+                   .lines.map(&:strip).select { unrecognized?(it) }
+    File.open('tmp/dictionary', 'w') { it.puts unrecognized }
     diff = `colordiff .dictionary tmp/dictionary`.strip
-    flunk 'Dictionary changed:'.colorize(:blue)+"\n"+diff unless diff.empty?
+    diff.empty? or flunk "#{'Dictionary changed:'.colorize(:blue)}\n#{diff}"
   end
 
   private
 
-  def _unrecognized?(word)
-    !word.chars.each_cons(3).all?{VALID.include?_1.join}
+  # Note that `.all?` is true if not iterated.
+  # If word.length<3, the word is assumed good.
+  def unrecognized?(word)
+    !word.chars.each_cons(3).all? { VALID.include? it.join }
   end
 end

@@ -1,25 +1,38 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 
 class TestVersion < Test::Unit::TestCase
-  def test_version
-    version = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first
-    if File.exist?('.version')
-      assert_equal(version, File.read('.version').strip)
+  VERSION = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first
+
+  def test_dot_version
+    File.exist?('.version') &&
+      assert_equal(VERSION, File.read('.version').strip)
+  end
+
+  def test_data_version
+    File.exist?('data/VERSION') &&
+      assert_equal(VERSION, File.read('data/VERSION').strip)
+  end
+
+  def test_bin_version
+    if (executable = `ls bin/* 2> /dev/null`.split.first)
+      assert_equal(VERSION, `#{executable} --version`.strip)
     end
-    if File.exist?('data/VERSION')
-      assert_equal(version, File.read('data/VERSION').strip)
-    end
-    if (executable=`ls bin/* 2> /dev/null`.split.first)
-      assert_equal(version, `#{executable} --version`.strip)
-    end
-    if (gemspec=`ls *.gemspec 2> /dev/null`.split.first)
+  end
+
+  def test_gemspec_version
+    if (gemspec = `ls *.gemspec 2> /dev/null`.split.first)
       v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{gemspec}`.split.first
-      assert_equal(version, v)
+      assert_equal(VERSION, v)
     end
-    if (readme=`ls README.* 2> /dev/null`.split.first)
+  end
+
+  def test_readme_version
+    if (readme = `ls README.* 2> /dev/null`.split.first)
       v = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' #{readme}`.split.first
-      assert_equal(version, v)
+      assert_equal(VERSION, v)
     end
   end
 end

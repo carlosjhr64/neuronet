@@ -2,13 +2,11 @@
   (\.)           |
   (\w+\.gemspec) |
   (cucumber\.)   |
-  (doc/)         |
   (examples/)    |
   (features/)    |
   (Gemfile)      |
   (History\.)    |
   (img/)         |
-  (scratch/)     |
   (sig/)         |
   (test/)        |
   (tmp/)         |

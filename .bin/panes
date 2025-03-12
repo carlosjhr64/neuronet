@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+cmd = ARGV.shift || 'pane'
+list = *ARGV
+if list.empty?
+  list = `tmux list-panes -F '#P'`.split
+end
+list.each do |i|
+  running = `tmux display -t ":.#{i}" -p '\#{pane_current_command}'`.chomp
+  if running == 'fish'
+    `tmux send-keys -t ":.#{i}" "#{cmd}" Enter`
+  end
+end

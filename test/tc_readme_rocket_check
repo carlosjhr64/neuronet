@@ -1,87 +1,128 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'colorize'
 
-README = 'README.md'
-
+README      = 'README.md'
 ROCKET      = /\s*#=>\s*/
 MATCH       = /\s*#~>\s*/
 DECLARATION = /\s*#!>\s*/
-
-BINDING = binding
-
-def step_thru_script(fh=$stdin)
-  script,line_number,is_ruby = '', 0, false
-  while (line=fh.gets)
-    line_number += 1
-    # Are we ruby yet?
-    case line
-    when /^```ruby\b/
-      is_ruby = true; next
-    when /^```$/
-      is_ruby = false; next
-    end
-    next unless is_ruby
-    # Build up script
-    script << line  unless line.match? /^\s*#/
-    # Ready to do something?
-    case line
-    when DECLARATION
-      declaration = line.split(DECLARATION, 2).last.chomp
-      case declaration
-      when /^TODO/
-        puts "Rocket line number #{line_number}:".colorize(:yellow)
-        puts declaration.colorize(:yellow)
-        break
-      end
-    when ROCKET, MATCH
-      actual = nil
-    else next
-    end
-    # OK, do it!
-    begin
-      actual = BINDING.eval(script)
-    rescue
-      actual = $!.message
-    ensure
-      script = ''
-    end
-    string = actual.to_s
-    # Did we get what we expected?
-    case line
-    when ROCKET
-      expected = line.split(ROCKET, 2).last.chomp
-      actual = expected==string ? string : actual.inspect
-    when MATCH
-      expected = line.split(MATCH, 2).last.chomp
-      expected = Regexp.new expected
-      actual = expected.match?(string)? string : actual.inspect
-    else
-      raise 'WUT!?' # This should not happen!
-    end
-    # Report it
-    yield line_number, line.lstrip.chomp, expected, actual
-  end
-  unless script==''
-    IO.popen('ruby -c >/dev/null','w') do |io|
-      io.puts script
-    end
-    assert_equal 0, $?.exitstatus
-  end
-end
+BINDING     = binding
 
 class TestReadmeRocketTest < Test::Unit::TestCase
   def test_readme_rocket_test
     return unless File.exist? README
-    File.open(README, 'r') do |fh|
-      step_thru_script(fh) do |line_number, line, expected, actual|
-        case expected
-        when String
-          assert_equal expected, actual, "#{line_number}: #{line}"
-        when Regexp
-          assert_match expected, actual, "#{line_number}: #{line}"
-        end
+
+    step_thru_readme do |expected, actual, message|
+      if expected.is_a?(Regexp)
+        assert_match(expected, actual, message)
+      else
+        assert_equal(expected, actual, message)
       end
     end
+  rescue StandardError => e
+    flunk e.message
+  end
+
+  private
+
+  def init
+    @lines = File.readlines(README)
+    @ruby = false
+    @script = String.new
+    @line_number = 0
+    @line = nil
+    @actual = nil
+    @expected = nil
+  end
+
+  def step_thru_readme
+    init
+    step_thru_script do
+      yield(@expected, @actual, "#{@line_number}: #{@line}")
+    end
+    completes_successfully unless @script.empty?
+  end
+
+  def ruby_code?
+    # Are we ruby yet?
+    case @line
+    when /^```ruby\b/
+      @ruby = true
+      return false
+    when /^```$/
+      @ruby = false
+    end
+    @ruby
+  end
+
+  def declaration_break?
+    if DECLARATION.match? @line
+      declaration = @line.split(DECLARATION, 2).last.chomp
+      puts "Rocket line number #{@line_number}:".colorize(:yellow)
+      puts declaration.colorize(:yellow)
+      return true if /^TODO/.match? declaration
+    end
+    false
+  end
+
+  def script_ready?
+    # Build up script
+    @script << @line unless @line.match?(/^\s*#/)
+    # Ready to do something?
+    ROCKET.match?(@line) || MATCH.match?(@line)
+  end
+
+  def step_thru_script
+    while (@line = @lines.shift)
+      @line_number += 1
+      next unless ruby_code?
+      break if declaration_break?
+      next unless script_ready?
+
+      # OK, do it!
+      eval_script
+      reset_expected_actual
+      # Report it
+      yield
+    end
+  end
+
+  def eval_script
+    @actual = BINDING.eval(@script)
+  rescue StandardError => e
+    @actual = e.message.red
+  ensure
+    @script.clear
+  end
+
+  def reset_expected_actual
+    reset_expected
+    reset_actual
+  end
+
+  def reset_expected
+    case @line
+    when ROCKET
+      @expected = @line.split(ROCKET, 2).last.chomp
+    when MATCH
+      @expected = Regexp.new @line.split(MATCH, 2).last.chomp
+    end
+  end
+
+  def reset_actual(str = @actual.to_s)
+    @actual = case @expected
+              when Regexp
+                @expected.match?(str) ? str : @actual.inspect
+              else
+                @expected == str ? str : @actual.inspect
+              end
+  end
+
+  def completes_successfully
+    BINDING.eval(@script)
+  ensure
+    @script.clear
   end
 end

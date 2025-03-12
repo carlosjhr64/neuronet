@@ -1,0 +1,4 @@
+AllCops:
+  NewCops: enable
+Layout/LineLength:
+  Max: 80

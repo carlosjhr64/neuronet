@@ -1,0 +1,29 @@
+---
+detectors:
+  # Modified:
+  DataClump:
+    max_copies: 3
+    min_clump_size: 3
+  NestedIterators:
+    max_allowed_nesting: 2
+  # Disabled:
+  BooleanParameter:
+    enabled: false
+  DuplicateMethodCall:
+    enabled: false
+  InstanceVariableAssumption:
+    enabled: false
+  MissingSafeMethod:
+    enabled: false
+  NilCheck:
+    enabled: false
+  TooManyInstanceVariables:
+    enabled: false
+  TooManyMethods:
+    enabled: false
+  TooManyStatements:
+    enabled: false
+  UncommunicativeMethodName:
+    enabled: false
+  UncommunicativeVariableName:
+    enabled: false

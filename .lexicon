@@ -99,7 +99,7 @@ rand
 require_relative
 reset
 reverse
-Ruby32
+Ruby34
 Scale
 ScaledNetwork
 semi

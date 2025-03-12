@@ -7,6 +7,7 @@ begin
 rescue Exception
   message = $!.message
 end
+require 'colorize'
 require 'irbtools/configure'
-Irbtools.welcome_message = message
+Irbtools.welcome_message = message.blue
 Irbtools.start
