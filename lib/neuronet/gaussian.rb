@@ -6,6 +6,7 @@ module Neuronet
   # Gaussian sub-classes Scale and is used exactly the same way. The only
   # changes are that it calculates the arithmetic mean (average) for center and
   # the standard deviation for spread.
+  # :reek:DuplicateMethodCall and :reek:UncommunicativeVariableName
   class Gaussian < Scale
     def set(inputs)
       @center ||= inputs.sum.to_f / inputs.length

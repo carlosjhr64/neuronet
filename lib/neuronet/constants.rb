@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # Neuronet module / Constants
+# :reek:TooManyConstants and :reek:Attribute
 module Neuronet
   # Neuronet allows one to set the format to use for displaying float values,
   # mostly used in the inspect methods.

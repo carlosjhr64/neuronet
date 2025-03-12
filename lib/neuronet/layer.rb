@@ -68,6 +68,7 @@ module Neuronet
     end
 
     # Set layer to average input.
+    # :reek:DuplicateMethodCall
     def average(sign = 1)
       bias = sign * Neuronet.bzero
       each do |n|

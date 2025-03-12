@@ -46,12 +46,12 @@ module Neuronet
     # |∑𝑾| ~ √𝑁
     # |𝓑𝒂| ~ ¼
     # |𝝁| ~ 1+∑|𝒂'| ~ 1+½𝑁
+    # :reek:DuplicateMethodCall
     def expected_mju!
       sum = 0.0
       mju = 1.0
       reverse[1..].each do |layer|
-        n = layer.length
-        sum += mju * (1.0 + (0.5 * n))
+        sum += mju * (1.0 + (0.5 * layer.length))
         mju *= 0.25 * Math.sqrt(layer.length)
       end
       @expected_mju = Neuronet.learning * sum
@@ -74,6 +74,7 @@ module Neuronet
       set(input).update.train(target, mju)
     end
 
+    # :reek:DuplicateMethodCall and :reek:UncommunicativeVariableName
     def pairs(pairs, mju = expected_mju)
       pairs.shuffle.each { |input, target| pair(input, target, mju) }
       return self unless block_given?

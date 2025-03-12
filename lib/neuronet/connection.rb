@@ -43,6 +43,7 @@ module Neuronet
     # Connection#backpropagate modifies the connection's weight in proportion to
     # the error given and passes that error to its connected neuron via the
     # neuron's backpropagate method.
+    # :reek:DuplicateMethodCall
     def backpropagate(error)
       @weight += @neuron.activation * Neuronet.noise[error]
       if @weight.abs > Neuronet.maxw
