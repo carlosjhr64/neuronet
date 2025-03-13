@@ -74,7 +74,7 @@ module Neuronet
       @connections = connections
       @bias        = bias
       @label       = Neuron.label
-      Neuron.label = Neuron.label.next
+      Neuron.label = @label.next
     end
 
     # Updates the activation with the current value of bias and updated values
@@ -104,6 +104,7 @@ module Neuronet
     # given error and passes on this error to each of its connection's
     # backpropagate method.  While updates flows from input to output, back-
     # propagation of errors flows from output to input.
+    # :reek:DuplicateMethodCall
     def backpropagate(error)
       return self if @connections.empty?
 
@@ -131,6 +132,7 @@ module Neuronet
 
     # Tacks on to neuron's inspect method to show the neuron's bias and
     # connections.
+    # :reek:DuplicateMethodCall
     def inspect
       fmt = Neuronet.format
       if @connections.empty?

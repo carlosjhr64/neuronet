@@ -15,7 +15,7 @@ module Neuronet
     end
 
     def unmapped(outputs)
-      super(outputs).map { |value| Math.exp(value) }
+      super.map { |value| Math.exp(value) }
     end
   end
 end

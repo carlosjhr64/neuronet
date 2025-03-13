@@ -6,7 +6,7 @@ module Neuronet
   class Layer < Array
     # Length is the number of neurons in the layer.
     def initialize(length)
-      super(length) { Neuron.new }
+      super { Neuron.new }
     end
 
     # This is where one enters the "real world" inputs.
