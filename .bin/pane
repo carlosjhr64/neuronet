@@ -36,7 +36,7 @@ when 10
   system('wile todo lib')
 when 11
   blue '# Rubocop:'
-  system('rubocop bin lib')
+  system('rubocop lib')
 else
   blue "##{pane}"
 end
