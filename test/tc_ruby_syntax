@@ -8,7 +8,7 @@ class TestRubySyntax < Test::Unit::TestCase
   def test_ruby_syntax
     # Get all files in git...
     `git ls-files`.lines.map(&:chomp)
-                  .select { /\.rb$/.match?(_1) || _bang_ruby?(_1) }
+                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
                   .each do |filename|
       msg = "\n#### SYNTAX: ####\n# #{filename}\n#################".red
       assert system("ruby -c #{filename} >/dev/null"), msg

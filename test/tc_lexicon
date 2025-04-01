@@ -10,7 +10,7 @@ class TestLexicon < Test::Unit::TestCase
   GLOB = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
   ADD_TO_LEXI = %q(egrep -o ':@?\w+' | egrep -o '\w+' | sort -u > tmp/lexicon)
   def test_lexicon
-    system %(ruby-parse #{GLOB} | #{ADD_TO_LEXI})
+    system "ruby-parse #{GLOB} | #{ADD_TO_LEXI}"
     diff = `colordiff .lexicon tmp/lexicon`.strip
     diff.empty? or flunk "#{'Code lexicon changed:'.colorize(:blue)}\n#{diff}"
   end

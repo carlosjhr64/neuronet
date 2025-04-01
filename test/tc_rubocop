@@ -11,7 +11,7 @@ class TestRuboCop < Test::Unit::TestCase
   def test_rubycop
     files = `git ls-files`
             .lines.map(&:chomp)
-            .select { /\.rb$/.match?(_1) || _bang_ruby?(_1) }
+            .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
             .join(' ')
     flunk 'Busted by Rubocop!'.red unless system("#{RUBOCOP} #{files}")
   end

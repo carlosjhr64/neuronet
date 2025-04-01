@@ -58,6 +58,8 @@ Lint/FloatComparison:
   Enabled: false
 Lint/InheritException:
   Enabled: false
+Lint/ItWithoutArgumentsInBlock:
+  Enabled: false
 Lint/MixedRegexpCaptureTypes:
   Enabled: false
 Lint/NestedMethodDefinition:

@@ -4,7 +4,7 @@
 require 'test/unit'
 
 class TestVersion < Test::Unit::TestCase
-  VERSION = `egrep -o '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first
+  VERSION = `egrep -ho '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first
 
   def test_dot_version
     File.exist?('.version') &&

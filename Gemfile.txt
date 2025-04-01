@@ -1,0 +1,22 @@
+## runtime ##
+## development ##
+colorize     1.1.0
+parser       3.3.7
+rubocop      1.75.1
+test-unit    3.6.7
+## system-run ##
+ruby         3.4
+## system-dev ##
+cat          8.32
+clear        6.2
+colora       1.0
+colordiff    3.7
+egrep        3.6
+git          2.30
+ls           8.32
+ncal         2019
+rubocop      1.75
+ruby         3.4
+ruby-parse   3.3
+tmux         3.1
+wile         0.0

@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+require 'prism'
+
+class TestComments < Test::Unit::TestCase
+  # rubocop:disable Metrics
+  def test_comments
+    error_count = 0
+    `git ls-files`.lines.map(&:chomp) # Get all files in git...
+                  .select { /\.rb$/.match?(it) || _bang_ruby?(it) }
+                  .each do |filename|
+      source = File.read(filename)
+      lines = source.lines
+      comments = Prism.parse_comments(source)
+      comments.each do |comment|
+        line_number = comment.location.start_line
+        comment_line = lines[line_number - 1]
+        next if /^\s*#/.match?(comment_line)
+
+        lenth = comment.location.length
+        txt = comment_line[-lenth..]
+        next unless %r{['"/)\}\]]}.match?(txt)
+
+        error_count += 1
+        puts "#{filename}:#{line_number}:#{comment_line.chomp}".blue
+      end
+    end
+    return unless error_count.positive?
+
+    print 'Remove these characters from side comments: '.blue
+    puts %q('"/\)}]).red
+    flunk
+  end
+
+  private
+
+  def _bang_ruby?(filename)
+    return false if /\.\w*$/.match?(filename) ||
+                    File.directory?(filename) ||
+                    !File.executable?(filename)
+
+    /^#!.*\bruby$/.match? File.read(filename, 80).lines[0].rstrip
+  end
+  # rubocop:enable Metrics
+end
