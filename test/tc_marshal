@@ -28,7 +28,7 @@ class TestMarshal < Test::Unit::TestCase
 
     # Arbitrary input values:
     values = ff0.first.map { r4 - r4 }
-    puts "With input #{values.map{_1.round(4)}.inspect}".colorize(:green)
+    puts "With input #{values.map{it.round(4)}.inspect}".colorize(:green)
 
     # Target:
     target0 = ff0 * values

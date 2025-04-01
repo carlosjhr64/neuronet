@@ -40,7 +40,7 @@ class TestLayer < Test::Unit::TestCase
     values = [1, 2, 3]
     layer.set(values)
     assert_equal 'x:1,y:2,z:3', layer.inspect
-    assert_equal values, layer.values.map{ _1.round(14) }
+    assert_equal values, layer.values.map{ it.round(14) }
 
     # Restore
     Neuron.label = 'a'
@@ -61,7 +61,7 @@ class TestLayer < Test::Unit::TestCase
 
     input.set([-1.0, 0.0, 1.0])
     output.partial
-    assert_equal [-1.0, 0.0, 1.0], output.values.map{ _1.round(14) }
+    assert_equal [-1.0, 0.0, 1.0], output.values.map{ it.round(14) }
 
     # Restore
     Neuron.label = 'a'
@@ -83,7 +83,7 @@ class TestLayer < Test::Unit::TestCase
 
     input.set([-1.0, 0.0, 1.0])
     output.partial
-    assert_equal [1.0, 0.0, -1.0], output.values.map{ _1.round(14) }
+    assert_equal [1.0, 0.0, -1.0], output.values.map{ it.round(14) }
 
     # Restore
     Neuron.label = 'a'
@@ -105,7 +105,7 @@ class TestLayer < Test::Unit::TestCase
 
     input.set([1, -1])
     output.partial
-    assert_equal [1.0, -1.0, -1.0, 1.0], output.values.map{ _1.round(14) }
+    assert_equal [1.0, -1.0, -1.0, 1.0], output.values.map{ it.round(14) }
 
     # Restore
     Neuron.label = 'a'
@@ -126,11 +126,11 @@ class TestLayer < Test::Unit::TestCase
 
     input.set([1, -1, -1, 1])
     output.partial
-    assert_equal [0.0, 0.0], output.values.map{ _1.round(14) }
+    assert_equal [0.0, 0.0], output.values.map{ it.round(14) }
 
     input.set([1.0, 1.0, -1.0, -1.0])
     output.partial
-    assert_equal [1.0, -1.0], output.values.map{ _1.round(14) }
+    assert_equal [1.0, -1.0], output.values.map{ it.round(14) }
 
     # Restore
     Neuron.label = 'a'
@@ -152,11 +152,11 @@ class TestLayer < Test::Unit::TestCase
 
     input.set([-1.0, 0.0, 1.0])
     output.partial
-    assert_equal [0.0, 0.0, 0.0], output.values.map{ _1.round(14) }
+    assert_equal [0.0, 0.0, 0.0], output.values.map{ it.round(14) }
 
     input.set([1.0, 0.0, 1.0])
     output.partial
-    assert_equal [0.667, 0.667, 0.667], output.values.map{ _1.round(3) }
+    assert_equal [0.667, 0.667, 0.667], output.values.map{ it.round(3) }
 
     # Restore
     Neuron.label = 'a'

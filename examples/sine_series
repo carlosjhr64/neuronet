@@ -54,7 +54,7 @@ count = 0
 # Looking for 1%, but quit if it's taking too long.
 while mma / B > 0.01 && count < MAX
   count += 1
-  print '.' if (count % 5000).zero? # just to let us know it's iterating...
+  print '.' if (count % 5000).zero? # just to let us know it is iterating...
   phase = random # any random starting point for the series
   input = 0.upto(INPUTS - 1).inject([]) { |v, t| v.push f(phase, t) }
   neuronet.set(input).update # sets both neuronet and distribution, and updates
@@ -84,7 +84,7 @@ sample.times do
     v.push f(phase, t)
   end
   # five points! Divided out below...
-  error2 += 0.upto(4).map { output[_1] - target[_1] }.inject(0.0) do |v, x|
+  error2 += 0.upto(4).map { output[it] - target[it] }.inject(0.0) do |v, x|
     v + (x * x)
   end
 end
@@ -105,9 +105,9 @@ puts 'Examples:'
     v.push f(phase, t)
   end
   puts
-  puts "Input:\t#{input.map { _1.round(3) }.join(', ')}"
-  puts "Target:\t#{target.map { _1.round(3) }.join(', ')}"
-  puts "Output:\t#{output.map { _1.round(3) }.join(', ')}"
+  puts "Input:\t#{input.map { it.round(3) }.join(', ')}"
+  puts "Target:\t#{target.map { it.round(3) }.join(', ')}"
+  puts "Output:\t#{output.map { it.round(3) }.join(', ')}"
 end
 puts
 puts "Expected mju: #{neuronet.expected_mju}"

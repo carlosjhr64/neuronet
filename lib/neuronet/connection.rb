@@ -5,6 +5,7 @@ module Neuronet
   # Connections between neurons are there own separate objects. In Neuronet, a
   # neuron contains it's bias, and a list of it's connections. Each connection
   # contains it's weight (strength) and connected neuron.
+  # :reek:Attribute Need to be able to write to neron and weight.
   class Connection
     attr_accessor :neuron, :weight
 
@@ -43,11 +44,10 @@ module Neuronet
     # Connection#backpropagate modifies the connection's weight in proportion to
     # the error given and passes that error to its connected neuron via the
     # neuron's backpropagate method.
-    # :reek:DuplicateMethodCall
-    def backpropagate(error)
+    def backpropagate(error, maxw = Neuronet.maxw)
       @weight += @neuron.activation * Neuronet.noise[error]
-      if @weight.abs > Neuronet.maxw
-        @weight = @weight.positive? ? Neuronet.maxw : -Neuronet.maxw
+      if @weight.abs > maxw
+        @weight = @weight.positive? ? maxw : -maxw
       end
       @neuron.backpropagate(error)
       self

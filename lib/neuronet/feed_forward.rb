@@ -3,6 +3,8 @@
 # Neuronet module / FeedForward class
 module Neuronet
   # A Feed Forward Network
+  # TODO: :reek:SubclassedFromCoreClass
+  # TODO: :reek:InstanceVariableAssumption @expected_mju
   class FeedForward < Array
     # Example:
     #   ff = Neuronet::FeedForward.new([2, 3, 1])
@@ -10,8 +12,8 @@ module Neuronet
       length = layers.length
       raise 'Need at least 2 layers' if length < 2
 
-      super(length) { Layer.new(layers[_1]) }
-      1.upto(length - 1) { self[_1].connect(self[_1 - 1]) }
+      super(length) { Layer.new(layers[it]) }
+      1.upto(length - 1) { self[it].connect(self[it - 1]) }
     end
 
     # Set the input layer.
@@ -25,7 +27,7 @@ module Neuronet
     # Update the network.
     def update
       # update up the layers
-      1.upto(length - 1) { self[_1].partial }
+      1.upto(length - 1) { self[it].partial }
       self
     end
 
@@ -46,7 +48,8 @@ module Neuronet
     # |∑𝑾| ~ √𝑁
     # |𝓑𝒂| ~ ¼
     # |𝝁| ~ 1+∑|𝒂'| ~ 1+½𝑁
-    # :reek:DuplicateMethodCall
+    # :reek:DuplicateMethodCall layer.length(twice) is an attribute
+    # :reek:TooManyStatements
     def expected_mju!
       sum = 0.0
       mju = 1.0
@@ -74,7 +77,9 @@ module Neuronet
       set(input).update.train(target, mju)
     end
 
-    # :reek:DuplicateMethodCall and :reek:UncommunicativeVariableName
+    # :reek:DuplicateMethodCall shuffle(twice) re-shuffles!
+    # :reek:UncommunicativeVariableName
+    # :reek:TooManyStatements
     def pairs(pairs, mju = expected_mju)
       pairs.shuffle.each { |input, target| pair(input, target, mju) }
       return self unless block_given?

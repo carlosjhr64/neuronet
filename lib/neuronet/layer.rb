@@ -11,7 +11,7 @@ module Neuronet
 
     # This is where one enters the "real world" inputs.
     def set(inputs)
-      0.upto(length - 1) { self[_1].value = inputs[_1] || 0.0 }
+      0.upto(length - 1) { self[it].value = inputs[it] || 0.0 }
       self
     end
 
@@ -25,7 +25,7 @@ module Neuronet
       # creates the neuron matrix...
       each_with_index do |neuron, i|
         weight = weights[i] || 0.0
-        layer.each { neuron.connect(_1, weight:) }
+        layer.each { neuron.connect(it, weight:) }
       end
       # The layer is returned for chaining.
       layer
@@ -74,7 +74,7 @@ module Neuronet
       each do |n|
         n.bias = bias
         weight = sign * Neuronet.wone / n.connections.length
-        n.connections.each { _1.weight = weight }
+        n.connections.each { it.weight = weight }
       end
     end
 
@@ -84,7 +84,7 @@ module Neuronet
     end
 
     def average_mju
-      Neuronet.learning * sum { Neuron.mju(_1) } / length
+      Neuronet.learning * sum { Neuron.mju(it) } / length
     end
 
     # Takes the real world target for each neuron in this layer and

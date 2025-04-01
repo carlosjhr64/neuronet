@@ -29,6 +29,6 @@ class TestInputLayer < Test::Unit::TestCase
     assert_equal 'g:1.1,h:0,i:3.3', yin.inspect
     assert_equal [1.1, 0.0, 3.3], yin.values.map{|f| f.round(14)}
 
-    assert yin.all?{_1.is_a? Neuronet::Neuron}
+    assert yin.all?{it.is_a? Neuronet::Neuron}
   end
 end

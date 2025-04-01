@@ -33,6 +33,7 @@ when 9
   system('wile nvim --list')
 when 10
   system('wile todo')
+  system('wile todo lib')
 when 11
   blue '# Rubocop:'
   system('rubocop bin lib')

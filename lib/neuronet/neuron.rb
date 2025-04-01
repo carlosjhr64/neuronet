@@ -31,7 +31,7 @@ module Neuronet
     # 𝜧ₕⁱ𝜧ᵢʲ𝝁ⱼ is:
     #   nh.mju{ |ni| ni.mju{ |nj| nj.mu }}
     def mju(&block)
-      @connections.sum { _1.mju * block[_1.neuron] }
+      @connections.sum { it.mju * block[it.neuron] }
     end
 
     # Full recursive implementation of mju:
