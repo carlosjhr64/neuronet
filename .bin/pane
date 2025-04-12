@@ -27,16 +27,25 @@ when 3
 when 4
   blue '# Dictionary:'
   system('wile dictionary --check')
+when 5
+  blue '# Rubocop:'
+  system('rubocop lib')
 when 8
   system('ncal -B 1 -A 2')
 when 9
   system('wile nvim --list')
 when 10
   system('wile todo')
-  system('wile todo lib')
 when 11
-  blue '# Rubocop:'
-  system('rubocop lib')
+  blue '# Git Log:'
+  n = -1
+  `git log --oneline --name-only -n 10`.each_line do |line|
+    if (mdt = /^([a-f0-9]{7})(.*)$/.match(line))
+      puts "#{n += 1}: ".bold + mdt[1].magenta + mdt[2].blue
+    else
+      puts line
+    end
+  end
 else
   blue "##{pane}"
 end

@@ -15,6 +15,8 @@ different small neural networks.
 ```console
 gem install neuronet
 ```
+* Required Ruby version: `>= 3.4`
+
 ## SYNOPSIS:
 
 The library is meant to be read, but here is a motivating example:
