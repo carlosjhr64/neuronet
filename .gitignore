@@ -3,3 +3,4 @@ TODO.*
 pkg
 tags
 tmp
+.git-backup-*

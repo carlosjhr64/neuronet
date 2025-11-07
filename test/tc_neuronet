@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+# neuronet.rb auto-loads everything...
+# Nearly every test tests this feature.
+class TestNeuronet < Test::Unit::TestCase
+  def test_neuronet
+    # Just check the version
+    assert(/^\d+\.\d+\.\d+$/.match?(Neuronet::VERSION))
+  end
+end

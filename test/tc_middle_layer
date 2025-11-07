@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestMiddleLayer < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_middle_layer
+    a = Neuronet::MiddleLayer.new(3)
+    b = Neuronet::InputLayer.new(2)
+    a.connect(b)
+    n0 = a[0]
+    assert_equal n0.class, Neuronet::MiddleNeuron
+    assert_equal n0.connections.size, 2
+    refute a.respond_to? :values
+    refute a.respond_to? :set
+    n0.connections[0].weight = 1.0
+    b.set [1.0, 0.0]
+    assert_equal n0.activation, 0.5
+    a.update
+    v = Neuronet::Squash.squash(Neuronet::Squash.squash(1.0))
+    assert_equal n0.activation, v
+  end
+  # rubocop: enable Metrics
+end

@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+
+# Version Tests
+class TestExamples < Test::Unit::TestCase
+  def test_example_mlp
+    assert system('./examples/test_mlp')
+  end
+
+  def test_example_feed_forward
+    assert system('./examples/test_feed_forward')
+  end
+
+  def test_example_deep
+    assert system('./examples/test_deep')
+  end
+
+  def test_example_perceptron
+    assert system('./examples/test_perceptron')
+  end
+end

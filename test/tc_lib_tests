@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'colorize'
+
+# Lib Files Tests
+class TestLibTests < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_lib_tests
+    fns = Dir.glob('lib/**/*.rb').map do |fn|
+      a = fn.split('/')
+      a.shift
+      a.shift if a.length > 1
+      a.unshift('tc')
+      "test/#{a.join('_').chomp('.rb')}"
+    end
+    count = 0
+    fns.each do |fn|
+      next if File.exist? fn
+
+      count += 1
+      puts "Missing: #{fn}".red
+    end
+    flunk "Missing #{count} lib tests".red if count.positive?
+  end
+  # rubocop: enable Metrics
+end

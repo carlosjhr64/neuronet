@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestOutputLayer < Test::Unit::TestCase
+  def test_output_layer
+    a = Neuronet::OutputLayer.new(3)
+    b = Neuronet::InputLayer.new(2)
+    a.connect(b)
+    n0 = a[0]
+    assert_equal n0.class, Neuronet::OutputNeuron
+    assert_equal n0.connections.size, 2
+    assert_equal a.values, [0.0, 0.0, 0.0]
+    refute a.respond_to? :set
+    refute a.respond_to? :update
+  end
+end

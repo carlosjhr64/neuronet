@@ -3,6 +3,7 @@
 
 require 'test/unit'
 
+# Version Tests
 class TestVersion < Test::Unit::TestCase
   VERSION = `egrep -ho '[0-9]+\\.[0-9]+\\.[0-9]+' lib/*.rb`.split.first
 

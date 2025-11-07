@@ -1,22 +1,26 @@
 ## runtime ##
+help_parser  9.0.240926
 ## development ##
 colorize     1.1.0
-parser       3.3.7
-rubocop      1.75.1
-test-unit    3.6.7
+cucumber     10.1.1
+help_parser  9.0.240926
+parser       3.3.10
+rubocop      1.81.7
+test-unit    3.7.1
 ## system-run ##
 ruby         3.4
 ## system-dev ##
-cat          8.32
-clear        6.2
+cat          9.1
+clear        6.4
 colora       1.0
-colordiff    3.7
-egrep        3.6
-git          2.30
-ls           8.32
+colordiff    3.8
+cucumber     10.1
+egrep        3.8
+git          2.39
+ls           9.1
 ncal         2019
-rubocop      1.75
+rubocop      1.81
 ruby         3.4
 ruby-parse   3.3
-tmux         3.1
+tmux         3.3
 wile         0.0

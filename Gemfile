@@ -1,8 +1,6 @@
 source 'https://rubygems.org'
-ruby '3.4.2'
+ruby '3.4.7'
 ## runtime ##
+gem 'help_parser'
 ## development ##
-gem 'colorize'
-gem 'parser'
-gem 'rubocop'
-gem 'test-unit'
+gem 'wile'

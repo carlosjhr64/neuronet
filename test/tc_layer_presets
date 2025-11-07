@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'colorize'
+require 'test/unit'
+require 'neuronet'
+
+class TestLayerPresets < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_mirror
+    np = Neuronet::Perceptron.new(3, 3)
+    np.output_layer.mirror
+    values = np * [-1, 0, 1]
+    assert_equal values, [-1, 0, 1] # mirrors
+    np.output_layer.each_with_index do |neuron, i|
+      assert_equal neuron.bias, Neuronet::LayerPresets::BZERO
+      neuron.connections.each_with_index do |connection, j|
+        expected_weight = i == j ? Neuronet::LayerPresets::WONE : 0.0
+        assert_equal connection.weight, expected_weight
+      end
+    end
+    np.output_layer.mirror(-1)
+    values = np * [-1, 0, 1]
+    assert_equal values, [1, 0, -1] # anti-mirrors
+  end
+  # rubocop: enable Metrics
+
+  def test_antithesis
+    np = Neuronet::Perceptron.new(3, 6)
+    np.output_layer.antithesis
+    values = np * [-1, 0, 1]
+    # One can think of it as "mirror.zip(antimirror)"
+    assert_equal values, [-1, 1, 0, 0, 1, -1]
+  end
+
+  def test_synthesis
+    mlp = Neuronet::MLP.new(3, 6, 3)
+    mlp.middle_layer.antithesis
+    mlp.output_layer.synthesis
+    values = mlp * [-1, 0, 1]
+    assert_equal values, [0, 0, 0]
+    mlp.output_layer.synthesis(-1.0)
+    values = mlp * [-1, 0, 1]
+    assert_equal values, [0, 0, 0]
+  end
+
+  def test_average
+    np = Neuronet::Perceptron.new(3, 3)
+    np.output_layer.average
+    values = np * [-1, 0, 1]
+    assert_equal values, [0, 0, 0]
+  end
+end

@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestTrainable < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_autoloads
+    assert([
+      Neuronet::Perceptron,
+      Neuronet::MLP,
+      Neuronet::Deep,
+      Neuronet::FeedForward
+    ].all? { it.instance_methods.include? :pairs })
+    assert([
+      Neuronet::Perceptron,
+      Neuronet::MLP,
+      Neuronet::Deep,
+      Neuronet::FeedForward
+    ].all? { it.instance_methods.include? :train })
+    assert([
+      Neuronet::Perceptron,
+      Neuronet::MLP,
+      Neuronet::Deep,
+      Neuronet::FeedForward
+    ].all? { it.instance_methods.include? :backpropagate })
+  end
+
+  # rubocop: disable Style
+  # Using CAPTURE it as a global cache
+  CAPTURE = []
+  # rubocop: enable Style
+
+  PAIRS = [
+    [[1], [2]],
+    [[2], [4]],
+    [[3], [6]]
+  ].freeze
+  EXPECTED_PAIRS_CAPTURE = [
+    [[1], [2], 1],
+    [[2], [4], 1],
+    [[3], [6], 1]
+  ].freeze
+  EXPECTED_TRAIN_CAPTURE = [
+    [[2]],
+    [[4]],
+    [[6]]
+  ].freeze
+
+  def test_pairs
+    mlp = Neuronet::MLP.new(1, 1, 1)
+    # Override mlp's train method to capture pairs
+    def mlp.train(*args) = ::TestTrainable::CAPTURE << args
+    CAPTURE.clear
+    mlp.pairs PAIRS, 1
+    assert_equal CAPTURE.sort, EXPECTED_PAIRS_CAPTURE
+  end
+
+  def test_train
+    mlp = Neuronet::MLP.new(1, 1, 1)
+    # Override mlp's backpropagate method to capture train
+    def mlp.backpropagate(*args) = ::TestTrainable::CAPTURE << args
+    # NOTE: as is... mlp * [n] == [0]
+    CAPTURE.clear
+    mlp.pairs PAIRS, 1
+    assert_equal CAPTURE.sort, EXPECTED_TRAIN_CAPTURE
+  end
+  # rubocop: enable Metrics
+end

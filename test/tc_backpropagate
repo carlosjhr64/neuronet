@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestBackpropagate < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_clamp
+    assert_equal Neuronet::Backpropagate.clamp, 12.0
+    Neuronet::Backpropagate.clamp = 3.0
+    assert_equal Neuronet::Backpropagate.clamp, 3.0
+    Neuronet::Backpropagate::M.clamp = 12.0
+    assert_equal Neuronet::Backpropagate::M.clamp, 12.0
+    assert_equal Neuronet::Backpropagate.clamp, 12.0
+  end
+
+  def test_backpropagate
+    a = Neuronet::Neuron.new
+    b = Neuronet::Neuron.new
+    b.connect a
+    assert_equal a.bias, 0.0
+    assert_equal a.activation, 0.5
+    assert_equal b.bias, 0.0
+    assert_equal b.activation, 0.5
+    assert_equal b.connections[0].weight, 0.0
+    b.backpropagate(0.2)
+    assert_equal a.bias, 0.2
+    assert_equal a.activation, 0.5
+    assert_equal b.bias, 0.2
+    assert_equal b.activation, 0.5
+    assert_equal b.connections[0].weight, 0.1 # activation * error
+    # test bias clamping:
+    b.bias = 11.9
+    b.backpropagate(0.2)
+    assert_equal b.bias, 12.0
+    assert_equal b.connections[0].weight, 0.2
+    # test weight clamping:
+    b.connections[0].weight = - 50.0
+    b.backpropagate(0.2)
+    assert_equal b.connections[0].weight, -12.0
+  end
+  # rubocop: enable Metrics
+end

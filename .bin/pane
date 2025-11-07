@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 pane = ENV.fetch('TMUX_PANE', nil) or exit
 pane = pane[1..].to_i
@@ -29,9 +30,9 @@ when 4
   system('wile dictionary --check')
 when 5
   blue '# Rubocop:'
-  system('rubocop lib')
+  system('rubocop bin lib')
 when 8
-  system('ncal -B 1 -A 2')
+  system('ncal -B 1 -A 1')
 when 9
   system('wile nvim --list')
 when 10

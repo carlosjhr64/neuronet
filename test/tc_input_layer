@@ -1,34 +1,22 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'neuronet'
 
-# This tests Layer as an input layer.
 class TestInputLayer < Test::Unit::TestCase
-  include Neuronet
-
+  # rubocop: disable Metrics
   def test_input_layer
-    Neuron.label = 'a'
-    yin = Layer.new 3
-    assert_equal 'a:0,b:0,c:0', yin.inspect
-    assert_equal 'a,b,c', yin.to_s
-    assert_equal [0.0, 0.0, 0.0], yin.values
-
-    yin.set [1,2,3]
-    assert_equal 'a:1,b:2,c:3', yin.inspect
-
-    # and sparse sets...
-    yin.set({1 => 2.2})
-    assert_equal 'a:0,b:2.2,c:0', yin.inspect
-
-    yin = Layer.new 3
-    yin.set [1,2,3]
-    assert_equal 'd:1,e:2,f:3', yin.inspect
-
-    yin = Layer.new(3)
-    yin.set({0=>1.1, 2=>3.3})
-    assert_equal 'g:1.1,h:0,i:3.3', yin.inspect
-    assert_equal [1.1, 0.0, 3.3], yin.values.map{|f| f.round(14)}
-
-    assert yin.all?{it.is_a? Neuronet::Neuron}
+    a = Neuronet::InputLayer.new(3)
+    b = Neuronet::MiddleLayer.new(2)
+    b.connect(a)
+    n0 = a[0]
+    assert_equal n0.class, Neuronet::InputNeuron
+    assert_equal n0.connections.size, 0
+    refute a.respond_to? :values
+    a.set [1.0, 0.0, -1.0]
+    assert_equal(a.map { it.activation.round(2) }, [0.73, 0.5, 0.27])
+    refute a.respond_to? :update
   end
+  # rubocop: enable Metrics
 end

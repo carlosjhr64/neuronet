@@ -10,6 +10,7 @@ MATCH       = /\s*#~>\s*/
 DECLARATION = /\s*#!>\s*/
 BINDING     = binding
 
+# README.md validations
 class TestReadmeRocketTest < Test::Unit::TestCase
   def test_readme_rocket_test
     return unless File.exist? README

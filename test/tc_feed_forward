@@ -1,124 +1,43 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'neuronet'
 
-srand '69icytmdeyhxqz3oq50imaduuxupq2u7ie1r30dbsihnrtv8mw'.to_i(36)
-
+# Neuronet::FeedForward is mostly tested in:
+#     examples/test_feed_forward
+# Just doing some unit sanity checks.
 class TestFeedForward < Test::Unit::TestCase
-  include Neuronet
-
-  def random
-    (rand + rand + rand) - (rand + rand + rand)
-  end
-
-  def test_feed_forward_new
-    ff = FeedForward.new([5,3])
-    assert_equal 2, ff.length, 'Two layers'
-    # input
-    assert_equal 5, ff[0].length, 'Input layer has 5 nodes'
-    assert_equal ff[0], ff.first, 'Input layer refereced as first'
-    # yin
-    assert_equal 3, ff[1].length, 'layer[1] has 3 neurons'
-    # yang
-    assert_equal 5, ff[-2].length, 'layer[-2] has 5 neurons'
-    # output
-    assert_equal 3, ff[-1].length, 'layer[-1] has 1 neuron'
-    assert_equal ff.last, ff[-1],  'layer[-2] referenced as last'
-
-    ff = FeedForward.new([9,6,3,1])
-    assert_equal 4, ff.length, 'Four layers'
-    # input
-    assert_equal 9, ff[0].length, 'Input layer has 9 nodes'
-    assert_equal ff[0], ff.first, 'Input layer refereced as first'
-    # yin
-    assert_equal 6, ff[1].length, 'layer[1] has 6 neurons'
-    # yang
-    assert_equal 3, ff[-2].length, 'layer[-2] has 3 neurons'
-    # output
-    assert_equal 1, ff[-1].length, 'layer[-1] has 1 neuron'
-    assert_equal ff[-1], ff.last,  'layer[-2] referenced as last'
-
-    Neuron.label = 'a' # restore
-  end
-
-  def test_feed_forward_setters
-    ff = FeedForward.new([3,2,1])
-    assert_equal [0.0,0.0,0.0], ff.input
-    ff.set [1.23, 2.13, -0.654]
-    assert_equal [1.23, 2.13, -0.654], ff.input.map{|x| x.round(14)}
-
-    Neuron.label = 'a' # restore
-  end
-
-  def test_feed_forward_training
-    ff = FeedForward.new([3,3,3])
-    input = [random, random, random]
-    target = [random, random, random]
-    ff.set(input)
-    mju = ff.expected_mju
-    31.times{ff.update.train(target, mju)}
-    output = ff*input
-    # 3g good? :)
-    target = target.map{|x|'%.3g'%x}.join(',')
-    output = output.map{|x|'%.3g'%x}.join(',')
-    assert_equal target, output
-    # test ff.output
-    assert_equal target, ff.output.map{|x|'%.3g'%x}.join(',')
-
-    Neuron.label = 'a' # restore
-  end
-
-  def test_feed_forward_inspect
-    inspect = <<~INSPECT.chomp
-      a:0,b:0,c:0,d:0
-      e:0|0+0*a+0*b+0*c+0*d,f:0|0+0*a+0*b+0*c+0*d,g:0|0+0*a+0*b+0*c+0*d
-      h:0|0+0*e+0*f+0*g,i:0|0+0*e+0*f+0*g
-    INSPECT
-    string = <<~STRING.chomp
-      a,b,c,d
-      e,f,g
-      h,i
-    STRING
-    ff = FeedForward.new [4,3,2]
-    assert_equal inspect, ff.inspect
-    assert_equal string, ff.to_s
-
-    Neuron.label = 'a' # restore
-  end
-
-  def test_feed_forward_pairs
-    ff = FeedForward.new [3,3,3]
-    input_target = [
-      [[random, random, random], [random, random, random]],
-      [[random, random, random], [random, random, random]],
-      [[random, random, random], [random, random, random]],
-      [[random, random, random], [random, random, random]],
-    ]
-    mju = ff.expected_mju
-    ff.pairs(input_target, mju) do # while...
-      !input_target.all? do |input, target|
-        target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
-      end
+  def test_feed_forward_raises
+    # rubocop: disable Lint
+    e = assert_raise(RuntimeError) do
+      nd = Neuronet::FeedForward.new(3, 3)
     end
-    assert(input_target.all? do |input, target|
-      target.map{|_|'%.2g' % _} == (ff*input).map{|_|'%.2g' % _}
-    end)
-
-    Neuron.label = 'a' # restore
+    # rubocop: enable Lint
+    assert_equal e.message, 'Need at least 3 layers'
   end
 
-  def test_expected_mju
-    ff = FeedForward.new [32,64,16,1]
-    mju = ff.expected_mju
-    m0 = 1.0 + (0.5 * 16.0)
-    m1 = 1.0 + (0.5 * 64.0)
-    m2 = 1.0 + (0.5 * 32.0)
-    mju0 = 1.0
-    mju1 = Math.sqrt(16.0)/4.0
-    mju2 = Math.sqrt(64.0)/4.0
-    expected = mju0*m0 + mju0*mju1*m1 + mju0*mju1*mju2*m2
-    assert_equal expected, mju
-
-    Neuron.label = 'a' # restore
+  # rubocop: disable Metrics
+  def test_feed_forward
+    nd = Neuronet::FeedForward.new(3, 6, 2)
+    # right classes
+    assert_equal nd.input_layer.class, Neuronet::Layer
+    assert_equal nd.output_layer.class, Neuronet::Layer
+    assert_equal nd.hidden_layers.class, Array
+    # right sizes
+    assert_equal nd.input_layer.size, 3
+    assert_equal nd.output_layer.size, 2
+    assert_equal nd.hidden_layers.size, 1
+    assert_equal nd.hidden_layers[0].size, 6
+    # quick computations test, but this is really tested in /examples/.
+    assert_equal nd.values, [0.0, 0.0]
+    values = nd * [0.0, 0.0, 0.0]
+    assert_equal values, [0.0, 0.0]
+    layers = nd.to_a
+    assert_equal layers.size, 3
+    assert layers[0].is_a? Neuronet::Layer
+    assert layers[1].is_a? Neuronet::Layer
+    assert layers[2].is_a? Neuronet::Layer
   end
+  # rubocop: enable Metrics
 end

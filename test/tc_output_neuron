@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestNeuron < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_output_neuron
+    a = Neuronet::OutputNeuron.new
+    assert_equal a.bias, 0.0
+    assert_nil a.activation
+    assert_equal a.connections, []
+    assert_equal a.value, 0.0
+    b = Neuronet::InputNeuron.new
+    a.connect(b)
+    assert_equal a.connections.size, 1
+    assert_equal a.connections[0].weight, 0.0
+    assert_equal a.connections[0].neuron, b
+    assert_equal b.activation, 0.5
+    b.set(1.0)
+    v = Neuronet::Squash.squash(1.0)
+    assert_equal b.activation, v
+    a.connections[0].weight = 1.0
+    refute a.respond_to? :update
+    assert_equal a.value, v
+  end
+  # rubocop: enable Metrics
+end

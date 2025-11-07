@@ -1,0 +1,141 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'stringio'
+require 'neuronet'
+
+# rubocop: disable Metrics
+class TestExportable < Test::Unit::TestCase
+  EXPORT = <<~EXPORT
+    # Neuronet::FeedForward
+    3.0 3 2 1
+    # neuron = FFN[1, 0]
+    0.0 1 0
+    0.0 1 0 0
+    0.0 1 0 1
+    0.0 1 0 2
+    # neuron = FFN[1, 1]
+    0.0 1 1
+    0.0 1 1 0
+    0.0 1 1 1
+    0.0 1 1 2
+    # neuron = FFN[2, 0]
+    0.0 2 0
+    0.0 2 0 0
+    0.0 2 0 1
+  EXPORT
+
+  IMPORT = <<~IMPORT
+    # Neuronet::FeedForward
+    3.0 3 2 1
+    # neuron = FFN[1, 0]
+    1.0 1 0
+    2.0 1 0 0
+    3.0 1 0 1
+    4.0 1 0 2
+    # neuron = FFN[1, 1]
+    5.0 1 1
+    6.0 1 1 0
+    7.0 1 1 1
+    8.0 1 1 2
+    # neuron = FFN[2, 0]
+    9.0 2 0
+    10.0 2 0 0
+    11.0 2 0 1
+  IMPORT
+
+  CORRUPTED = <<~CORRUPTED # last line was removed
+    # Neuronet::FeedForward
+    3.0 3 2 1
+    # neuron = FFN[1, 0]
+    1.0 1 0
+    2.0 1 0 0
+    3.0 1 0 1
+    4.0 1 0 2
+    # neuron = FFN[1, 1]
+    5.0 1 1
+    6.0 1 1 0
+    7.0 1 1 1
+    8.0 1 1 2
+    # neuron = FFN[2, 0]
+    9.0 2 0
+    10.0 2 0 0
+  CORRUPTED
+
+  CORRUPTED2 = <<~CORRUPTED2
+    # Neuronet::FeedForward
+    3.0 3 2 1
+    # neuron = FFN[1, 0]
+    1.0 1 0
+    2.0 1 0 0
+    3.0 1 0 1
+    4.0 1 0 2
+    # neuron = FFN[1, 1]
+    5.0 1 1
+    6.0 1 1 0
+    7.0 1 1 1
+    8.0 1 1 2
+    # neuron = FFN[2, 0]
+    9.0 2 0
+    10.0 2 0 0
+    11.0 2 0 1
+    11.0 2 0 1
+  CORRUPTED2
+
+  def test_sanity
+    assert([Neuronet::Perceptron,
+            Neuronet::MLP,
+            Neuronet::Deep,
+            Neuronet::FeedForward].all? do |klass|
+             klass.instance_methods.include?(:export_to_file) &&
+             klass.instance_methods.include?(:import_from_file)
+           end)
+  end
+
+  def test_export
+    nff = Neuronet::FeedForward.new(3, 2, 1)
+    export = StringIO.new
+    nff.export(export)
+    assert_equal export.string, EXPORT
+  end
+
+  def test_import_export
+    nff = Neuronet::FeedForward.new(3, 2, 1)
+    import = StringIO.new IMPORT
+    nff.import(import)
+    assert_equal nff[1][1].connections[0].weight, 6.0
+    assert_equal nff[2][0].bias, 9.0
+    export = StringIO.new
+    nff.export(export)
+    assert_equal export.string, IMPORT
+  end
+
+  def test_import_raises_sizes_mismatch
+    e = assert_raise(RuntimeError) do
+      nff = Neuronet::FeedForward.new(3, 2, 2) # <= wrong sizes for the import!
+      import = StringIO.new IMPORT
+      nff.import(import)
+    end
+    assert_equal e.message, 'Sizes mismatch'
+  end
+
+  def test_import_raises_bad_weight_index
+    e = assert_raise(RuntimeError) do
+      nff = Neuronet::FeedForward.new(3, 2, 1)
+      corrupted = StringIO.new CORRUPTED
+      nff.import(corrupted)
+    end
+    assert e.message.start_with? 'bad weight index:'
+  end
+
+  def test_import_raises_expected_eof
+    e = assert_raise(RuntimeError) do
+      nff = Neuronet::FeedForward.new(3, 2, 1)
+      corrupted = StringIO.new CORRUPTED2
+      nff.import(corrupted)
+    end
+    assert_equal e.message, 'Expected end of file.'
+  end
+end
+# rubocop: enable Metrics

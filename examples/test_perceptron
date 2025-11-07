@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'colorize'
+require 'neuronet'
+
+# Utilities
+module Utilities
+  refine Float do
+    def fmt
+      format('%.16f', self)
+    end
+  end
+  refine NilClass do
+    def fmt = 'N/A'
+  end
+end
+using Utilities
+
+# a    c
+#   =>
+# b    d
+MAP = {
+  '0,0' => 'a', # neuron a
+  '0,1' => 'b', # ...
+  '1,0' => 'c',
+  '1,1' => 'd'
+}.freeze
+
+# rubocop: disable Metrics, Layout
+def show_ff
+  FF.each_with_index do |layer, i|
+    layer.each_with_index do |neuron, j|
+      name = MAP["#{i},#{j}"]
+      puts "#{name}:  #{name}b=#{neuron.bias.fmt}  #{name}a=#{neuron.activation.fmt}  #{name}v=#{neuron.value.fmt}"
+      neuron.connections.each_with_index do |connection, k|
+        puts "  #{name}.#{k}:  #{connection.weight.fmt}"
+      end
+    end
+  end
+  puts
+end
+# rubocop: enable Metrics, Layout
+
+def rnd
+  (rand + rand + rand) - (rand + rand + rand)
+end
+
+def das_puts(msg, out = $stdout, color: :blue)
+  out.tty? ? out.puts(msg.colorize(color)) : out.puts(msg)
+end
+
+# Squash
+W = ->(x) { 1.0 / (1.0 + Math.exp(-x)) }
+### We don't un-squash anymore:
+## Un-squash
+# M = ->(y) { Math.log(y / (1.0 - y)) }
+
+start = Time.now
+puts "Using Neuronet version: #{Neuronet::VERSION}"
+FF = Neuronet::Perceptron.new(2, 2)
+show_ff
+
+# a    c
+#   =>
+# b    d
+
+av = rnd # neuron a value
+bv = rnd # ...
+das_puts "Set: #{av.fmt}, #{bv.fmt}"
+FF.set([av, bv])
+show_ff
+
+cb = rnd # neuron b bias
+db = rnd # ...
+FF[1][0].bias = cb
+FF[1][1].bias = db
+das_puts "Output biases: #{cb.fmt}, #{db.fmt}"
+show_ff
+
+cwa = rnd # c weight for a
+cwb = rnd # ...
+dwa = rnd
+dwb = rnd
+FF[1][0].connections[0].weight = cwa
+FF[1][0].connections[1].weight = cwb
+FF[1][1].connections[0].weight = dwa
+FF[1][1].connections[1].weight = dwb
+das_puts "Output weights: [#{cwa.fmt},#{cwb.fmt}],[#{dwa.fmt},#{dwb.fmt}]"
+show_ff
+
+output = FF.values
+das_puts "Output: #{output.map(&:fmt).join(', ')}"
+puts
+
+# a    c
+#   =>
+# b    d
+
+puts 'Compute step by step'
+
+# Activation a, b
+puts "av: #{av.fmt}  bv: #{bv.fmt}"
+aa = W[av]
+ba = W[bv]
+puts "aa: #{aa.fmt}  ba: #{ba.fmt}"
+
+# Values c, d
+cv = (aa * cwa) + (ba * cwb) + cb
+dv = (aa * dwa) + (ba * dwb) + db
+puts "cv: #{cv.fmt}  dv: #{dv.fmt}"
+puts "Time: #{Time.now - start}"
+
+puts
+if cv.fmt == output[0].fmt && dv.fmt == output[1].fmt
+  das_puts('OK', color: :green)
+else
+  das_puts('FAIL', color: :red)
+  exit 1
+end

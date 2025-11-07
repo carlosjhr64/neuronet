@@ -1,10 +1,13 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'test/unit'
 require 'colorize'
 require 'neuronet'
 
+# rubocop: disable Metrics
+# rubocop: disable Style/FormatString
 class TestEpsilon < Test::Unit::TestCase
-  include Neuronet
   EPSILON = 0.5**13
 
   def test_epsilon
@@ -13,13 +16,13 @@ class TestEpsilon < Test::Unit::TestCase
   end
 
   def test_average_mju
-    ff = FeedForward.new([4, 4, 4, 4])
+    ff = Neuronet::FeedForward.new(4, 4, 4, 4)
 
     # Set all weights to 1.0, biases to 0.0
     ff.each do |layer|
       layer.each do |neuron|
-        neuron.value = 0.0
-        neuron.bias = 0.0
+        assert_equal neuron.activation, 0.5
+        assert_equal neuron.bias, 0.0
         neuron.connections.each do |connection|
           connection.weight = 1.0
         end
@@ -27,33 +30,40 @@ class TestEpsilon < Test::Unit::TestCase
     end
 
     target = ff * [0.0, 0.0, 0.0, 0.0]
-    expected_error = ff.average_mju * EPSILON
+    njus = ff.njus
+    average_nju = njus.sum / njus.size
+    assert(njus.all? { it == average_nju }) # sanity check
+    expected_error = average_nju * EPSILON
 
     # Set all weights to 1.0 + epsilon, biases to epsilon
     ff.each do |layer|
       layer.each do |neuron|
-        neuron.value = 0.0
+        neuron.set(0.0)
+        assert_equal neuron.activation, 0.5
         neuron.bias = EPSILON
+        weight = 1.0 + EPSILON
         neuron.connections.each do |connection|
-          connection.weight = 1.0 + EPSILON
+          connection.weight = weight
         end
       end
     end
 
     deviant = ff * [0.0, 0.0, 0.0, 0.0]
     error = deviant[0] - target[0]
+    errors = target.zip(deviant).map { |t, d| d - t }
+    assert(errors.all? { it == error }) # sanity check
 
     # Experimentally observed error is the expected_error to 3 digits.
     assert_equal '%.3g' % expected_error, '%.3g' % error
   end
 
   def test_expected_mju
-    ff = FeedForward.new([128, 128, 128, 128])
+    ff = Neuronet::FeedForward.new(128, 128, 128, 128)
 
     # Randomly set all weights to (+/-)1.0, biases to 0.0
     ff.each do |layer|
       layer.each do |neuron|
-        neuron.value = 0.0
+        neuron.set 0.0
         neuron.bias = 0.0
         neuron.connections.each do |connection|
           connection.weight = rand > 0.5 ? 1.0 : -1.0
@@ -61,13 +71,14 @@ class TestEpsilon < Test::Unit::TestCase
       end
     end
 
-    target = ff * [0.0, 0.0, 0.0, 0.0]
-    expected_error = ff.expected_mju * EPSILON
+    input = Array.new(128) { 0.0 }
+    target = ff * input
+    expected_error = ff.expected_nju * EPSILON
 
     # Set all weights to weight + epsilon, biases to epsilon
     ff.each do |layer|
       layer.each do |neuron|
-        neuron.value = 0.0
+        neuron.set 0.0
         neuron.bias = EPSILON
         neuron.connections.each do |connection|
           connection.weight += EPSILON
@@ -75,17 +86,19 @@ class TestEpsilon < Test::Unit::TestCase
       end
     end
 
-    deviant = ff * [0.0, 0.0, 0.0, 0.0]
-    error = deviant[0] - target[0]
+    deviant = ff * input
+    errors = target.zip(deviant).map { |t, d| d - t }
+    rms = Math.sqrt(errors.map { it * it }.sum / errors.size)
+
+    puts
+    puts "RMS: #{rms}".blue
+    puts "Expected error: #{expected_error}".blue
+    puts "Expected/RMS: #{expected_error / rms}".blue
 
     # Experimentally observed error is less than the expected_error.
-    assert error.abs < expected_error.abs
-    # Expected error is not more than 100 times the observed error.
-    assert expected_error.abs / error.abs < 100.0
-    # And it's typically less than 10 times the observed error.
-    if expected_error.abs / error.abs > 10.0
-      puts 'Got error greater than 10 times expected error.'.colorize(:red)
-    end
+    assert rms < expected_error
+    # Expected error is not more than 10 times the observed error.
+    assert expected_error / rms < 10.0
   end
 
   def r4
@@ -94,9 +107,11 @@ class TestEpsilon < Test::Unit::TestCase
 
   def test_really
     # Arbitrary layers:
-    layers = (2 + r4).to_i.times.inject([]) { |a,_| a << (1+r4+r4+r4+r4).to_i }
-    puts "Testing FF #{layers.inspect}".colorize(:green)
-    ff = FeedForward.new(layers)
+    layers = (2 + r4).to_i.times.inject([]) do |a, _|
+      a << (1 + r4 + r4 + r4 + r4).to_i
+    end
+    puts "Testing FF #{layers.inspect}".blue
+    ff = Neuronet::FeedForward.new(*layers)
 
     # Arbitrary weights and biases:
     ff.each do |layer|
@@ -109,17 +124,17 @@ class TestEpsilon < Test::Unit::TestCase
     end
 
     # Arbitrary input values:
-    values = ff.first.map { r4 - r4 }
-    puts "With input #{values.map{it.round(4)}.inspect}".colorize(:green)
+    input = Array.new(layers[0]) { r4 - r4 }
+    puts "With input:\n  #{input.map { it.round(3) }.inspect}".blue
 
     # Target:
-    target = ff * values
-    puts "Output is #{target.map{it.round(4)}.inspect}".colorize(:green)
+    target = ff * input
+    puts "Output is:\n  #{target.map { it.round(3) }.inspect}".blue
 
     # Expected errors:
-    expected_errors = ff.last.map { Neuron.mju(it) * EPSILON }
-    puts "Expected errors is #{expected_errors.map{'%.2e' % it}.inspect}"
-         .colorize(:magenta)
+    expected_errors = ff.njus.map { it * EPSILON }
+    puts "Expected errors is:\n  #{expected_errors.map { '%.2e' % it }.inspect}"
+      .blue
 
     # Set all weights and biases to  += epsilon:
     ff.each do |layer|
@@ -132,20 +147,25 @@ class TestEpsilon < Test::Unit::TestCase
     end
 
     # Deviant:
-    deviant = ff * values
-    puts "Deviant is #{deviant.map{it.round(4)}.inspect}".colorize(:green)
+    deviant = ff * input
+    puts "Deviant is:\n  #{deviant.map { it.round(3) }.inspect}".blue
 
     # Errors:
-    errors = deviant.zip(target).map {|a,b| a-b}
-    puts "Actual errors is #{errors.map{'%.2e' % it}.inspect}"
-         .colorize(:magenta)
+    errors = deviant.zip(target).map { |a, b| a - b }
+    puts "Actual errors is:\n  #{errors.map { '%.2e' % it }.inspect}"
+      .blue
 
     # Experimentally observed error is the expected_error to 2 digits.
-    assert_equal expected_errors.map{'%.1e' % it}, errors.map{'%.1e' % it}
+    assert_equal(expected_errors.map { '%.1e' % it },
+                 errors.map { '%.1e' % it })
     # Experimentally observed error is the expected_error to 3 digits.
     # Happens sometimes...
-    unless expected_errors.map{'%.2e' % it} == errors.map{'%.2e' % it}
+    if expected_errors.map { '%.2e' % it } == errors.map { '%.2e' % it }
+      puts 'OK!'.green
+    else
       puts 'An error differed at 3 significant figures.'.colorize(:red)
     end
   end
 end
+# rubocop: enable Style/FormatString
+# rubocop: enable Metrics

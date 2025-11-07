@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'colorize'
+require 'test/unit'
+require 'neuronet'
+
+class TestNeuronStats < Test::Unit::TestCase
+  # a    d    g
+  # b => e => h
+  # c    f    i
+  def test_tally
+    mlp = Neuronet::MLP.new(3, 3, 3)
+    tallies = mlp.output_layer.map(&:downstream_params_tally)
+    assert_equal tallies, [16, 16, 16]
+  end
+
+  def test_mju
+    mlp = Neuronet::MLP.new(3, 3, 3)
+    # 1 + 3 * 0.5
+    mjus = mlp.output_layer.map(&:mju)
+    assert_equal mjus, [2.5, 2.5, 2.5]
+  end
+
+  def test_nju_perceptron
+    np = Neuronet::Perceptron.new(3, 3)
+    np.output_layer.each do |neuron|
+      neuron.connections.each do |connection|
+        connection.weight = 1
+      end
+    end
+    njus = np.output_layer.map(&:nju)
+    # First level nju is mju
+    assert_equal njus, [2.5, 2.5, 2.5]
+  end
+
+  # rubocop: disable Metrics
+  def test_nju_mlp
+    mlp = Neuronet::MLP.new(3, 3, 3)
+    mlp.output_layer.each do |neuron|
+      neuron.connections.each do |connection|
+        connection.weight = 1
+      end
+    end
+    mlp.middle_layer.each do |neuron|
+      neuron.connections.each do |connection|
+        connection.weight = 1
+      end
+    end
+    njus = mlp.output_layer.map(&:nju)
+    # Second level nju is 2.5 + 3 * 0.25 * 2.5
+    assert_equal njus, [4.375, 4.375, 4.375]
+  end
+
+  def test_nju_deep
+    nd = Neuronet::Deep.new(3, 3, 3, 3)
+    nd[1..].each do |layer|
+      layer.each do |neuron|
+        neuron.connections.each do |connection|
+          connection.weight = 1
+        end
+      end
+    end
+    njus = nd.output_layer.map(&:nju)
+    # Third level nju is 2.5 + 3 * 0.25 * (2.5 + 3 * 0.25 * 2.5)
+    assert_equal njus, [5.78125, 5.78125, 5.78125]
+  end
+  # rubocop: enable Metrics
+end

@@ -6,6 +6,7 @@ require 'colorize'
 # Also:
 # require 'rubocop'
 
+# Rubocop Tests
 class TestRuboCop < Test::Unit::TestCase
   RUBOCOP = 'rubocop --format quiet --config .rubocop.yml'
   def test_rubycop

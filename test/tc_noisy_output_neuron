@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestNoisyOutputNeuron < Test::Unit::TestCase
+  # It's just a neuron with NoisyBackpropagate
+  def test_noisy_ouput_neuron
+    assert_nothing_raised do
+      Neuronet::NoisyOutputNeuron.new
+    end
+  end
+end

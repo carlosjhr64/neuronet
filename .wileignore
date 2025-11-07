@@ -1,6 +1,3 @@
 ^(
-  bin/         |
-  cucumber.yml |
-  features/    |
-  test/tc_cucumber
+examples
 )

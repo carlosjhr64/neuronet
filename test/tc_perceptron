@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+# Neuronet::Perceptron is mostly tested in:
+#     examples/test_perceptron
+# Just doing some unit sanity checks.
+class TestPerceptron < Test::Unit::TestCase
+  def test_perceptron_raises
+    # rubocop: disable Lint
+    e = assert_raise(ArgumentError) do
+      nd = Neuronet::Perceptron.new(3, 3, 3)
+    end
+    # rubocop: enable Lint
+    assert_equal e.message, 'wrong number of arguments (given 3, expected 2)'
+  end
+
+  # rubocop: disable Metrics
+  def test_perceptron
+    nd = Neuronet::Perceptron.new(5, 3)
+    # right classes
+    assert_equal nd.input_layer.class, Neuronet::InputLayer
+    assert_equal nd.output_layer.class, Neuronet::OutputLayer
+    # right sizes
+    assert_equal nd.input_layer.size, 5
+    assert_equal nd.output_layer.size, 3
+    # quick computations test, but this is really tested in /examples/.
+    assert_equal nd.values, [0.0, 0.0, 0.0]
+    values = nd * [0.0, 0.0, 0.0, 0.0, 0.0]
+    assert_equal values, [0.0, 0.0, 0.0]
+    layers = nd.to_a
+    assert_equal layers.size, 2
+    assert layers[0].is_a? Neuronet::InputLayer
+    assert layers[1].is_a? Neuronet::OutputLayer
+  end
+  # rubocop: enable Metrics
+end

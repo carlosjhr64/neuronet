@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestSquash < Test::Unit::TestCase
+  # rubocop: disable Metrics
+  def test_squash
+    a = Neuronet::Squash.squash(0.0)
+    assert_equal a, 0.5
+    b = Neuronet::Squash.unsquash(a)
+    assert_equal b, 0.0
+    a = Neuronet::Squash.squash(1.0)
+    b = Neuronet::Squash.squash(-1.0)
+    assert_equal a + b, 1.0
+    a = rand
+    b = Neuronet::Squash.squash(a)
+    c = Neuronet::Squash.unsquash(b)
+    assert_equal a.round(14), c.round(14)
+  end
+  # rubocop: enable Metrics
+end

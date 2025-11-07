@@ -1,118 +1,77 @@
 # Neuronet
 
-* [VERSION 8.0.250615](https://github.com/carlosjhr64/neuronet/releases)
-* [github](https://github.com/carlosjhr64/neuronet)
-* [rubygems](https://rubygems.org/gems/neuronet)
+* [VERSION 8.0.251107](https://github.com/carlosjhr64/neuronet/releases)
+* [github](https://www.github.com/carlosjhr64/neuronet)
+* [rubygems](https://rubygems.org/neuronet)
 
-## DESCRIPTION:
+## DESCRIPTION
 
 Library to create neural networks.
 
-This is primarily a math project meant to be used to investigate the behavior of
-different small neural networks.
+Features perceptron, MLP, and deep feed forward networks.
+Uses a logistic squash function.
 
-## INSTALL:
+## INSTALL
 ```console
-gem install neuronet
+$ gem install neuronet
 ```
 * Required Ruby version: `>= 3.4`
 
-## SYNOPSIS:
+## SYNOPSIS
 
-The library is meant to be read, but here is a motivating example:
+The library is meant to be read, but here are some quick bits:
 ```ruby
 require 'neuronet'
-include Neuronet
 
-ff = FeedForward.new([3,3])
+# Perceptron
 # It can mirror, equivalent to "copy":
-ff.last.mirror
-values = ff * [-1, 0, 1]
-values.map { '%.13g' % _1 } #=> ["-1", "0", "1"]
+np = Neuronet::Perceptron.new(3, 3)
+np.output_layer.mirror
+values = np * [-1, 0, 1] #=> [-1.0, 0.0, 1.0]
 # It can anti-mirror, equivalent to "not":
-ff.last.mirror(-1)
-values = ff * [-1, 0, 1]
-values.map { '%.13g' % _1 } #=> ["1", "0", "-1"]
+np.output_layer.mirror(-1)
+values = np * [-1, 0, 1] #=> [1.0, 0.0, -1.0]
 
-# It can "and";
-ff = FeedForward.new([2,2,1])
-ff[1].mirror(-1)
-ff.last.connect(ff.first)
-ff.last.average
-# Training "and" pairs:
+# MPL: Multi-Layer(3) Perceptron
+# It can "and".
+# In this example, NoisyMiddleNeuron is needed to differentiate the neurons:
+mlp = Neuronet::MLP.new(2, 4, 1,
+                        middle_neuron: Neuronet::NoisyMiddleNeuron)
+mlp.output_layer.average
+nju = mlp.expected_nju.ceil.to_f #=> 4.0
 pairs = [
   [[1, 1], [1]],
   [[-1, 1], [-1]],
   [[1, -1], [-1]],
   [[-1, -1], [-1]],
 ]
-# Train until values match:
-ff.pairs(pairs) do
-  pairs.any? { |input, target| (ff * input).map { _1.round(1) } != target }
+while pairs.any? { |input, target| (mlp * input).map(&:round) != target }
+  mlp.pairs(pairs, nju) # Training...
 end
-(ff * [-1, -1]).map{ _1.round } #=> [-1]
-(ff * [-1,  1]).map{ _1.round } #=> [-1]
-(ff * [ 1, -1]).map{ _1.round } #=> [-1]
-(ff * [ 1,  1]).map{ _1.round } #=> [1]
+(mlp * [1, 1]).map(&:round)   #=> [1]
+(mlp * [-1, 1]).map(&:round)  #=> [-1]
+(mlp * [1, -1]).map(&:round)  #=> [-1]
+(mlp * [-1, -1]).map(&:round) #=> [-1]
 
-# It can "or";
-ff = FeedForward.new([2,2,1])
-ff[1].mirror(-1)
-ff.last.connect(ff.first)
-ff.last.average
-# Training "or" pairs:
-pairs = [
-  [[1, 1], [1]],
-  [[-1, 1], [1]],
-  [[1, -1], [1]],
-  [[-1, -1], [-1]],
-]
-# Train until values match:
-ff.pairs(pairs) do
-  pairs.any? { |input, target| (ff * input).map { _1.round(1) } != target }
-end
-(ff * [-1, -1]).map{ _1.round } #=> [-1]
-(ff * [-1,  1]).map{ _1.round } #=> [1]
-(ff * [ 1, -1]).map{ _1.round } #=> [1]
-(ff * [ 1,  1]).map{ _1.round } #=> [1]
+# To export to a file:
+#     mlp.export_to_file(filename)
+# To import from a file:
+#     mlp.import_from_file(filename)
+# These will export/import the network's biases and weights.
 ```
-## CONTENTS:
+## HELP
 
-* [Neuronet wiki](https://github.com/carlosjhr64/neuronet/wiki)
+When reading the library, this is order the order I would read it:
 
-### Mju
-
-Mju is a Marklar which value depends on which Marklar is asked.
-Other known Marklars are Mu and Kappa.
-Hope it's not confusing...
-I tried to give related Marklars the same name.
-![Marklar](img/marklar.png)
-
-### Marshal
-
-Marshal works with Neuronet to save your networks:
-```ruby
-dump = Marshal.dump ff
-ff2 = Marshal.load dump
-ff2.inspect == ff.inspect #=> true
-```
-### Base
-
-* [Requires and autoloads](lib/neuronet.rb)
-* [Constants and lambdas](lib/neuronet/constants.rb)
-* [Connection](lib/neuronet/connection.rb)
 * [Neuron](lib/neuronet/neuron.rb)
 * [Layer](lib/neuronet/layer.rb)
-* [FeedForward](lib/neuronet/feed_forward.rb)
+* [Feed Forward](lib/neuronet/feed_forward.rb)
 
-### Scaled
+Once you understand these files, the rest should all make sense.
+For some math on neural networks,
+see the [Wiki](https://github.com/carlosjhr64/neuronet/wiki).
 
-* [Scale](lib/neuronet/scale.rb)
-* [Gaussian](lib/neuronet/gaussian.rb)
-* [LogNormal](lib/neuronet/log_normal.rb)
-* [ScaledNetwork](lib/neuronet/scaled_network.rb)
-
-## LICENSE:
+## LICENSE
 
 Copyright (c) 2025 CarlosJHR64
 
@@ -137,3 +96,5 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
 THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+## [CREDITS](CREDITS.md)

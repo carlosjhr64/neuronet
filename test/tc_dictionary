@@ -5,6 +5,7 @@ require 'test/unit'
 require 'colorize'
 require 'zlib'
 
+# Dictionary Test
 class TestDictionary < Test::Unit::TestCase
   EGREP   = %q(egrep -o '[\]?[[:alpha:]]+')         # Extract words
   SED_ESC = %q(sed 's/^[\].//')                     # Remove escaped character

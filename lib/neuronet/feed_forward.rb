@@ -1,95 +1,54 @@
 # frozen_string_literal: true
 
-# Neuronet module / FeedForward class
 module Neuronet
-  # A Feed Forward Network
-  # TODO: :reek:SubclassedFromCoreClass
-  # TODO: :reek:InstanceVariableAssumption @expected_mju
-  class FeedForward < Array
+  # FeedForward is a fully connected neural network with >= 3 layers.
+  class FeedForward
+    # [NetwordStats](network_stats.rb)
+    include NetworkStats
+    # [Exportable](exportable.rb)
+    include Exportable
+    # [Trainable](trainable.rb)
+    include Trainable
+    # [Arrayble](arrayable.rb)
+    include Arrayable
+
     # Example:
-    #   ff = Neuronet::FeedForward.new([2, 3, 1])
-    def initialize(layers)
-      length = layers.length
-      raise 'Need at least 2 layers' if length < 2
+    #     ff = Neuronet::FeedForward.new(4, 8, 4)
+    def initialize(*sizes, full_neuron: Neuron)
+      length = sizes.length
+      raise 'Need at least 3 layers' if length < 3
 
-      super(length) { Layer.new(layers[it]) }
-      1.upto(length - 1) { self[it].connect(self[it - 1]) }
+      @layers = Array.new(length) { Layer.new(sizes[it], full_neuron:) }
+      1.upto(length - 1) { @layers[it].connect(@layers[it - 1]) }
+      @input_layer = @layers[0]
+      @output_layer = @layers[-1]
+      @hidden_layers = @layers[1...-1]
     end
 
-    # Set the input layer.
-    def set(input)
-      first.set(input)
-      self
+    attr_reader :input_layer, :hidden_layers, :output_layer
+
+    # Sets the input values
+    def set(values)
+      @input_layer.set(values)
     end
 
-    def input = first.values
-
-    # Update the network.
+    # Updates hidden layers (input assumed set).
     def update
-      # update up the layers
-      1.upto(length - 1) { self[it].partial }
-      self
+      @hidden_layers.each(&:update)
     end
 
-    def output = last.values
+    # Gets output
+    def values
+      @output_layer.values
+    end
 
-    # Consider:
-    #   m = Neuronet::FeedForward.new(layers)
-    # Want:
-    #   output = m * input
+    # Forward pass: set input, update, return output.
     def *(other)
       set(other)
       update
-      last.values
+      values
     end
 
-    # 𝝁 + 𝜧 𝝁' + 𝜧 𝜧'𝝁" + 𝜧 𝜧'𝜧"𝝁"' + ...
-    # |𝜧| ~ |𝑾||𝓑𝒂|
-    # |∑𝑾| ~ √𝑁
-    # |𝓑𝒂| ~ ¼
-    # |𝝁| ~ 1+∑|𝒂'| ~ 1+½𝑁
-    # :reek:DuplicateMethodCall layer.length(twice) is an attribute
-    # :reek:TooManyStatements
-    def expected_mju!
-      sum = 0.0
-      mju = 1.0
-      reverse[1..].each do |layer|
-        sum += mju * (1.0 + (0.5 * layer.length))
-        mju *= 0.25 * Math.sqrt(layer.length)
-      end
-      @expected_mju = Neuronet.learning * sum
-    end
-
-    def expected_mju
-      @expected_mju || expected_mju!
-    end
-
-    def average_mju
-      last.average_mju
-    end
-
-    def train(target, mju = expected_mju)
-      last.train(target, mju)
-      self
-    end
-
-    def pair(input, target, mju = expected_mju)
-      set(input).update.train(target, mju)
-    end
-
-    # :reek:DuplicateMethodCall shuffle(twice) re-shuffles!
-    # :reek:UncommunicativeVariableName
-    # :reek:TooManyStatements
-    def pairs(pairs, mju = expected_mju)
-      pairs.shuffle.each { |input, target| pair(input, target, mju) }
-      return self unless block_given?
-
-      pairs.shuffle.each { |i, t| pair(i, t, mju) } while yield
-      self
-    end
-
-    def inspect = map(&:inspect).join("\n")
-
-    def to_s = map(&:to_s).join("\n")
+    def to_a = @layers
   end
 end

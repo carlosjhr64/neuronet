@@ -6,6 +6,7 @@ require 'colorize'
 # The gem 'parser' provides `ruby-parse`
 # require 'parser'
 
+# Lexicon Test
 class TestLexicon < Test::Unit::TestCase
   GLOB = (Dir.glob('bin/*') + Dir.glob('lib/**/*.rb')).join(' ')
   ADD_TO_LEXI = %q(egrep -o ':@?\w+' | egrep -o '\w+' | sort -u > tmp/lexicon)

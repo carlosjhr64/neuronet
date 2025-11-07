@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+# Neuronet::MLP is mostly tested in:
+#     examples/test_mlp
+# Just doing some unit sanity checks.
+class TestMLP < Test::Unit::TestCase
+  def test_mlp_raises
+    # rubocop: disable Lint
+    e = assert_raise(ArgumentError) do
+      nd = Neuronet::MLP.new(3, 3)
+    end
+    # rubocop: enable Lint
+    assert_equal e.message, 'wrong number of arguments (given 2, expected 3)'
+  end
+
+  # rubocop: disable Metrics
+  def test_mlp
+    nd = Neuronet::MLP.new(3, 6, 2)
+    # right classes
+    assert_equal nd.input_layer.class, Neuronet::InputLayer
+    assert_equal nd.middle_layer.class, Neuronet::MiddleLayer
+    assert_equal nd.output_layer.class, Neuronet::OutputLayer
+    # right sizes
+    assert_equal nd.input_layer.size, 3
+    assert_equal nd.middle_layer.size, 6
+    assert_equal nd.output_layer.size, 2
+    # quick computations test, but this is really tested in /examples/.
+    assert_equal nd.values, [0.0, 0.0]
+    values = nd * [0.0, 0.0, 0.0]
+    assert_equal values, [0.0, 0.0]
+    layers = nd.to_a
+    assert_equal layers.size, 3
+    assert layers[0].is_a? Neuronet::InputLayer
+    assert layers[1].is_a? Neuronet::MiddleLayer
+    assert layers[2].is_a? Neuronet::OutputLayer
+  end
+  # rubocop: enable Metrics
+end

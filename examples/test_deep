@@ -1,0 +1,157 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'colorize'
+require 'neuronet'
+
+# Utilities
+module Utilities
+  refine Float do
+    def fmt
+      format('%.16f', self)
+    end
+  end
+  refine NilClass do
+    def fmt = 'N/A'
+  end
+end
+using Utilities
+
+# a    c    e
+#   =>   =>
+# b    d    f
+MAP = {
+  '0,0' => 'a', # neuron a
+  '0,1' => 'b', # ...
+  '1,0' => 'c',
+  '1,1' => 'd',
+  '2,0' => 'e',
+  '2,1' => 'f'
+}.freeze
+
+# rubocop: disable Metrics, Layout
+def show_ff
+  FF.each_with_index do |layer, i|
+    layer.each_with_index do |neuron, j|
+      name = MAP["#{i},#{j}"]
+      puts "#{name}:  #{name}b=#{neuron.bias.fmt}  #{name}a=#{neuron.activation.fmt}  #{name}v=#{neuron.value.fmt}"
+      neuron.connections.each_with_index do |connection, k|
+        puts "  #{name}.#{k}:  #{connection.weight.fmt}"
+      end
+    end
+  end
+  puts
+end
+# rubocop: enable Metrics, Layout
+
+def rnd
+  (rand + rand + rand) - (rand + rand + rand)
+end
+
+def das_puts(msg, out = $stdout, color: :blue)
+  out.tty? ? out.puts(msg.colorize(color)) : out.puts(msg)
+end
+
+# Squash
+W = ->(x) { 1.0 / (1.0 + Math.exp(-x)) }
+### We don't un-squash anymore:
+## Un-squash
+# M = ->(y) { Math.log(y / (1.0 - y)) }
+
+start = Time.now
+puts "Using Neuronet version: #{Neuronet::VERSION}"
+FF = Neuronet::Deep.new(2, 2, 2)
+show_ff
+
+# a    c    e
+#   =>   =>
+# b    d    f
+
+av = rnd # neuron a value
+bv = rnd # ...
+das_puts "Set: #{av.fmt}, #{bv.fmt}"
+FF.set([av, bv])
+show_ff
+
+cb = rnd # neuron b bias
+db = rnd # ...
+FF[1][0].bias = cb
+FF[1][1].bias = db
+das_puts "Middle biases: #{cb.fmt}, #{db.fmt}"
+show_ff
+
+cwa = rnd # c weight for a
+cwb = rnd # ...
+dwa = rnd
+dwb = rnd
+FF[1][0].connections[0].weight = cwa
+FF[1][0].connections[1].weight = cwb
+FF[1][1].connections[0].weight = dwa
+FF[1][1].connections[1].weight = dwb
+das_puts "Middle weights: [#{cwa.fmt},#{cwb.fmt}],[#{dwa.fmt},#{dwb.fmt}]"
+show_ff
+
+eb = rnd
+fb = rnd
+FF[2][0].bias = eb
+FF[2][1].bias = fb
+das_puts "Output biases: #{eb.fmt}, #{fb.fmt}"
+show_ff
+
+ewc = rnd # e weigth for c
+ewd = rnd # ...
+fwc = rnd
+fwd = rnd
+FF[2][0].connections[0].weight = ewc
+FF[2][0].connections[1].weight = ewd
+FF[2][1].connections[0].weight = fwc
+FF[2][1].connections[1].weight = fwd
+das_puts "Output weights: [#{ewc.fmt},#{ewd.fmt}],[#{fwc.fmt},#{fwd.fmt}]"
+show_ff
+
+FF.update
+das_puts 'Updated!'
+show_ff
+
+output = FF.values
+das_puts "Output: #{output.map(&:fmt).join(', ')}"
+puts
+
+# a    c    e
+#   =>   =>
+# b    d    f
+
+puts 'Compute step by step'
+
+# Activation a, b
+puts "av: #{av.fmt}  bv: #{bv.fmt}"
+aa = W[av]
+ba = W[bv]
+puts "aa: #{aa.fmt}  ba: #{ba.fmt}"
+
+# Activation c, d
+ca = W[(aa * cwa) + (ba * cwb) + cb]
+da = W[(aa * dwa) + (ba * dwb) + db]
+puts "ca: #{ca.fmt}  da: #{da.fmt}"
+
+# Activation e, f
+ea = W[(ca * ewc) + (da * ewd) + eb]
+fa = W[(ca * fwc) + (da * fwd) + fb]
+puts "ea: #{ea.fmt}  fa: #{fa.fmt}"
+
+# Values e, f
+### We don't un-squash anymore:
+# ev = M[ea]
+# fv = M[fa]
+ev = (ca * ewc) + (da * ewd) + eb
+fv = (ca * fwc) + (da * fwd) + fb
+puts "ev: #{ev.fmt}  fv: #{fv.fmt}"
+puts "Time: #{Time.now - start}"
+
+puts
+if ev.fmt == output[0].fmt && fv.fmt == output[1].fmt
+  das_puts('OK', color: :green)
+else
+  das_puts('FAIL', color: :red)
+  exit 1
+end
