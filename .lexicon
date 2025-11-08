@@ -46,7 +46,6 @@ fs
 full_neuron
 gets
 gets_data
-HelpParser
 hidden_layers
 i
 import
@@ -103,7 +102,6 @@ NoisyMiddleNeuron
 NoisyNeuron
 NoisyOutputNeuron
 open
-options
 other
 output_layer
 OutputLayer
@@ -119,7 +117,6 @@ puts
 raise
 rand
 reader
-require
 reverse
 Ruby34
 semi
