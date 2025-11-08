@@ -107,7 +107,7 @@ class TestEpsilon < Test::Unit::TestCase
 
   def test_really
     # Arbitrary layers:
-    layers = (2 + r4).to_i.times.inject([]) do |a, _|
+    layers = rand(3..5).times.inject([]) do |a, _|
       a << (1 + r4 + r4 + r4 + r4).to_i
     end
     puts "Testing FF #{layers.inspect}".blue
@@ -159,10 +159,10 @@ class TestEpsilon < Test::Unit::TestCase
     assert_equal(expected_errors.map { '%.1e' % it },
                  errors.map { '%.1e' % it })
     # Experimentally observed error is the expected_error to 3 digits.
-    # Happens sometimes...
     if expected_errors.map { '%.2e' % it } == errors.map { '%.2e' % it }
       puts 'OK!'.green
     else
+      # Happens sometimes...
       puts 'An error differed at 3 significant figures.'.colorize(:red)
     end
   end
