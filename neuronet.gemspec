@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     lib/neuronet.rb
     lib/neuronet/arrayable.rb
     lib/neuronet/backpropagate.rb
+    lib/neuronet/clamp.rb
     lib/neuronet/connection.rb
     lib/neuronet/deep.rb
     lib/neuronet/exportable.rb
