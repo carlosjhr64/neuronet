@@ -49,7 +49,7 @@ Gem::Specification.new do |s|
     lib/neuronet/squash.rb
     lib/neuronet/trainable.rb
   ]
-    s.executables << 'neuronet'
+  
   ## REQUIREMENTS ##
   s.required_ruby_version = '>= 3.4'
 end
