@@ -3,19 +3,17 @@
 module Neuronet
   # Noisy Backpropagate
   module NoisyBackpropagate
-    M = self
-    class << M; attr_accessor :clamp; end
-    M.clamp = 12.0
-
     # rubocop: disable Metrics, Style
     def backpropagate(error)
-      max = M.clamp
+      bmax = Clamp.bias
       b = bias + (error * (rand + rand))
-      self.bias = b.abs > max ? (b.positive? ? max : -max) : b
+      self.bias = b.abs > bmax ? (b.positive? ? bmax : -bmax) : b
+
+      wmax = Clamp.weight
       connections.each do |c|
         n = c.neuron
         w = c.weight + (n.activation * error * (rand + rand))
-        c.weight = w.abs > max ? (w.positive? ? max : -max) : w
+        c.weight = w.abs > wmax ? (w.positive? ? wmax : -wmax) : w
         n.backpropagate(error)
       end
     end

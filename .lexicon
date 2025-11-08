@@ -16,9 +16,10 @@ backpropagate
 Backpropagate
 bias
 blk
+bmax
 BZERO
 c
-clamp
+Clamp
 class
 connect
 connection
@@ -73,10 +74,8 @@ layers
 length
 line
 log
-M
 map
 Math
-max
 middle_layer
 MiddleLayer
 middle_neuron
@@ -150,6 +149,7 @@ values
 VERSION
 w
 weight
+wmax
 WONE
 writer
 zero

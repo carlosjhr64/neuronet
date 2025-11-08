@@ -8,6 +8,7 @@ module Neuronet
   autoload :Exportable,         'neuronet/exportable'
   autoload :Squash,             'neuronet/squash'
   autoload :Connection,         'neuronet/connection'
+  autoload :Clamp,              'neuronet/clamp'
   autoload :Backpropagate,      'neuronet/backpropagate'
   autoload :NoisyBackpropagate, 'neuronet/noisy_backpropagate'
   autoload :LayerPresets,       'neuronet/layer_presets'

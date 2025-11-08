@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'test/unit'
+require 'neuronet'
+
+class TestClamp < Test::Unit::TestCase
+  def test_clamp
+    # save
+    bias = Neuronet::Clamp.bias
+    weight = Neuronet::Clamp.weight
+    # change
+    Neuronet::Clamp.bias = 12.3
+    Neuronet::Clamp.weight = 4.56
+    # verify change
+    assert_equal Neuronet::Clamp.bias, 12.3
+    assert_equal Neuronet::Clamp.weight, 4.56
+    # restore
+    Neuronet::Clamp.bias = bias
+    Neuronet::Clamp.weight = weight
+    # verify restore
+    assert_equal Neuronet::Clamp.bias, bias
+    assert_equal Neuronet::Clamp.weight, weight
+  end
+end

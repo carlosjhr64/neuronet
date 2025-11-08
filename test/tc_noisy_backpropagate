@@ -13,18 +13,9 @@ module InsideFloats
 end
 
 class TestNoisyBackpropagate < Test::Unit::TestCase
-  # rubocop: disable Metrics
-  def test_clamp
-    assert_equal Neuronet::NoisyBackpropagate.clamp, 12.0
-    Neuronet::NoisyBackpropagate.clamp = 3.0
-    assert_equal Neuronet::NoisyBackpropagate.clamp, 3.0
-    Neuronet::NoisyBackpropagate::M.clamp = 12.0
-    assert_equal Neuronet::NoisyBackpropagate::M.clamp, 12.0
-    assert_equal Neuronet::NoisyBackpropagate.clamp, 12.0
-  end
-
   using InsideFloats
 
+  # rubocop: disable Metrics
   # rubocop: disable Lint
   def test_backpropagate
     a = Neuronet::NoisyNeuron.new
@@ -46,15 +37,17 @@ class TestNoisyBackpropagate < Test::Unit::TestCase
     assert b.connections[0].weight.inside?(0.0, 0.2)
     refute b.connections[0].weight == 0.1
     # test bias clamping:
-    b.bias = 12.0
+    bmax = Neuronet::Clamp.bias
+    b.bias = bmax
     b.backpropagate(0.2)
-    assert_equal b.bias, 12.0
+    assert_equal b.bias, bmax
     assert b.connections[0].weight.inside?(0.1, 0.3)
     refute b.connections[0].weight == 0.2
     # test weight clamping:
-    b.connections[0].weight = -50.0
+    wmax = Neuronet::Clamp.weight
+    b.connections[0].weight = -(2 * wmax)
     b.backpropagate(0.2)
-    assert_equal b.connections[0].weight, -12.0
+    assert_equal b.connections[0].weight, -wmax
   end
   # rubocop: enable Lint
   # rubocop: enable Metrics

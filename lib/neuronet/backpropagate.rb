@@ -3,22 +3,20 @@
 module Neuronet
   # Backpropagate provides simple, clamp-limited weight/bias updates.
   module Backpropagate
-    M = self
-    class << M; attr_accessor :clamp; end
-    M.clamp = 12.0 # adjustable weight & bias clamping
-
     # Back-propagates errors, updating bias and connection weights.
-    # Clamps updates to [-clamp, +clamp].
+    # Clamps updates to [-max, +max].
     # Recursively calls on connected neurons.
     # rubocop: disable Metrics, Style
     def backpropagate(error)
-      max = M.clamp
+      bmax = Clamp.bias
       b = bias + error
-      self.bias = b.abs > max ? (b.positive? ? max : -max) : b
+      self.bias = b.abs > bmax ? (b.positive? ? bmax : -bmax) : b
+
+      wmax = Clamp.weight
       connections.each do |c|
         n = c.neuron
         w = c.weight + (n.activation * error)
-        c.weight = w.abs > max ? (w.positive? ? max : -max) : w
+        c.weight = w.abs > wmax ? (w.positive? ? wmax : -wmax) : w
         n.backpropagate(error)
       end
     end
