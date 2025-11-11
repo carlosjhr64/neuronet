@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'stringio'
 require 'test/unit'
 require 'neuronet'
 
@@ -34,4 +35,53 @@ class TestBackpropagate < Test::Unit::TestCase
     assert_equal b.connections[0].weight, -wmax
   end
   # rubocop: enable Metrics
+
+  EXPORT = <<~EXPORT
+    # Neuronet::Deep
+    4.0 2 2 2 2
+    # neuron = FFN[1, 0]
+    4.0 1 0
+    2.0 1 0 0
+    2.0 1 0 1
+    # neuron = FFN[1, 1]
+    4.0 1 1
+    2.0 1 1 0
+    2.0 1 1 1
+    # neuron = FFN[2, 0]
+    2.0 2 0
+    1.0 2 0 0
+    1.0 2 0 1
+    # neuron = FFN[2, 1]
+    2.0 2 1
+    1.0 2 1 0
+    1.0 2 1 1
+    # neuron = FFN[3, 0]
+    1.0 3 0
+    0.5 3 0 0
+    0.5 3 0 1
+    # neuron = FFN[3, 1]
+    1.0 3 1
+    0.5 3 1 0
+    0.5 3 1 1
+  EXPORT
+
+  # Notice how the back-propagation from each output neuron
+  # accumulate in the underlying layers.
+  def test_ff_backpropagate
+    ff = Neuronet::Deep.new(2, 2, 2, 2)
+    # ff is all zeroed
+    ff.each do |layer|
+      layer.each do |neuron|
+        assert_equal neuron.bias, 0.0  if neuron.bias
+        assert_equal neuron.activation, 0.5  if neuron.activation
+        neuron.connections.each do |connection|
+          assert_equal connection.weight, 0.0
+        end
+      end
+    end
+    ff.backpropagate([1, 1, 1, 1])
+    sio = StringIO.new
+    ff.export(sio)
+    assert_equal sio.string, EXPORT
+  end
 end
