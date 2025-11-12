@@ -3,6 +3,8 @@
 module Neuronet
   # Network Stats
   module NetworkStats
+    # See https://github.com/carlosjhr64/neuronet/wiki
+    # |𝝂| = 𝔪 + ¼√𝑁*𝔪' + ¼√𝑁*¼√𝑁'*𝔪" + ...
     def expected_nju
       nju = 0.0
       mult = 1.0

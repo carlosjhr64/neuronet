@@ -22,8 +22,11 @@ module Neuronet
     # See [wiki](https://github.com/carlosjhr64/neuronet/wiki)
     def mju = 1 + connections.sum { it.neuron.activation }
 
-    # Sensitivity measure nju.
-    # See the repo's [wiki](https://github.com/carlosjhr64/neuronet/wiki).
+    # Sensitivity measure nju:
+    #     𝒆 ~ 𝜀𝝁 + 𝑾 𝓑𝒂'𝒆'
+    #     𝝂 ≜ 𝒆/𝜀
+    #     𝝂 ~ 𝝁 + 𝑾 𝓑𝒂'𝝂'
+    # See the [wiki](https://github.com/carlosjhr64/neuronet/wiki)
     # See also test/tc_epsilon:
     #     https://github.com/carlosjhr64/neuronet/blob/master/test/tc_epsilon
     def nju
