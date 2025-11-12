@@ -34,7 +34,6 @@ class TestBackpropagate < Test::Unit::TestCase
     b.backpropagate(0.2)
     assert_equal b.connections[0].weight, -wmax
   end
-  # rubocop: enable Metrics
 
   EXPORT = <<~EXPORT
     # Neuronet::Deep
@@ -72,8 +71,8 @@ class TestBackpropagate < Test::Unit::TestCase
     # ff is all zeroed
     ff.each do |layer|
       layer.each do |neuron|
-        assert_equal neuron.bias, 0.0  if neuron.bias
-        assert_equal neuron.activation, 0.5  if neuron.activation
+        assert_equal(neuron.bias, 0.0) if neuron.bias
+        assert_equal(neuron.activation, 0.5) if neuron.activation
         neuron.connections.each do |connection|
           assert_equal connection.weight, 0.0
         end
@@ -84,4 +83,5 @@ class TestBackpropagate < Test::Unit::TestCase
     ff.export(sio)
     assert_equal sio.string, EXPORT
   end
+  # rubocop: enable Metrics
 end
