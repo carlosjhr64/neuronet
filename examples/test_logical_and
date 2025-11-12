@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'neuronet'
+
+# Testing logical "and".
+# Also, comparing MLP.pairs vs MLP.pairs_pivot.
+# The random nature of the training for this example is such that
+# on any one run, any of the three methods can win, but
+# the statistics shows that pivot does work!
+
+PAIRS = [
+  [[1, 1], [1]],
+  [[-1, 1], [-1]],
+  [[1, -1], [-1]],
+  [[-1, -1], [-1]],
+].freeze
+
+def benchmarking(mlp, msg)
+  iterations = 0
+  start = Time.now
+  while PAIRS.any? { |inp, tar| (mlp * inp).map { it.round(6) } != tar }
+    yield
+    iterations += 1
+  end
+  elapsed = Time.now - start
+  ips = iterations/elapsed
+  puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  IPS: #{ips}"
+  elapsed
+end
+
+def new_mlp
+  mlp = Neuronet::MLP.new(2, 4, 1,
+                          middle_neuron: Neuronet::NoisyMiddleNeuron)
+  mlp.output_layer.average
+  mlp
+end
+
+np = [] # no pivot
+wp = [] # with pivot
+pn = [] # pivot and nju
+32.times do
+  mlp = new_mlp
+  t = benchmarking(mlp, '    Pivot-less:') { mlp.pairs(PAIRS, 4.0) }
+  np << t
+  mlp = new_mlp
+  t = benchmarking(mlp, '         Pivot:') { mlp.pairs_pivot(PAIRS) }
+  wp << t
+  mlp = new_mlp
+  t = benchmarking(mlp, 'Pivot with mju:') { mlp.pairs_pivot(PAIRS, 4.0) }
+  pn << t
+end
+
+min, max = np.minmax
+np.delete(min)
+np.delete(max)
+
+min, max = wp.minmax
+wp.delete(min)
+wp.delete(max)
+
+min, max = pn.minmax
+pn.delete(min)
+pn.delete(max)
+
+puts "Avg no-pivot: #{np.sum / np.size}"
+puts "Avg pivot: #{wp.sum / wp.size}"
+puts "Avg pivot with nju: #{pn.sum / pn.size}"

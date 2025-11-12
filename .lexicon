@@ -27,6 +27,7 @@ Connection
 connections
 Deep
 downstream_params_tally
+e
 each
 each_with_index
 empty
@@ -108,7 +109,9 @@ output_neuron
 OutputNeuron
 output_size
 pairs
+pairs_pivot
 Perceptron
+pivot
 pop
 positive
 previous
@@ -141,6 +144,7 @@ to_f
 to_i
 train
 Trainable
+train_pivot
 unsquash
 update
 upto

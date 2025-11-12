@@ -20,8 +20,38 @@ module Neuronet
     end
 
     # Trains on shuffled input-target pairs.
+    # Expected nju is good for Perceptrons.
+    # Consider setting nju to expected_nju * output_layer.size for an MLP.
+    # See test/tc_backpropagate's test_ff_backpropagate to see
+    # what the problem with Trainable#backpropagation is.
     def pairs(pairs, nju)
       pairs.shuffle.each { |inputs, targets| train(inputs, targets, nju) }
+    end
+
+    # This version of pairs tries to be smarter about training.
+    # If nju estimate is provided, it'll iterate faster.
+    def pairs_pivot(pairs, nju = nil)
+      pairs.shuffle.each { |inputs, targets| train_pivot(inputs, targets, nju) }
+    end
+
+    def train_pivot(inputs, targets, nju = nil)
+      actuals = self * inputs
+      errors = targets.zip(actuals).map { |target, actual| target - actual }
+      error, index = pivot(errors)
+      neuron = output_layer[index]
+      nju ||= neuron.nju
+      neuron.backpropagate(error / nju)
+    end
+
+    def pivot(errors)
+      error = index = 0.0
+      errors.each_with_index do |e, i|
+        next unless e.abs > error.abs
+
+        error = e
+        index = i
+      end
+      [error, index]
     end
   end
 end
