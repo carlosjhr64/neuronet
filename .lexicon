@@ -110,6 +110,7 @@ OutputNeuron
 output_size
 pairs
 pairs_pivot
+pairs_random
 Perceptron
 pivot
 pop
@@ -145,6 +146,7 @@ to_i
 train
 Trainable
 train_pivot
+train_random
 unsquash
 update
 upto

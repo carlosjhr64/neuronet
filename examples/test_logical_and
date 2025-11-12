@@ -13,7 +13,7 @@ PAIRS = [
   [[1, 1], [1]],
   [[-1, 1], [-1]],
   [[1, -1], [-1]],
-  [[-1, -1], [-1]],
+  [[-1, -1], [-1]]
 ].freeze
 
 def benchmarking(mlp, msg)
@@ -24,7 +24,7 @@ def benchmarking(mlp, msg)
     iterations += 1
   end
   elapsed = Time.now - start
-  ips = iterations/elapsed
+  ips = iterations / elapsed
   puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  IPS: #{ips.round}"
   elapsed
 end
