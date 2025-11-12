@@ -28,7 +28,8 @@ module Neuronet
       pairs.shuffle.each { |inputs, targets| train(inputs, targets, nju) }
     end
 
-    # This version of pairs tries to be smarter about training.
+    # This version of pairs tries to be smarter about training,
+    # by back-propagating only the biggest error.
     # If nju estimate is provided, it'll iterate faster.
     def pairs_pivot(pairs, nju = nil)
       pairs.shuffle.each { |inputs, targets| train_pivot(inputs, targets, nju) }
@@ -52,6 +53,21 @@ module Neuronet
         index = i
       end
       [error, index]
+    end
+
+    # This version avoids the deep back-propagation problem
+    # by randomly picking one output neuron to update.
+    def pairs_random(pairs, nju = nil)
+      pairs.shuffle.each { |inputs, targets| train_random inputs, targets, nju }
+    end
+
+    def train_random(inputs, targets, nju = nil)
+      actuals = self * inputs
+      errors = targets.zip(actuals).map { |target, actual| target - actual }
+      index = rand(errors.size)
+      neuron = output_layer[index]
+      nju ||= neuron.nju
+      neuron.backpropagate(errors[index] / nju)
     end
   end
 end

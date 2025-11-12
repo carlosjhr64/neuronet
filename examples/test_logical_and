@@ -4,7 +4,7 @@
 require 'neuronet'
 
 # Testing logical "and".
-# Also, comparing MLP.pairs vs MLP.pairs_pivot.
+# Also, comparing MLP.pairs vs MLP.pairs_pivot vs MLP.pairs_random.
 # The random nature of the training for this example is such that
 # on any one run, any of the three methods can win, but
 # the statistics shows that pivot does work!
@@ -19,13 +19,13 @@ PAIRS = [
 def benchmarking(mlp, msg)
   iterations = 0
   start = Time.now
-  while PAIRS.any? { |inp, tar| (mlp * inp).map { it.round(6) } != tar }
+  while PAIRS.any? { |inp, tar| (mlp * inp).map { it.round(4) } != tar }
     yield
     iterations += 1
   end
   elapsed = Time.now - start
   ips = iterations/elapsed
-  puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  IPS: #{ips}"
+  puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  IPS: #{ips.round}"
   elapsed
 end
 
@@ -39,16 +39,24 @@ end
 np = [] # no pivot
 wp = [] # with pivot
 pn = [] # pivot and nju
+rn = [] # random
+rw = [] # random with nju
 32.times do
   mlp = new_mlp
-  t = benchmarking(mlp, '    Pivot-less:') { mlp.pairs(PAIRS, 4.0) }
+  t = benchmarking(mlp, '     Pivot-less:') { mlp.pairs(PAIRS, 4.0) }
   np << t
   mlp = new_mlp
-  t = benchmarking(mlp, '         Pivot:') { mlp.pairs_pivot(PAIRS) }
+  t = benchmarking(mlp, '          Pivot:') { mlp.pairs_pivot(PAIRS) }
   wp << t
   mlp = new_mlp
-  t = benchmarking(mlp, 'Pivot with mju:') { mlp.pairs_pivot(PAIRS, 4.0) }
+  t = benchmarking(mlp, ' Pivot with mju:') { mlp.pairs_pivot(PAIRS, 4.0) }
   pn << t
+  mlp = new_mlp
+  t = benchmarking(mlp, '         Random:') { mlp.pairs_random(PAIRS) }
+  rn << t
+  mlp = new_mlp
+  t = benchmarking(mlp, 'Random with nju:') { mlp.pairs_random(PAIRS) }
+  rw << t
 end
 
 min, max = np.minmax
@@ -63,6 +71,16 @@ min, max = pn.minmax
 pn.delete(min)
 pn.delete(max)
 
+min, max = rn.minmax
+rn.delete(min)
+rn.delete(max)
+
+min, max = rw.minmax
+rw.delete(min)
+rw.delete(max)
+
 puts "Avg no-pivot: #{np.sum / np.size}"
 puts "Avg pivot: #{wp.sum / wp.size}"
 puts "Avg pivot with nju: #{pn.sum / pn.size}"
+puts "Avg random: #{rn.sum / rn.size}"
+puts "Avg random with nju: #{rw.sum / rw.size}"
