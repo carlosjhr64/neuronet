@@ -1,7 +1,6 @@
 ## runtime ##
 ## development ##
 colorize     1.1.0
-cucumber     10.1.1
 parser       3.3.10
 rubocop      1.81.7
 test-unit    3.7.1
@@ -12,7 +11,6 @@ cat          9.1
 clear        6.4
 colora       1.0
 colordiff    3.8
-cucumber     10.1
 egrep        3.8
 git          2.39
 ls           9.1
