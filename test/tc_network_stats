@@ -28,7 +28,7 @@ class TestNetworkStats < Test::Unit::TestCase
     end
     njus = nd.njus
     avg = njus.sum / 3.0
-    assert avg.between?(2.0, 6.07) # very likely true
+    assert avg.between?(2.03, 6.07) # very likely true
   end
   # rubocop: enable Metrics
 end

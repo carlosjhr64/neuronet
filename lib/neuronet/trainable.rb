@@ -40,7 +40,7 @@ module Neuronet
       errors = targets.zip(actuals).map { |target, actual| target - actual }
       error, index = pivot(errors)
       neuron = output_layer[index]
-      nju ||= neuron.nju
+      nju ||= Config.nju_mult * neuron.nju.abs
       neuron.backpropagate(error / nju)
     end
 
@@ -61,13 +61,15 @@ module Neuronet
       pairs.shuffle.each { |inputs, targets| train_random inputs, targets, nju }
     end
 
+    # rubocop: disable Metrics
     def train_random(inputs, targets, nju = nil)
       actuals = self * inputs
       errors = targets.zip(actuals).map { |target, actual| target - actual }
       index = rand(errors.size)
       neuron = output_layer[index]
-      nju ||= neuron.nju
+      nju ||= Config.nju_mult * neuron.nju.abs
       neuron.backpropagate(errors[index] / nju)
     end
+    # rubocop: enable Metrics
   end
 end

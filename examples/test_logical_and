@@ -1,6 +1,17 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'help_parser'
+
+OPTIONS = HelpParser['0.0.0', <<~HELP]
+  Usage:
+    test_logical_and [:options+]
+  Options:
+    --mult=FLOAT
+  Types:
+    FLOAT   /^\\d+\\.\\d+$/
+HELP
+
 require 'neuronet'
 
 # Testing logical "and".
@@ -19,7 +30,7 @@ PAIRS = [
 def benchmarking(mlp, msg)
   iterations = 0
   start = Time.now
-  while PAIRS.any? { |inp, tar| (mlp * inp).map { it.round(4) } != tar }
+  while PAIRS.any? { |inp, tar| (mlp * inp).map { it.round(2) } != tar }
     yield
     iterations += 1
   end
@@ -30,57 +41,60 @@ def benchmarking(mlp, msg)
 end
 
 def new_mlp
-  mlp = Neuronet::MLP.new(2, 4, 1,
-                          middle_neuron: Neuronet::NoisyMiddleNeuron)
-  mlp.output_layer.average
-  mlp
+  Neuronet::MLP.new(2, 4, 1, middle_neuron: Neuronet::NoisyMiddleNeuron)
 end
+
+def remove_outliers(times)
+  3.times do
+    min, max = times.minmax
+    times.delete(min)
+    times.delete(max)
+  end
+end
+
+# Sanity check: assert that mlp's expected nju is 4.0!
+# rubocop: disable Lint/FloatComparison
+raise 'Unexpected nju' unless new_mlp.expected_nju == 4.0
+# rubocop: enable Lint/FloatComparison
+
+if (mult = OPTIONS.mult&.to_f)
+  Neuronet::Config.nju_mult = mult
+end
+NJU = Neuronet::Config.nju_mult * 4.0
 
 np = [] # no pivot
 wp = [] # with pivot
 pn = [] # pivot and nju
 rn = [] # random
 rw = [] # random with nju
-32.times do
+36.times do
   mlp = new_mlp
-  t = benchmarking(mlp, '     Pivot-less:') { mlp.pairs(PAIRS, 4.0) }
+  t = benchmarking(mlp, '     Pivot-less:') { mlp.pairs(PAIRS, NJU) }
   np << t
   mlp = new_mlp
   t = benchmarking(mlp, '          Pivot:') { mlp.pairs_pivot(PAIRS) }
   wp << t
   mlp = new_mlp
-  t = benchmarking(mlp, ' Pivot with mju:') { mlp.pairs_pivot(PAIRS, 4.0) }
+  t = benchmarking(mlp, ' Pivot with mju:') { mlp.pairs_pivot(PAIRS, NJU) }
   pn << t
   mlp = new_mlp
   t = benchmarking(mlp, '         Random:') { mlp.pairs_random(PAIRS) }
   rn << t
   mlp = new_mlp
-  t = benchmarking(mlp, 'Random with nju:') { mlp.pairs_random(PAIRS) }
+  t = benchmarking(mlp, 'Random with nju:') { mlp.pairs_random(PAIRS, NJU) }
   rw << t
 end
 
-min, max = np.minmax
-np.delete(min)
-np.delete(max)
+remove_outliers(np)
+remove_outliers(wp)
+remove_outliers(pn)
+remove_outliers(rn)
+remove_outliers(rw)
 
-min, max = wp.minmax
-wp.delete(min)
-wp.delete(max)
-
-min, max = pn.minmax
-pn.delete(min)
-pn.delete(max)
-
-min, max = rn.minmax
-rn.delete(min)
-rn.delete(max)
-
-min, max = rw.minmax
-rw.delete(min)
-rw.delete(max)
-
-puts "Avg no-pivot: #{np.sum / np.size}"
-puts "Avg pivot: #{wp.sum / wp.size}"
-puts "Avg pivot with nju: #{pn.sum / pn.size}"
-puts "Avg random: #{rn.sum / rn.size}"
-puts "Avg random with nju: #{rw.sum / rw.size}"
+puts "Neuronet::Config.nju_mult = #{Neuronet::Config.nju_mult}"
+puts '# Total time'
+puts "       No-Pivot: #{np.sum}"
+puts "          Pivot: #{wp.sum}"
+puts " Pivot with nju: #{pn.sum}"
+puts "         Random: #{rn.sum}"
+puts "Random with nju: #{rw.sum}"

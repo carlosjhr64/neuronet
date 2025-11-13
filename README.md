@@ -37,7 +37,6 @@ values = np * [-1, 0, 1] #=> [1.0, 0.0, -1.0]
 # In this example, NoisyMiddleNeuron is needed to differentiate the neurons:
 mlp = Neuronet::MLP.new(2, 4, 1,
                         middle_neuron: Neuronet::NoisyMiddleNeuron)
-mlp.output_layer.average
 nju = mlp.expected_nju.ceil.to_f #=> 4.0
 pairs = [
   [[1, 1], [1]],

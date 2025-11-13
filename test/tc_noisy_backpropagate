@@ -42,14 +42,14 @@ class TestNoisyBackpropagate < Test::Unit::TestCase
     a = Neuronet::NoisyNeuron.new
     b = Neuronet::NoisyNeuron.new
     b.connect a
-    bmax = Neuronet::Clamp.bias
+    bmax = Neuronet::Config.bias_clamp
     b.bias = bmax
     b.backpropagate(0.2)
     assert_equal b.bias, bmax
     assert b.connections[0].weight.inside?(0.0, 0.4)
     refute b.connections[0].weight == 0.2
     # test weight clamping:
-    wmax = Neuronet::Clamp.weight
+    wmax = Neuronet::Config.weight_clamp
     b.connections[0].weight = -(2 * wmax)
     b.backpropagate(0.2)
     assert_equal b.connections[0].weight, -wmax

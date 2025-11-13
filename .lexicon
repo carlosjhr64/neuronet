@@ -15,12 +15,13 @@ b
 backpropagate
 Backpropagate
 bias
+bias_clamp
 blk
 bmax
 BZERO
 c
-Clamp
 class
+Config
 connect
 connection
 Connection
@@ -96,6 +97,7 @@ NeuronStats
 new
 nil
 nju
+nju_mult
 njus
 NoisyBackpropagate
 NoisyMiddleNeuron
@@ -155,6 +157,7 @@ values
 VERSION
 w
 weight
+weight_clamp
 wmax
 WONE
 writer

@@ -8,11 +8,11 @@ module Neuronet
     # Recursively calls on connected neurons.
     # rubocop: disable Metrics, Style
     def backpropagate(error)
-      bmax = Clamp.bias
+      bmax = Config.bias_clamp
       b = bias + error
       self.bias = b.abs > bmax ? (b.positive? ? bmax : -bmax) : b
 
-      wmax = Clamp.weight
+      wmax = Config.weight_clamp
       connections.each do |c|
         n = c.neuron
         w = c.weight + (n.activation * error)
