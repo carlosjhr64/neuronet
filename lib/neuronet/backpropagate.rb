@@ -15,7 +15,7 @@ module Neuronet
       wmax = Clamp.weight
       connections.each do |c|
         n = c.neuron
-        w = c.weight + (n.activation * error)
+        w = c.weight + error
         c.weight = w.abs > wmax ? (w.positive? ? wmax : -wmax) : w
         n.backpropagate(error)
       end
