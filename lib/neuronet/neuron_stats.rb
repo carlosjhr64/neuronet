@@ -34,10 +34,9 @@ module Neuronet
 
       mju + connections.sum do |connection|
         neuron = connection.neuron
-        w = connection.weight
-        a = neuron.activation
-        n = neuron.nju
-        w * a * (1.0 - a) * n
+        next 0.0 if (n = neuron.nju).zero? || (a = neuron.activation) >= 1.0
+
+        connection.weight * a * (1.0 - a) * n
       end
     end
   end
