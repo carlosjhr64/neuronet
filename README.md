@@ -37,7 +37,6 @@ values = np * [-1, 0, 1] #=> [1.0, 0.0, -1.0]
 # In this example, NoisyMiddleNeuron is needed to differentiate the neurons:
 mlp = Neuronet::MLP.new(2, 4, 1,
                         middle_neuron: Neuronet::NoisyMiddleNeuron)
-nju = mlp.expected_nju.ceil.to_f #=> 4.0
 pairs = [
   [[1, 1], [1]],
   [[-1, 1], [-1]],
@@ -45,7 +44,7 @@ pairs = [
   [[-1, -1], [-1]],
 ]
 while pairs.any? { |input, target| (mlp * input).map(&:round) != target }
-  mlp.pairs(pairs, nju) # Training...
+  mlp.pairs(pairs) # Training...
 end
 (mlp * [1, 1]).map(&:round)   #=> [1]
 (mlp * [-1, 1]).map(&:round)  #=> [-1]

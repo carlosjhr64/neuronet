@@ -97,7 +97,6 @@ NeuronStats
 new
 nil
 nju
-nju_mult
 njus
 NoisyBackpropagate
 NoisyMiddleNeuron
@@ -111,8 +110,6 @@ output_neuron
 OutputNeuron
 output_size
 pairs
-pairs_pivot
-pairs_random
 Perceptron
 pivot
 pop
@@ -147,8 +144,6 @@ to_f
 to_i
 train
 Trainable
-train_pivot
-train_random
 unsquash
 update
 upto

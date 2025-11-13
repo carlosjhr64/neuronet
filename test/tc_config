@@ -5,28 +5,21 @@ require 'test/unit'
 require 'neuronet'
 
 class TestConfig < Test::Unit::TestCase
-  # rubocop: disable Metrics
   def test_config
     # save
-    mult = Neuronet::Config.nju_mult
     bias = Neuronet::Config.bias_clamp
     weight = Neuronet::Config.weight_clamp
     # change
-    Neuronet::Config.nju_mult = 1.23
     Neuronet::Config.bias_clamp = 12.3
     Neuronet::Config.weight_clamp = 4.56
     # verify change
-    assert_equal Neuronet::Config.nju_mult, 1.23
     assert_equal Neuronet::Config.bias_clamp, 12.3
     assert_equal Neuronet::Config.weight_clamp, 4.56
     # restore
-    Neuronet::Config.nju_mult = mult
     Neuronet::Config.bias_clamp = bias
     Neuronet::Config.weight_clamp = weight
     # verify restore
-    assert_equal Neuronet::Config.nju_mult, mult
     assert_equal Neuronet::Config.bias_clamp, bias
     assert_equal Neuronet::Config.weight_clamp, weight
   end
-  # rubocop: enable Metrics
 end

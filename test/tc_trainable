@@ -24,7 +24,7 @@ class TestTrainable < Test::Unit::TestCase
       Neuronet::MLP,
       Neuronet::Deep,
       Neuronet::FeedForward
-    ].all? { it.instance_methods.include? :backpropagate })
+    ].all? { it.instance_methods.include? :pivot })
   end
 
   # rubocop: disable Style
@@ -38,9 +38,9 @@ class TestTrainable < Test::Unit::TestCase
     [[3], [6]]
   ].freeze
   EXPECTED_PAIRS_CAPTURE = [
-    [[1], [2], 1],
-    [[2], [4], 1],
-    [[3], [6], 1]
+    [[1], [2], { nju: 1 }],
+    [[2], [4], { nju: 1 }],
+    [[3], [6], { nju: 1 }]
   ].freeze
   EXPECTED_TRAIN_CAPTURE = [
     [[2]],
@@ -53,18 +53,8 @@ class TestTrainable < Test::Unit::TestCase
     # Override mlp's train method to capture pairs
     def mlp.train(*args) = ::TestTrainable::CAPTURE << args
     CAPTURE.clear
-    mlp.pairs PAIRS, 1
+    mlp.pairs PAIRS, nju: 1
     assert_equal CAPTURE.sort, EXPECTED_PAIRS_CAPTURE
-  end
-
-  def test_train
-    mlp = Neuronet::MLP.new(1, 1, 1)
-    # Override mlp's backpropagate method to capture train
-    def mlp.backpropagate(*args) = ::TestTrainable::CAPTURE << args
-    # NOTE: as is... mlp * [n] == [0]
-    CAPTURE.clear
-    mlp.pairs PAIRS, 1
-    assert_equal CAPTURE.sort, EXPECTED_TRAIN_CAPTURE
   end
   # rubocop: enable Metrics
 end

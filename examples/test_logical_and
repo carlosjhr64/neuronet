@@ -7,18 +7,12 @@ OPTIONS = HelpParser['0.0.0', <<~HELP]
   Usage:
     test_logical_and [:options+]
   Options:
-    --mult=FLOAT
+    --nju=FLOAT
   Types:
     FLOAT   /^\\d+\\.\\d+$/
 HELP
 
 require 'neuronet'
-
-# Testing logical "and".
-# Also, comparing MLP.pairs vs MLP.pairs_pivot vs MLP.pairs_random.
-# The random nature of the training for this example is such that
-# on any one run, any of the three methods can win, but
-# the statistics shows that pivot does work!
 
 PAIRS = [
   [[1, 1], [1]],
@@ -57,44 +51,16 @@ end
 raise 'Unexpected nju' unless new_mlp.expected_nju == 4.0
 # rubocop: enable Lint/FloatComparison
 
-if (mult = OPTIONS.mult&.to_f)
-  Neuronet::Config.nju_mult = mult
-end
-NJU = Neuronet::Config.nju_mult * 4.0
+NJU = OPTIONS.nju&.to_f || 4.0
 
-np = [] # no pivot
-wp = [] # with pivot
-pn = [] # pivot and nju
-rn = [] # random
-rw = [] # random with nju
+times = []
 36.times do
   mlp = new_mlp
-  t = benchmarking(mlp, '     Pivot-less:') { mlp.pairs(PAIRS, NJU) }
-  np << t
-  mlp = new_mlp
-  t = benchmarking(mlp, '          Pivot:') { mlp.pairs_pivot(PAIRS) }
-  wp << t
-  mlp = new_mlp
-  t = benchmarking(mlp, ' Pivot with mju:') { mlp.pairs_pivot(PAIRS, NJU) }
-  pn << t
-  mlp = new_mlp
-  t = benchmarking(mlp, '         Random:') { mlp.pairs_random(PAIRS) }
-  rn << t
-  mlp = new_mlp
-  t = benchmarking(mlp, 'Random with nju:') { mlp.pairs_random(PAIRS, NJU) }
-  rw << t
+  t = benchmarking(mlp, '*') { mlp.pairs(PAIRS, nju: NJU) }
+  times << t
 end
 
-remove_outliers(np)
-remove_outliers(wp)
-remove_outliers(pn)
-remove_outliers(rn)
-remove_outliers(rw)
+remove_outliers(times)
 
-puts "Neuronet::Config.nju_mult = #{Neuronet::Config.nju_mult}"
-puts '# Total time'
-puts "       No-Pivot: #{np.sum}"
-puts "          Pivot: #{wp.sum}"
-puts " Pivot with nju: #{pn.sum}"
-puts "         Random: #{rn.sum}"
-puts "Random with nju: #{rw.sum}"
+puts "NJU = #{NJU}"
+puts "Total time: #{times.sum}"
