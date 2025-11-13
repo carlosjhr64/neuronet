@@ -29,15 +29,17 @@ module Neuronet
     # See the [wiki](https://github.com/carlosjhr64/neuronet/wiki)
     # See also test/tc_epsilon:
     #     https://github.com/carlosjhr64/neuronet/blob/master/test/tc_epsilon
+    # rubocop: disable Metrics
     def nju
       return 0 if connections.empty?
 
       mju + connections.sum do |connection|
-        neuron = connection.neuron
-        next 0.0 if (n = neuron.nju).zero? || (a = neuron.activation) >= 1.0
+        n = connection.neuron
+        next 0.0 if (nju = n.nju).zero? || (a = n.activation).zero? || a >= 1.0
 
-        connection.weight * a * (1.0 - a) * n
+        connection.weight * a * (1.0 - a) * nju
       end
     end
+    # rubocop: enable Metrics
   end
 end
