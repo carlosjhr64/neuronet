@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/carlosjhr64/neuronet'
   s.author   = 'CarlosJHR64'
   s.email    = 'carlosjhr64@gmail.com'
-  s.date     = '2025-11-12'
+  s.date     = '2025-11-13'
   s.licenses = ['MIT']
   ## DESCRIPTION ##
   s.summary  = <<~SUMMARY
@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
     lib/neuronet.rb
     lib/neuronet/arrayable.rb
     lib/neuronet/backpropagate.rb
-    lib/neuronet/clamp.rb
+    lib/neuronet/config.rb
     lib/neuronet/connection.rb
     lib/neuronet/deep.rb
     lib/neuronet/exportable.rb
