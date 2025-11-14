@@ -57,4 +57,13 @@ class TestTrainable < Test::Unit::TestCase
     assert_equal CAPTURE.sort, EXPECTED_PAIRS_CAPTURE
   end
   # rubocop: enable Metrics
+
+  def test_pivot
+    p = Neuronet::Perceptron.new(1, 1) # just anything to test pivot
+    errors = [1, -2, 3, -4, -3, 2, -1]
+    e, i = p.pivot(errors)
+    assert_equal e, -4
+    assert_equal i, 3
+    assert_equal e, errors[i] # sanity check :P
+  end
 end
