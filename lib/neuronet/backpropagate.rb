@@ -14,24 +14,23 @@ module Neuronet
       update_connections(error)
     end
 
+    # rubocop: disable Style/NestedTernaryOperator
     def update_bias(error)
       bmax = Config.bias_clamp
-      self.bias = add(bias, error).clamp(-bmax, bmax)
+      b = bias + error
+      self.bias = b.abs > bmax ? (b.positive? ? bmax : -bmax) : b
     end
-
-    def add(bias, error) = bias + error
 
     def update_connections(error)
       wmax = Config.weight_clamp
       connections.each do |c|
         n = c.neuron
-        w = c.weight + multiply(n.activation, error)
-        c.weight = w.clamp(-wmax, wmax)
+        w = c.weight + (n.activation * error)
+        c.weight = w.abs > wmax ? (w.positive? ? wmax : -wmax) : w
         n.backpropagate(error)
       end
     end
-
-    def multiply(activation, error) = activation * error
+    # rubocop: enable Style/NestedTernaryOperator
 
     def reset_backpropagated!
       return unless @backpropagated

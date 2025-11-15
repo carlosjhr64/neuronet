@@ -4,7 +4,6 @@ abs
 activation
 actual
 actuals
-add
 antithesis
 Array
 Arrayable
@@ -12,6 +11,7 @@ attr_accessor
 attr_reader
 autoload
 average
+b
 backpropagate
 Backpropagate
 backpropagated
@@ -21,7 +21,6 @@ blk
 bmax
 BZERO
 c
-clamp
 class
 Config
 connect
@@ -90,7 +89,6 @@ mju
 MLP
 module_function
 mult
-multiply
 n
 NetworkStats
 neuron
@@ -116,6 +114,7 @@ pairs
 Perceptron
 pivot
 pop
+positive
 previous
 puts
 raise
