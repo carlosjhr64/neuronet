@@ -1,6 +1,7 @@
 ## runtime ##
 ## development ##
 colorize     1.1.0
+help_parser  9.0.240926
 parser       3.3.10
 rubocop      1.81.7
 test-unit    3.7.1
