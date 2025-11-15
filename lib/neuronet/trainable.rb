@@ -12,7 +12,7 @@ module Neuronet
       errors = targets.zip(actuals).map { |target, actual| target - actual }
       error, index = pivot(errors)
       neuron = output_layer[index]
-      neuron.backpropagate(error / nju)
+      neuron.backpropagate!(error / nju)
     end
 
     def pivot(errors)

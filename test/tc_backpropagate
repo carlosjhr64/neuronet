@@ -16,7 +16,7 @@ class TestBackpropagate < Test::Unit::TestCase
     assert_equal b.bias, 0.0
     assert_equal b.activation, 0.5
     assert_equal b.connections[0].weight, 0.0
-    b.backpropagate(0.2)
+    b.backpropagate!(0.2)
     assert_equal a.bias, 0.2
     assert_equal a.activation, 0.5
     assert_equal b.bias, 0.2
@@ -25,14 +25,35 @@ class TestBackpropagate < Test::Unit::TestCase
     # test bias clamping:
     bmax = Neuronet::Config.bias_clamp
     b.bias = bmax
-    b.backpropagate(0.2)
+    b.backpropagate!(0.2)
     assert_equal b.bias, bmax
     assert_equal b.connections[0].weight, 0.2
     # test weight clamping:
     wmax = Neuronet::Config.weight_clamp
     b.connections[0].weight = -(2 * wmax)
-    b.backpropagate(0.2)
+    b.backpropagate!(0.2)
     assert_equal b.connections[0].weight, -wmax
+  end
+
+  def test_collisions
+    ff = Neuronet::Deep.new(10, 10, 10, 10)
+    output_layer = ff.output_layer
+    out0 = output_layer[0]
+    out0.backpropagate!(1.0)
+    assert_equal out0.bias, 1.0
+    # Assert all other biases in output layer are zero.
+    output_layer[1..].each do |neuron|
+      assert_equal neuron.bias, 0.0
+    end
+    # Assert all neurons in hidden updated once!
+    ff.hidden_layers.each do |layer|
+      layer.each do |neuron|
+        assert_equal neuron.bias, 1.0
+        neuron.connections.each do |connection|
+          assert_equal connection.weight, 0.5
+        end
+      end
+    end
   end
   # rubocop: enable Metrics
 end

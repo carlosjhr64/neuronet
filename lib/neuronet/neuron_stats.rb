@@ -15,12 +15,13 @@ module Neuronet
     def downstream_params_tally
       return 0 if (size = connections.size).zero?
 
+      # Note that this is an Integer calculation:
       1 + size + connections.sum { it.neuron.downstream_params_tally }
     end
 
     # Sum of activations + 1.  It's a component of the sensitivity measure nju.
     # See [wiki](https://github.com/carlosjhr64/neuronet/wiki)
-    def mju = 1 + connections.sum { it.neuron.activation }
+    def mju = 1.0 + connections.sum { it.neuron.activation }
 
     # Sensitivity measure nju:
     #     𝒆 ~ 𝜀𝝁 + 𝑾 𝓑𝒂'𝒆'
@@ -31,7 +32,7 @@ module Neuronet
     #     https://github.com/carlosjhr64/neuronet/blob/master/test/tc_epsilon
     # rubocop: disable Metrics
     def nju
-      return 0 if connections.empty?
+      return 0.0 if connections.empty?
 
       mju + connections.sum do |connection|
         n = connection.neuron

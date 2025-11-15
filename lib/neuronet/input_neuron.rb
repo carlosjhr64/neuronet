@@ -23,5 +23,6 @@ module Neuronet
     end
 
     def backpropagate(_) = nil
+    def reset_backpropagated! = nil
   end
 end

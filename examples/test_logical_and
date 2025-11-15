@@ -39,9 +39,8 @@ def new_mlp
 end
 
 def remove_outliers(times)
-  3.times do
-    min, max = times.minmax
-    times.delete(min)
+  6.times do
+    max = times.max
     times.delete(max)
   end
 end
