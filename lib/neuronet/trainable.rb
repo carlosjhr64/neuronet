@@ -25,5 +25,12 @@ module Neuronet
       end
       [error, index]
     end
+
+    def sum_of_squared_errors(pairs)
+      pairs.sum do |inputs, targets|
+        actuals = self * inputs
+        targets.zip(actuals).sum { |t, a| (e = t - a) * e }
+      end
+    end
   end
 end

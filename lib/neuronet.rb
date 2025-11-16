@@ -2,7 +2,7 @@
 
 # Neuronet
 module Neuronet
-  VERSION = '9.0.251115'
+  VERSION = '9.0.251116'
 
   autoload :Arrayable,          'neuronet/arrayable'
   autoload :Exportable,         'neuronet/exportable'

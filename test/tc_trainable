@@ -66,4 +66,35 @@ class TestTrainable < Test::Unit::TestCase
     assert_equal i, 3
     assert_equal e, errors[i] # sanity check :P
   end
+
+  class TestSSE
+    include Neuronet::Trainable
+
+    def *(other) = other.map { (it * it) - it }
+  end
+
+  TEST_SSE = [
+    [[1, 5, -4],  [5, 3, -5]],
+    [[0, 1, -1],  [3, 1, -3]],
+    [[2, 2, -5],  [0, 1, 0]],
+    [[3, 1, -4],  [-3, 6, -3]]
+  ].freeze
+
+  # rubocop: disable Metrics
+  def test_sum_of_squared_errors
+    tsse = TestSSE.new
+    sse = tsse.sum_of_squared_errors(TEST_SSE)
+    outputs = TEST_SSE.map { |i, _o| i.map { (it * it) - it } }
+    sum = 0
+    outputs.each_with_index do |actuals, i|
+      targets = TEST_SSE[i][1]
+      actuals.each_with_index do |actual, j|
+        target = targets[j]
+        error = target - actual
+        sum += error * error
+      end
+    end
+    assert_equal sse, sum
+  end
+  # rubocop: enable Metrics
 end

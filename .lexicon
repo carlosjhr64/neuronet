@@ -138,7 +138,9 @@ start_with
 strip
 Struct
 sum
+sum_of_squared_errors
 synthesis
+t
 target
 targets
 to_a
