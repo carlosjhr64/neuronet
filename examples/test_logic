@@ -1,0 +1,104 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'help_parser'
+
+OPTIONS = HelpParser['0.0.0', <<~HELP]
+  Usage:
+    test_logic [:options+]
+  Options:
+    --nju=FLOAT
+    --trials=NUMBER
+  Types:
+    FLOAT   /^\\d+\\.\\d+$/
+    NUMBER  /^\\d+$/
+HELP
+
+require 'neuronet'
+
+PAIRS = [
+  # More than enough to prove it can do Boolean Logic...
+  # Inputs  FALSE   OR  NOR  XOR  AND NAND TRUE    A   ^A    B   ^B  A→B  B→A
+  [[-1, -1], [ -1,  -1,   1,  -1,  -1,   1,   1,  -1,   1,  -1,   1,   1,   1]],
+  [[-1,  1], [ -1,   1,  -1,   1,  -1,   1,   1,  -1,   1,   1,  -1,   1,  -1]],
+  [[ 1, -1], [ -1,   1,  -1,   1,  -1,   1,   1,   1,  -1,  -1,   1,  -1,   1]],
+  [[ 1,  1], [ -1,   1,  -1,  -1,   1,  -1,   1,   1,  -1,   1,  -1,   1,   1]],
+].freeze
+
+def benchmarking(ff, msg)
+  iterations = 0
+  start = Time.now
+  while PAIRS.any? { |inp, tar| (ff * inp).map { it.round(2) } != tar }
+    yield
+    iterations += 1
+  end
+  elapsed = Time.now - start
+  ips = iterations / elapsed
+  puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  I/T: #{ips.round}"
+  elapsed
+end
+
+def new_ff
+  # I don't think this is a minimal network for the problem.
+  # I just want to test the deep back-propagation algorithm.
+  ff = Neuronet::Deep.new(2, 4, 8, 13,
+                          middle_neuron: Neuronet::NoisyMiddleNeuron)
+  # These presets connects the output to the input
+  # in a way that kinda makes sense to me to start:
+  ff.hidden_layers[0].antithesis
+  ff.hidden_layers[1].antithesis
+  ff.output_layer.average
+  ff
+end
+
+def remove_outliers(times)
+  n = Math.sqrt(times.size - 1).round
+  n.times do
+    max = times.max
+    times.delete(max)
+  end
+end
+
+def ff_nju_avg_min_max(ff)
+  njus = ff.njus
+  avg = (njus.sum / njus.size).round(1)
+  min, max = njus.minmax.map { it.round(1) }
+  [avg, min, max]
+end
+
+def ff_nju_initial_report
+  ff = new_ff
+  nju = ff.expected_nju.round(1)
+  puts "Expected Nju: #{nju}"
+  avg, min, max = ff_nju_avg_min_max(ff)
+  puts "Initial Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
+  [nju, max].max
+end
+
+def ff_nju_final_report(times, ff)
+  remove_outliers(times)
+  puts "Used NJU = #{NJU}"
+  avg, min, max = ff_nju_avg_min_max(ff)
+  puts "Last Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
+  puts "Avg best #{times.size} times: #{times.sum / times.size}"
+end
+
+puts
+nju    = ff_nju_initial_report
+NJU    = OPTIONS.nju&.to_f || nju
+TRIALS = OPTIONS.trials&.to_i || 36
+puts "Using NJU = #{NJU}"
+puts "Doing #{TRIALS} trials..."
+puts
+
+times = []
+ff = nil
+TRIALS.times do
+  ff = new_ff
+  t = benchmarking(ff, '*') { ff.pairs(PAIRS, nju: NJU) }
+  times << t
+end
+
+puts
+ff_nju_final_report(times, ff)
+puts

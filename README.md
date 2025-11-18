@@ -68,6 +68,9 @@ When reading the library, this is order the order I would read it:
 Once you understand these files, the rest should all make sense.
 For some math on neural networks,
 see the [Wiki](https://github.com/carlosjhr64/neuronet/wiki).
+Finally, out of all my testing,
+probably the best demonstration here that Neuronet works is
+[examples/test_logic](examples/test_logic).
 
 ## LICENSE
 
