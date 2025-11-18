@@ -16,6 +16,7 @@ HELP
 
 require 'neuronet'
 
+# rubocop: disable Layout, Style
 PAIRS = [
   # More than enough to prove it can do Boolean Logic...
   # Inputs  FALSE   OR  NOR  XOR  AND NAND TRUE    A   ^A    B   ^B  A→B  B→A
@@ -24,11 +25,12 @@ PAIRS = [
   [[ 1, -1], [ -1,   1,  -1,   1,  -1,   1,   1,   1,  -1,  -1,   1,  -1,   1]],
   [[ 1,  1], [ -1,   1,  -1,  -1,   1,  -1,   1,   1,  -1,   1,  -1,   1,   1]],
 ].freeze
+# rubocop: enable Layout, Style
 
-def benchmarking(ff, msg)
+def benchmarking(ffn, msg)
   iterations = 0
   start = Time.now
-  while PAIRS.any? { |inp, tar| (ff * inp).map { it.round(2) } != tar }
+  while PAIRS.any? { |inp, tar| (ffn * inp).map { it.round(2) } != tar }
     yield
     iterations += 1
   end
@@ -38,17 +40,17 @@ def benchmarking(ff, msg)
   elapsed
 end
 
-def new_ff
+def new_ffn
   # I don't think this is a minimal network for the problem.
   # I just want to test the deep back-propagation algorithm.
-  ff = Neuronet::Deep.new(2, 4, 8, 13,
-                          middle_neuron: Neuronet::NoisyMiddleNeuron)
+  ffn = Neuronet::Deep.new(2, 4, 8, 13,
+                           middle_neuron: Neuronet::NoisyMiddleNeuron)
   # These presets connects the output to the input
   # in a way that kinda makes sense to me to start:
-  ff.hidden_layers[0].antithesis
-  ff.hidden_layers[1].antithesis
-  ff.output_layer.average
-  ff
+  ffn.hidden_layers[0].antithesis
+  ffn.hidden_layers[1].antithesis
+  ffn.output_layer.average
+  ffn
 end
 
 def remove_outliers(times)
@@ -59,32 +61,32 @@ def remove_outliers(times)
   end
 end
 
-def ff_nju_avg_min_max(ff)
-  njus = ff.njus
+def ffn_nju_avg_min_max(ffn)
+  njus = ffn.njus
   avg = (njus.sum / njus.size).round(1)
   min, max = njus.minmax.map { it.round(1) }
   [avg, min, max]
 end
 
-def ff_nju_initial_report
-  ff = new_ff
-  nju = ff.expected_nju.round(1)
+def ffn_nju_initial_report
+  ffn = new_ffn
+  nju = ffn.expected_nju.round(1)
   puts "Expected Nju: #{nju}"
-  avg, min, max = ff_nju_avg_min_max(ff)
+  avg, min, max = ffn_nju_avg_min_max(ffn)
   puts "Initial Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
   [nju, max].max
 end
 
-def ff_nju_final_report(times, ff)
+def ffn_nju_final_report(times, ffn)
   remove_outliers(times)
   puts "Used NJU = #{NJU}"
-  avg, min, max = ff_nju_avg_min_max(ff)
+  avg, min, max = ffn_nju_avg_min_max(ffn)
   puts "Last Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
   puts "Avg best #{times.size} times: #{times.sum / times.size}"
 end
 
 puts
-nju    = ff_nju_initial_report
+nju    = ffn_nju_initial_report
 NJU    = OPTIONS.nju&.to_f || nju
 TRIALS = OPTIONS.trials&.to_i || 36
 puts "Using NJU = #{NJU}"
@@ -92,13 +94,13 @@ puts "Doing #{TRIALS} trials..."
 puts
 
 times = []
-ff = nil
+ffn = nil
 TRIALS.times do
-  ff = new_ff
-  t = benchmarking(ff, '*') { ff.pairs(PAIRS, nju: NJU) }
+  ffn = new_ffn
+  t = benchmarking(ffn, '*') { ffn.pairs(PAIRS, nju: NJU) }
   times << t
 end
 
 puts
-ff_nju_final_report(times, ff)
+ffn_nju_final_report(times, ffn)
 puts
