@@ -19,18 +19,49 @@ require 'neuronet'
 # rubocop: disable Layout, Style
 PAIRS = [
   # More than enough to prove it can do Boolean Logic...
-  # Inputs  FALSE   OR  NOR  XOR  AND NAND TRUE    A   ^A    B   ^B  A→B  B→A
-  [[-1, -1], [ -1,  -1,   1,  -1,  -1,   1,   1,  -1,   1,  -1,   1,   1,   1]],
-  [[-1,  1], [ -1,   1,  -1,   1,  -1,   1,   1,  -1,   1,   1,  -1,   1,  -1]],
-  [[ 1, -1], [ -1,   1,  -1,   1,  -1,   1,   1,   1,  -1,  -1,   1,  -1,   1]],
-  [[ 1,  1], [ -1,   1,  -1,  -1,   1,  -1,   1,   1,  -1,   1,  -1,   1,   1]],
+  # Inputs  FALSE   OR  NOR  XOR  AND NAND TRUE    A   ¬A    B   ¬B  A→B  B→A ¬A∧B A∧¬B XNOR
+  [[-1, -1], [ -1,  -1,   1,  -1,  -1,   1,   1,  -1,   1,  -1,   1,   1,   1,  -1,  -1,   1]],
+  [[-1,  1], [ -1,   1,  -1,   1,  -1,   1,   1,  -1,   1,   1,  -1,   1,  -1,   1,  -1,  -1]],
+  [[ 1, -1], [ -1,   1,  -1,   1,  -1,   1,   1,   1,  -1,  -1,   1,  -1,   1,  -1,   1,  -1]],
+  [[ 1,  1], [ -1,   1,  -1,  -1,   1,  -1,   1,   1,  -1,   1,  -1,   1,   1,  -1,  -1,   1]],
 ].freeze
 # rubocop: enable Layout, Style
+
+# Verify we have all possible combinations in PAIRS.
+# Many tests just sanity checks:
+# rubocop: disable Metrics
+def verify_pairs!
+  raise unless PAIRS.size == 4 # 2**2
+
+  inputs = PAIRS.map(&:first)
+  raise unless inputs.size == 4
+  raise unless inputs.all? { it.size == 2 }
+  raise unless inputs.uniq.size == 4 # all unique inputs
+
+  outputs = PAIRS.map(&:last)
+  raise unless outputs.size == 4
+  raise unless outputs.all? { it.size == 16 } # 2**4
+  raise unless outputs.uniq.size == 4 # all unique outputs
+
+  columns = []
+  0.upto(15) do |j|
+    column = []
+    0.upto(3) do |i|
+      column << outputs[i][j]
+    end
+    columns << column
+  end
+  raise unless columns.size == 16
+  raise unless columns.all? { it.size == 4 }
+  raise unless columns.uniq.size == 16 # all unique columns
+end
+# rubocop: enable Metrics
+verify_pairs!
 
 def benchmarking(ffn, msg)
   iterations = 0
   start = Time.now
-  while PAIRS.any? { |inp, tar| (ffn * inp).map { it.round(2) } != tar }
+  while PAIRS.any? { |inp, tar| (ffn * inp).map { it.round(1) } != tar }
     yield
     iterations += 1
   end
@@ -43,7 +74,7 @@ end
 def new_ffn
   # I don't think this is a minimal network for the problem.
   # I just want to test the deep back-propagation algorithm.
-  ffn = Neuronet::Deep.new(2, 4, 8, 13,
+  ffn = Neuronet::Deep.new(2, 4, 8, 16,
                            middle_neuron: Neuronet::NoisyMiddleNeuron)
   # These presets connects the output to the input
   # in a way that kinda makes sense to me to start:
@@ -77,12 +108,30 @@ def ffn_nju_initial_report
   [nju, max].max
 end
 
+# rubocop: disable Metrics
+def avg_stdev(times)
+  n = times.size
+  raise 'times.size must be at least 2' if n < 2
+
+  sum = 0.0
+  sum2 = 0.0
+  times.each do |time|
+    sum += time
+    sum2 += time * time
+  end
+  mean = sum / n
+  stdev = Math.sqrt((sum2 - ((sum * sum) / n)) / (n - 1))
+  [mean, stdev]
+end
+# rubocop: enable Metrics
+
 def ffn_nju_final_report(times, ffn)
   remove_outliers(times)
   puts "Used NJU = #{NJU}"
   avg, min, max = ffn_nju_avg_min_max(ffn)
   puts "Last Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
-  puts "Avg best #{times.size} times: #{times.sum / times.size}"
+  t_avg, t_stdev = avg_stdev(times).map { it.round(3) }
+  puts "Avg(best #{times.size}) times: #{t_avg} ± #{t_stdev}"
 end
 
 puts
