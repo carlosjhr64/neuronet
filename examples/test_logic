@@ -67,7 +67,9 @@ def benchmarking(ffn, msg)
   end
   elapsed = Time.now - start
   ips = iterations / elapsed
-  puts "#{msg}  Time: #{elapsed}  Iterations: #{iterations}  I/T: #{ips.round}"
+  # rubocop: disable Layout
+  puts "#{msg}  Time: #{elapsed.round(2)}  Iterations: #{iterations}  I/T: #{ips.round}"
+  # rubocop: enable Layout
   elapsed
 end
 
@@ -126,12 +128,17 @@ end
 # rubocop: enable Metrics
 
 def ffn_nju_final_report(times, ffn)
-  remove_outliers(times)
   puts "Used NJU = #{NJU}"
   avg, min, max = ffn_nju_avg_min_max(ffn)
   puts "Last Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
-  t_avg, t_stdev = avg_stdev(times).map { it.round(3) }
-  puts "Avg(best #{times.size}) times: #{t_avg} ± #{t_stdev}"
+  return if (size = times.size) < 10
+
+  remove_outliers(times)
+  t_avg, t_stdev = avg_stdev(times)
+  t_avg_stdev = t_stdev / Math.sqrt(size)
+  # rubocop: disable Layout
+  puts "Avg(best #{size}) times: #{t_avg.round(2)} ± #{t_avg_stdev.round(2)}(1σ̄)"
+  # rubocop: enable  Layout
 end
 
 puts
