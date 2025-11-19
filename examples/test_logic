@@ -131,9 +131,10 @@ def ffn_nju_final_report(times, ffn)
   puts "Used NJU = #{NJU}"
   avg, min, max = ffn_nju_avg_min_max(ffn)
   puts "Last Nju Avg(Min, Max): #{avg}(#{min}, #{max})"
-  return if (size = times.size) < 10
+  return if times.size < 10
 
   remove_outliers(times)
+  size = times.size
   t_avg, t_stdev = avg_stdev(times)
   t_avg_stdev = t_stdev / Math.sqrt(size)
   # rubocop: disable Layout
